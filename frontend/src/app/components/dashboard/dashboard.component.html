@@ -1,0 +1,24 @@
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h1>Welcome to MusicApp!</h1>
+      <p *ngIf="currentUser">Hello, <strong>{{ currentUser.username }}</strong></p>
+    </div>
+
+    <div class="alert alert-success">
+      <strong>Registration successful!</strong> Your account has been created.
+    </div>
+
+    <div class="user-info">
+      <p><strong>User ID:</strong> {{ currentUser?.userId }}</p>
+      <p><strong>Username:</strong> {{ currentUser?.username }}</p>
+      <p><strong>Token expires in:</strong> {{ currentUser?.expiresInSeconds }} seconds</p>
+    </div>
+
+    <button class="btn" (click)="logout()">Logout</button>
+
+    <div class="text-center mt-3">
+      <p style="color: #666;">More features coming soon...</p>
+    </div>
+  </div>
+</div>
