@@ -1,17 +1,28 @@
+<audio #audioEl
+  [src]="streamUrlSafe$ | async"
+  (timeupdate)="onTimeUpdate()"
+  (loadedmetadata)="onLoadedMetadata()"
+  (play)="onPlay()"
+  (pause)="onPause()"
+  (ended)="onEnded()">
+</audio>
+
 <div class="player-bar" *ngIf="currentTrack$ | async as track">
   <div class="player-info">
     <span class="player-title">{{ track.title }}</span>
     <span class="player-artist">{{ track.artistName }}</span>
-    <span class="player-duration">{{ formatDuration(track.durationSeconds) }}</span>
+    <span class="player-time">{{ formatDuration(currentTime) }} / {{ formatDuration(duration || track.durationSeconds) }}</span>
   </div>
   <div class="player-controls">
-    <button type="button" class="player-btn" (click)="onPlayPause()" title="Воспроизведение (пока заглушка)">
-      <span class="player-btn-icon">▶</span>
+    <span class="player-error" *ngIf="error$ | async as err">{{ err }}</span>
+    <button type="button" class="player-btn" (click)="onPlayPause()" [disabled]="loading$ | async" [title]="isPlaying ? 'Пауза' : 'Воспроизведение'">
+      <span class="player-btn-icon">{{ isPlaying ? '❚❚' : '▶' }}</span>
     </button>
   </div>
-  <div class="player-progress">
-    <div class="player-progress-bar" style="width: 0%"></div>
+  <div class="player-progress" (click)="onProgressClick($event)">
+    <div class="player-progress-bar" [style.width.%]="progressPercent"></div>
   </div>
+  <div class="player-loading" *ngIf="loading$ | async">Загрузка…</div>
 </div>
 
 <div class="player-bar player-bar-empty" *ngIf="!(currentTrack$ | async)">

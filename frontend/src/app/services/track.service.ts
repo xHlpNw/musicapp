@@ -25,6 +25,11 @@ export class TrackService {
     return this.http.get<TrackResponse>(`${this.API_URL}/${id}`);
   }
 
+  /** Стрим трека (с авторизацией через interceptor). Для плеера — загрузить в Blob и создать object URL. */
+  getStreamBlob(id: number): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/${id}/stream`, { responseType: 'blob' });
+  }
+
   upload(formData: FormData): Observable<TrackResponse> {
     return this.http.post<TrackResponse>(this.API_URL, formData);
   }
