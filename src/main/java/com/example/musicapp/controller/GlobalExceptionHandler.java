@@ -1,5 +1,6 @@
 package com.example.musicapp.controller;
 
+import com.example.musicapp.exception.ForbiddenException;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.exception.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,13 @@ public class GlobalExceptionHandler {
         Map<String, String> body = new HashMap<>();
         body.put("error", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Map<String, String>> handleForbidden(ForbiddenException e) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
