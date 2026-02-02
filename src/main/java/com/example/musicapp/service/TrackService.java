@@ -10,6 +10,8 @@ import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.repository.AlbumRepository;
 import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -34,6 +36,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TrackService {
 
+    private static final Logger log = LoggerFactory.getLogger(TrackService.class);
     private final TrackRepository trackRepository;
     private final ArtistService artistService;
     private final AlbumRepository albumRepository;
@@ -116,8 +119,9 @@ public class TrackService {
     public StreamResult getStreamResourceAndMimeType(Long trackId) {
         Track track = trackRepository.findById(trackId)
                 .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + trackId));
-        Path path = Paths.get(track.getFilePath());
+        Path path = resolveTrackPath(track.getFilePath());
         if (!Files.exists(path)) {
+            log.warn("Track file not found: {} (resolved to {})", track.getFilePath(), path.toAbsolutePath());
             throw new ResourceNotFoundException("Track file not found");
         }
         try {
@@ -143,6 +147,12 @@ public class TrackService {
             return artistService.findOrCreateByName(artistName.trim());
         }
         throw new IllegalArgumentException("Either artistId or artistName is required");
+    }
+
+    /** Относительный путь (например из data.sql) разрешается относительно каталога треков. */
+    private Path resolveTrackPath(String filePath) {
+        Path p = Paths.get(filePath);
+        return p.isAbsolute() ? p : tracksDir.resolve(p).normalize();
     }
 
     private Optional<String> getExtension(String filename) {
