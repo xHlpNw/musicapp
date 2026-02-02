@@ -44,7 +44,7 @@ export class LoginComponent {
     this.errorMessage = '';
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
-        this.router.navigate(['/admin']);
+        this.router.navigate(['/home']);
       },
       error: (err) => {
         this.isLoading = false;

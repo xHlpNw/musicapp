@@ -7,6 +7,7 @@ import { ArtistsListComponent } from './components/admin/artists-list/artists-li
 import { ArtistFormComponent } from './components/admin/artist-form/artist-form.component';
 import { AlbumsListComponent } from './components/admin/albums-list/albums-list.component';
 import { AlbumFormComponent } from './components/admin/album-form/album-form.component';
+import { HomeComponent } from './components/home/home.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   {
     path: 'admin',
     component: AdminLayoutComponent,

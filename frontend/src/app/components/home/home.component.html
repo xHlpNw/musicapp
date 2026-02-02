@@ -1,0 +1,49 @@
+<div class="home-page">
+  <header class="home-header">
+    <a routerLink="/home" class="home-logo">MusicApp</a>
+    <div class="home-nav">
+      <a routerLink="/admin" class="home-link">Админка</a>
+      <button type="button" class="home-btn" (click)="logout()">Выход</button>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <div class="home-content">
+      <h1 class="home-title">Треки</h1>
+
+      <div class="home-toolbar">
+        <input
+          type="text"
+          class="home-search"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Поиск по названию..."
+        />
+        <button type="button" class="home-search-btn" (click)="onSearch()">Найти</button>
+      </div>
+
+      <div *ngIf="errorMessage" class="home-error">{{ errorMessage }}</div>
+      <div *ngIf="isLoading" class="home-loading">Загрузка...</div>
+
+      <div *ngIf="!isLoading && tracks.length === 0" class="home-empty">
+        Треков пока нет.
+      </div>
+
+      <ul class="track-list" *ngIf="!isLoading && tracks.length > 0">
+        <li
+          *ngFor="let track of tracks"
+          class="track-item"
+          (click)="selectTrack(track)"
+          [class.track-item-active]="(playerService.currentTrack$ | async)?.id === track.id"
+        >
+          <span class="track-num">{{ track.trackNumber ?? '—' }}</span>
+          <span class="track-title">{{ track.title }}</span>
+          <span class="track-artist">{{ track.artistName }}</span>
+          <span class="track-duration">{{ formatDuration(track.durationSeconds) }}</span>
+        </li>
+      </ul>
+    </div>
+  </main>
+
+  <app-player></app-player>
+</div>

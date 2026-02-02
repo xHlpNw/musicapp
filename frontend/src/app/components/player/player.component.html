@@ -1,0 +1,19 @@
+<div class="player-bar" *ngIf="currentTrack$ | async as track">
+  <div class="player-info">
+    <span class="player-title">{{ track.title }}</span>
+    <span class="player-artist">{{ track.artistName }}</span>
+    <span class="player-duration">{{ formatDuration(track.durationSeconds) }}</span>
+  </div>
+  <div class="player-controls">
+    <button type="button" class="player-btn" (click)="onPlayPause()" title="Воспроизведение (пока заглушка)">
+      <span class="player-btn-icon">▶</span>
+    </button>
+  </div>
+  <div class="player-progress">
+    <div class="player-progress-bar" style="width: 0%"></div>
+  </div>
+</div>
+
+<div class="player-bar player-bar-empty" *ngIf="!(currentTrack$ | async)">
+  <span class="player-empty-text">Выберите трек из списка</span>
+</div>
