@@ -18,7 +18,7 @@ import java.util.Set;
 
 /**
  * При старте приложения копирует аудиофайлы из classpath:initial-tracks/ в storage/tracks/,
- * если таких файлов там ещё нет. Это позволяет подставлять в data.sql имена файлов (sample1.mp3 и т.д.),
+ * если таких файлов там ещё нет. Это позволяет подставлять в data.sql имена файлов,
  * положить реальные файлы в src/main/resources/initial-tracks/ — и они появятся в storage при первом запуске.
  */
 @Component
