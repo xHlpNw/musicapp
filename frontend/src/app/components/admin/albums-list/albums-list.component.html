@@ -1,0 +1,60 @@
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h1>Альбомы</h1>
+    <a routerLink="/admin/albums/new" class="btn btn-primary">Добавить альбом</a>
+  </div>
+
+  <div class="admin-toolbar">
+    <input
+      type="text"
+      class="admin-search"
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()"
+      placeholder="Поиск по названию..."
+    />
+    <button type="button" class="btn btn-secondary" (click)="onSearch()">Найти</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="admin-loading">
+    Загрузка...
+  </div>
+
+  <div *ngIf="!isLoading && albums.length === 0" class="admin-empty">
+    Альбомов пока нет. <a routerLink="/admin/albums/new" class="link">Добавить первый</a>
+  </div>
+
+  <table *ngIf="!isLoading && albums.length > 0" class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Год</th>
+        <th>Исполнитель</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of albums">
+        <td>{{ a.id }}</td>
+        <td>{{ a.title }}</td>
+        <td>{{ a.releaseYear ?? '—' }}</td>
+        <td>{{ a.artistName }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && totalPages > 1" class="admin-pagination">
+    <button type="button" class="btn btn-small" [disabled]="currentPage === 0" (click)="prevPage()">
+      Назад
+    </button>
+    <span class="admin-pagination-info">
+      Страница {{ currentPage + 1 }} из {{ totalPages }} (всего {{ totalElements }})
+    </span>
+    <button type="button" class="btn btn-small" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">
+      Вперёд
+    </button>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h1>Добавить исполнителя</h1>
+    <a routerLink="/admin/artists" class="btn btn-secondary">Назад к списку</a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Имя *</label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        [class.error]="name?.invalid && name?.touched"
+        placeholder="Название исполнителя"
+      />
+      <span class="error-message" *ngIf="name?.invalid && name?.touched">
+        <span *ngIf="name?.errors?.['required']">Обязательное поле</span>
+        <span *ngIf="name?.errors?.['maxlength']">Не более 255 символов</span>
+      </span>
+    </div>
+    <div class="form-group">
+      <label for="description">Описание</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="3"
+        placeholder="Краткое описание"
+      ></textarea>
+    </div>
+    <div class="form-group">
+      <label for="coverImagePath">Путь к обложке</label>
+      <input
+        type="text"
+        id="coverImagePath"
+        formControlName="coverImagePath"
+        placeholder="Опционально"
+      />
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Сохранение...' : 'Создать' }}
+      </button>
+      <a routerLink="/admin/artists" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>

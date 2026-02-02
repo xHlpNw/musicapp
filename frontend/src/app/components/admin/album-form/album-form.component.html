@@ -1,0 +1,68 @@
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h1>Добавить альбом</h1>
+    <a routerLink="/admin/albums" class="btn btn-secondary">Назад к списку</a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="artistId">Исполнитель *</label>
+      <select
+        id="artistId"
+        formControlName="artistId"
+        [class.error]="artistId?.invalid && artistId?.touched"
+      >
+        <option [ngValue]="null" disabled>Выберите исполнителя</option>
+        <option *ngFor="let a of artists" [ngValue]="a.id">{{ a.name }}</option>
+      </select>
+      <span *ngIf="isLoadingArtists" class="hint">Загрузка списка...</span>
+      <span class="error-message" *ngIf="artistId?.invalid && artistId?.touched">
+        Выберите исполнителя
+      </span>
+    </div>
+    <div class="form-group">
+      <label for="title">Название альбома *</label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        [class.error]="title?.invalid && title?.touched"
+        placeholder="Название альбома"
+      />
+      <span class="error-message" *ngIf="title?.invalid && title?.touched">
+        <span *ngIf="title?.errors?.['required']">Обязательное поле</span>
+        <span *ngIf="title?.errors?.['maxlength']">Не более 255 символов</span>
+      </span>
+    </div>
+    <div class="form-group">
+      <label for="releaseYear">Год выпуска</label>
+      <input
+        type="number"
+        id="releaseYear"
+        formControlName="releaseYear"
+        min="1900"
+        max="2100"
+        placeholder="Например, 2024"
+      />
+    </div>
+    <div class="form-group">
+      <label for="coverImagePath">Путь к обложке</label>
+      <input
+        type="text"
+        id="coverImagePath"
+        formControlName="coverImagePath"
+        placeholder="Опционально"
+      />
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading || isLoadingArtists || artists.length === 0">
+        {{ isLoading ? 'Сохранение...' : 'Создать' }}
+      </button>
+      <a routerLink="/admin/albums" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>

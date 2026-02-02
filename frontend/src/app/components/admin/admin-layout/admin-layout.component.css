@@ -1,0 +1,62 @@
+.admin-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.admin-nav {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.admin-nav-brand {
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+.admin-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.admin-nav-links a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.admin-nav-links a:hover,
+.admin-nav-links a.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.admin-nav-logout {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.admin-nav-logout:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.admin-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}

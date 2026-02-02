@@ -1,0 +1,18 @@
+<div class="admin-page">
+  <nav class="admin-nav">
+    <a routerLink="/dashboard" class="admin-nav-brand">MusicApp</a>
+    <div class="admin-nav-links">
+      <a routerLink="/admin/artists" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+        Исполнители
+      </a>
+      <a routerLink="/admin/albums" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+        Альбомы
+      </a>
+      <button type="button" class="admin-nav-logout" (click)="logout()">Выход</button>
+    </div>
+  </nav>
+
+  <main class="admin-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
