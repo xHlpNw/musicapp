@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -80,19 +80,8 @@ public class TrackService {
             }
         }
 
-        Track track = Track.builder()
-                .title(request.getTitle())
-                .durationSeconds(request.getDurationSeconds())
-                .artist(artist)
-                .album(album)
-                .trackNumber(request.getTrackNumber())
-                .uploadedBy(currentUser)
-                .createdAt(Instant.now())
-                .build();
-        track = trackRepository.save(track);
-
         String ext = getExtension(file.getOriginalFilename()).orElse("bin");
-        String fileName = track.getId() + "." + ext;
+        String fileName = UUID.randomUUID() + "." + ext;
         Path targetFile = tracksDir.resolve(fileName);
         try {
             Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
@@ -100,8 +89,19 @@ public class TrackService {
             throw new RuntimeException("Failed to save file", e);
         }
         String mimeType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
-        track.setFilePath(targetFile.toString());
-        track.setMimeType(mimeType);
+        String filePath = targetFile.toAbsolutePath().toString();
+
+        Track track = Track.builder()
+                .title(request.getTitle())
+                .durationSeconds(request.getDurationSeconds())
+                .artist(artist)
+                .album(album)
+                .trackNumber(request.getTrackNumber())
+                .uploadedBy(currentUser)
+                .filePath(filePath)
+                .mimeType(mimeType)
+                .createdAt(Instant.now())
+                .build();
         track = trackRepository.save(track);
 
         return toResponse(track);

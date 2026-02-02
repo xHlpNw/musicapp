@@ -24,4 +24,8 @@ export class TrackService {
   getById(id: number): Observable<TrackResponse> {
     return this.http.get<TrackResponse>(`${this.API_URL}/${id}`);
   }
+
+  upload(formData: FormData): Observable<TrackResponse> {
+    return this.http.post<TrackResponse>(this.API_URL, formData);
+  }
 }

@@ -1,0 +1,91 @@
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h1>Загрузить трек</h1>
+    <a routerLink="/admin/tracks" class="btn btn-secondary">Назад к списку</a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="file">Аудиофайл *</label>
+      <input
+        type="file"
+        id="file"
+        #fileInput
+        accept="audio/*"
+        (change)="onFileSelected($event)"
+      />
+      <span class="hint" *ngIf="selectedFile">{{ selectedFile.name }}</span>
+    </div>
+
+    <div class="form-group">
+      <label for="title">Название трека *</label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        [class.error]="title?.invalid && title?.touched"
+        placeholder="Название"
+      />
+      <span class="error-message" *ngIf="title?.invalid && title?.touched">
+        Обязательное поле, не более 255 символов
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="artistId">Исполнитель</label>
+      <select id="artistId" formControlName="artistId" (change)="onArtistChange()">
+        <option [ngValue]="null">— Выберите или введите имя ниже —</option>
+        <option *ngFor="let a of artists" [ngValue]="a.id">{{ a.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="artistName">Или имя нового исполнителя</label>
+      <input
+        type="text"
+        id="artistName"
+        formControlName="artistName"
+        placeholder="Если не выбрали из списка"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="albumId">Альбом</label>
+      <select id="albumId" formControlName="albumId">
+        <option [ngValue]="null">— Не указан —</option>
+        <option *ngFor="let a of albums" [ngValue]="a.id">{{ a.title }}</option>
+      </select>
+      <span *ngIf="isLoadingArtists" class="hint">Загрузка исполнителей...</span>
+    </div>
+
+    <div class="form-group">
+      <label for="trackNumber">Номер в альбоме</label>
+      <input type="number" id="trackNumber" formControlName="trackNumber" min="1" placeholder="Опционально" />
+    </div>
+
+    <div class="form-group">
+      <label for="durationSeconds">Длительность (секунды) *</label>
+      <input
+        type="number"
+        id="durationSeconds"
+        formControlName="durationSeconds"
+        [class.error]="durationSeconds?.invalid && durationSeconds?.touched"
+        min="1"
+        placeholder="Например, 180"
+      />
+      <span class="hint">Укажите длительность трека в секундах (можно посмотреть в плеере или в свойствах файла).</span>
+      <span class="error-message" *ngIf="durationSeconds?.invalid && durationSeconds?.touched">
+        Обязательное поле, целое число &gt; 0
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Загрузка...' : 'Загрузить' }}
+      </button>
+      <a routerLink="/admin/tracks" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>
