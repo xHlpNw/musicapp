@@ -66,7 +66,7 @@ public class ArtistService {
                 });
     }
 
-    private ArtistResponse toResponse(Artist artist) {
+    public ArtistResponse toResponse(Artist artist) {
         return ArtistResponse.builder()
                 .id(artist.getId())
                 .name(artist.getName())

@@ -74,6 +74,7 @@ public class RoomService {
 
     @Transactional
     public void join(Long roomId, User currentUser) {
+        roomMemberRepository.findByUser(currentUser).ifPresent(m -> leave(m.getRoom().getId(), currentUser));
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
         if (roomMemberRepository.existsByRoomAndUser(room, currentUser)) {

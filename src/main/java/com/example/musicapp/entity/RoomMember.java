@@ -7,7 +7,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "room_members", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"room_id", "user_id"})
+    @UniqueConstraint(columnNames = {"user_id"})
 })
 @Getter
 @Setter
@@ -27,7 +27,7 @@ public class RoomMember {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 }

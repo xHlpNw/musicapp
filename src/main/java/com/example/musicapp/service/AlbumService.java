@@ -72,7 +72,7 @@ public class AlbumService {
                 .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + id));
     }
 
-    private AlbumSummaryResponse toSummaryResponse(Album album) {
+    public AlbumSummaryResponse toSummaryResponse(Album album) {
         return AlbumSummaryResponse.builder()
                 .id(album.getId())
                 .title(album.getTitle())

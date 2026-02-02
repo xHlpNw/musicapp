@@ -156,7 +156,7 @@ public class PlaylistService {
                 .collect(Collectors.toList());
     }
 
-    private PlaylistResponse toResponse(Playlist playlist) {
+    public PlaylistResponse toResponse(Playlist playlist) {
         int count = playlistTrackRepository.countByPlaylist(playlist);
         return PlaylistResponse.builder()
                 .id(playlist.getId())

@@ -160,7 +160,7 @@ public class TrackService {
         return Optional.of(filename.substring(filename.lastIndexOf('.') + 1));
     }
 
-    private TrackResponse toResponse(Track track) {
+    public TrackResponse toResponse(Track track) {
         return TrackResponse.builder()
                 .id(track.getId())
                 .title(track.getTitle())
