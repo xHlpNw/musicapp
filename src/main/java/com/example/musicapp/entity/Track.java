@@ -34,23 +34,22 @@ public class Track {
     @Column(name = "mime_type", nullable = false)
     private String mimeType;
 
-    @Column(name = "track_number")
-    private Integer trackNumber;
-
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "artist_id", nullable = false)
-    private Artist artist;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "album_id")
-    private Album album;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "uploaded_by_id", nullable = false)
     private User uploadedBy;
+
+    @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
+    @Builder.Default
+    private List<AlbumTrack> albumTracks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    @Builder.Default
+    private List<TrackArtist> artists = new ArrayList<>();
 
     @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

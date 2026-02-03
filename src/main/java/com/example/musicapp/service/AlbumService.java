@@ -187,12 +187,12 @@ public class AlbumService {
                 .coverImagePath(album.getCoverImagePath())
                 .artists(artistItems)
                 .genreIds(genreIds)
-                .tracks(album.getTracks().stream()
-                        .map(t -> new AlbumResponse.TrackSummary(
-                                t.getId(),
-                                t.getTitle(),
-                                t.getDurationSeconds(),
-                                t.getTrackNumber()))
+                .tracks(album.getAlbumTracks().stream()
+                        .map(at -> new AlbumResponse.TrackSummary(
+                                at.getTrack().getId(),
+                                at.getTrack().getTitle(),
+                                at.getTrack().getDurationSeconds(),
+                                at.getPosition()))
                         .collect(Collectors.toList()))
                 .build();
     }

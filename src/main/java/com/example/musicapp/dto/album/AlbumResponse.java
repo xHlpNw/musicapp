@@ -30,6 +30,6 @@ public class AlbumResponse {
         private Long id;
         private String title;
         private Integer durationSeconds;
-        private Integer trackNumber;
+        private Integer position;
     }
 }

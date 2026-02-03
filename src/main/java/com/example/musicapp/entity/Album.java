@@ -41,9 +41,9 @@ public class Album {
     private List<AlbumArtist> artists = new ArrayList<>();
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("trackNumber ASC")
+    @OrderBy("position ASC")
     @Builder.Default
-    private List<Track> tracks = new ArrayList<>();
+    private List<AlbumTrack> albumTracks = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "album_genres",

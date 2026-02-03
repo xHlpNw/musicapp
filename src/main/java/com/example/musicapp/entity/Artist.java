@@ -40,7 +40,7 @@ public class Artist {
 
     @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL)
     @Builder.Default
-    private List<Track> tracks = new ArrayList<>();
+    private List<TrackArtist> trackParticipations = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "artist_genres",

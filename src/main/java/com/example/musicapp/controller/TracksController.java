@@ -1,7 +1,9 @@
 package com.example.musicapp.controller;
 
 import com.example.musicapp.dto.track.CreateTrackRequest;
+import com.example.musicapp.dto.track.TrackParticipantRequest;
 import com.example.musicapp.dto.track.TrackResponse;
+import com.example.musicapp.entity.AlbumArtistRole;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.security.SecurityUser;
 import com.example.musicapp.service.TrackService;
@@ -20,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,19 +52,25 @@ public class TracksController {
     public ResponseEntity<TrackResponse> upload(
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title,
-            @RequestParam(value = "artistId", required = false) Long artistId,
-            @RequestParam(value = "artistName", required = false) String artistName,
-            @RequestParam(value = "albumId", required = false) Long albumId,
-            @RequestParam(value = "trackNumber", required = false) Integer trackNumber,
+            @RequestParam("albumId") Long albumId,
+            @RequestParam("position") Integer position,
+            @RequestParam("artistIds") List<Long> artistIds,
             @RequestParam("durationSeconds") Integer durationSeconds,
             @AuthenticationPrincipal SecurityUser securityUser) {
         User user = securityUser.getUser();
+        List<TrackParticipantRequest> artists = new ArrayList<>();
+        for (int i = 0; i < artistIds.size(); i++) {
+            artists.add(TrackParticipantRequest.builder()
+                    .artistId(artistIds.get(i))
+                    .displayOrder(i)
+                    .role(i == 0 ? AlbumArtistRole.PRIMARY : AlbumArtistRole.FEATURED)
+                    .build());
+        }
         CreateTrackRequest request = CreateTrackRequest.builder()
                 .title(title)
-                .artistId(artistId)
-                .artistName(artistName)
                 .albumId(albumId)
-                .trackNumber(trackNumber)
+                .position(position)
+                .artists(artists)
                 .durationSeconds(durationSeconds)
                 .build();
         TrackResponse response = trackService.upload(file, request, user);

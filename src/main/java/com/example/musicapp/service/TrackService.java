@@ -1,15 +1,22 @@
 package com.example.musicapp.service;
 
+import com.example.musicapp.dto.track.AlbumTrackItem;
 import com.example.musicapp.dto.track.CreateTrackRequest;
+import com.example.musicapp.dto.track.TrackArtistItem;
 import com.example.musicapp.dto.track.TrackResponse;
 import com.example.musicapp.entity.Album;
+import com.example.musicapp.entity.AlbumTrack;
+import com.example.musicapp.entity.AlbumArtistRole;
 import com.example.musicapp.entity.Artist;
 import com.example.musicapp.entity.Genre;
 import com.example.musicapp.entity.Track;
+import com.example.musicapp.entity.TrackArtist;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.repository.AlbumRepository;
+import com.example.musicapp.repository.AlbumTrackRepository;
 import com.example.musicapp.repository.GenreRepository;
+import com.example.musicapp.repository.TrackArtistRepository;
 import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -31,6 +38,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -44,6 +53,8 @@ public class TrackService {
     private final TrackRepository trackRepository;
     private final ArtistService artistService;
     private final AlbumRepository albumRepository;
+    private final AlbumTrackRepository albumTrackRepository;
+    private final TrackArtistRepository trackArtistRepository;
     private final GenreRepository genreRepository;
 
     @Value("${app.storage.path:./storage}")
@@ -78,17 +89,9 @@ public class TrackService {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is required");
         }
-        Artist artist = resolveArtist(request.getArtistId(), request.getArtistName());
-        Album album = null;
-        if (request.getAlbumId() != null) {
-            album = albumRepository.findById(request.getAlbumId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + request.getAlbumId()));
-            boolean artistParticipates = album.getArtists().stream()
-                    .anyMatch(aa -> aa.getArtist().getId().equals(artist.getId()));
-            if (!artistParticipates) {
-                throw new IllegalArgumentException("Album does not include the selected artist");
-            }
-        }
+        validateAtLeastOnePrimary(request.getArtists());
+        Album album = albumRepository.findById(request.getAlbumId())
+                .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + request.getAlbumId()));
 
         String ext = getExtension(file.getOriginalFilename()).orElse("bin");
         String fileName = UUID.randomUUID() + "." + ext;
@@ -104,15 +107,36 @@ public class TrackService {
         Track track = Track.builder()
                 .title(request.getTitle())
                 .durationSeconds(request.getDurationSeconds())
-                .artist(artist)
-                .album(album)
-                .trackNumber(request.getTrackNumber())
                 .uploadedBy(currentUser)
                 .filePath(filePath)
                 .mimeType(mimeType)
                 .createdAt(Instant.now())
+                .albumTracks(new ArrayList<>())
+                .artists(new ArrayList<>())
+                .genres(new java.util.LinkedHashSet<>())
                 .build();
         track = trackRepository.save(track);
+
+        AlbumTrack at = AlbumTrack.builder()
+                .album(album)
+                .track(track)
+                .position(request.getPosition())
+                .build();
+        albumTrackRepository.save(at);
+        track.getAlbumTracks().add(at);
+
+        for (var pr : request.getArtists()) {
+            Artist artist = artistService.findEntityById(pr.getArtistId());
+            TrackArtist ta = TrackArtist.builder()
+                    .track(track)
+                    .artist(artist)
+                    .displayOrder(pr.getDisplayOrder())
+                    .role(pr.getRole())
+                    .build();
+            trackArtistRepository.save(ta);
+            track.getArtists().add(ta);
+        }
+
         if (request.getGenreIds() != null && !request.getGenreIds().isEmpty()) {
             for (Long genreId : request.getGenreIds()) {
                 Genre genre = genreRepository.findById(genreId)
@@ -122,6 +146,14 @@ public class TrackService {
             track = trackRepository.save(track);
         }
         return toResponse(track);
+    }
+
+    private void validateAtLeastOnePrimary(List<com.example.musicapp.dto.track.TrackParticipantRequest> artists) {
+        boolean hasPrimary = artists.stream()
+                .anyMatch(p -> p.getRole() == AlbumArtistRole.PRIMARY);
+        if (!hasPrimary) {
+            throw new IllegalArgumentException("At least one artist must have role PRIMARY");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -153,16 +185,6 @@ public class TrackService {
                 .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + id));
     }
 
-    private Artist resolveArtist(Long artistId, String artistName) {
-        if (artistId != null) {
-            return artistService.findEntityById(artistId);
-        }
-        if (artistName != null && !artistName.isBlank()) {
-            return artistService.findOrCreateByName(artistName.trim());
-        }
-        throw new IllegalArgumentException("Either artistId or artistName is required");
-    }
-
     /** Относительный путь (например из data.sql) разрешается относительно каталога треков. */
     private Path resolveTrackPath(String filePath) {
         Path p = Paths.get(filePath);
@@ -175,6 +197,21 @@ public class TrackService {
     }
 
     public TrackResponse toResponse(Track track) {
+        List<TrackArtistItem> artistItems = track.getArtists().stream()
+                .map(ta -> TrackArtistItem.builder()
+                        .artistId(ta.getArtist().getId())
+                        .artistName(ta.getArtist().getName())
+                        .displayOrder(ta.getDisplayOrder())
+                        .role(ta.getRole())
+                        .build())
+                .collect(Collectors.toList());
+        List<AlbumTrackItem> albumTrackItems = track.getAlbumTracks().stream()
+                .map(at -> AlbumTrackItem.builder()
+                        .albumId(at.getAlbum().getId())
+                        .albumTitle(at.getAlbum().getTitle())
+                        .position(at.getPosition())
+                        .build())
+                .collect(Collectors.toList());
         Set<Long> genreIds = track.getGenres().stream()
                 .map(Genre::getId)
                 .collect(Collectors.toSet());
@@ -183,11 +220,8 @@ public class TrackService {
                 .title(track.getTitle())
                 .durationSeconds(track.getDurationSeconds())
                 .mimeType(track.getMimeType())
-                .trackNumber(track.getTrackNumber())
-                .artistId(track.getArtist().getId())
-                .artistName(track.getArtist().getName())
-                .albumId(track.getAlbum() != null ? track.getAlbum().getId() : null)
-                .albumTitle(track.getAlbum() != null ? track.getAlbum().getTitle() : null)
+                .artists(artistItems)
+                .albumTracks(albumTrackItems)
                 .genreIds(genreIds)
                 .build();
     }
