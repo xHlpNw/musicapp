@@ -1,4 +1,4 @@
-/* Контейнер: скруглённый, без обводки */
+/* Контейнер: зернистое стекло (размытие + полупрозрачность + шум) */
 .player {
   position: fixed;
   bottom: 24px;
@@ -7,7 +7,9 @@
   width: calc(100% - 32px);
   max-width: 900px;
   min-height: 60px;
-  background: #15171A;
+  background: rgba(21, 23, 26, 0.75);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border-radius: 24px;
   border: none;
   outline: none;
@@ -18,6 +20,28 @@
   gap: 20px;
   z-index: 1000;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* Зернистое стекло: пропорции текстуры как у плеера (широкий прямоугольник) — без растяжения */
+.player::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* SVG 600x40 — те же пропорции, что и плеер (~15:1); baseFrequency выше = мельче зерно; slope выше = выразительнее */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='40'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.38' numOctaves='4' result='n'/%3E%3CfeComponentTransfer in='n' result='na'%3E%3CfeFuncA type='linear' slope='0.08' intercept='0.01'/%3E%3C/feComponentTransfer%3E%3CfeComposite in='SourceGraphic' in2='na' operator='in' result='out'/%3E%3C/filter%3E%3Crect width='600' height='40' fill='%23fff' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: 50% 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.player > * {
+  position: relative;
+  z-index: 1;
 }
 
 .player--empty {
