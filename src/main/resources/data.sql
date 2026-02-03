@@ -16,14 +16,24 @@ VALUES
     ('Слава КПСС', 'a.k.a. mc птичий пепел', CURRENT_TIMESTAMP),
     ('twenty one pilots', 'Ohio`s duo', CURRENT_TIMESTAMP);
 
+-- Жанры (опционально)
+INSERT INTO genres (name) VALUES ('Hip-Hop'), ('Rock'), ('Pop') ON CONFLICT (name) DO NOTHING;
 
--- Альбомы (привязка к исполнителям по имени)
-INSERT INTO albums (title, release_year, artist_id, created_at)
-SELECT 'Пески времени', 2025, id, CURRENT_TIMESTAMP FROM artists WHERE name = 'Слава КПСС' LIMIT 1;
-INSERT INTO albums (title, release_year, artist_id, created_at)
-SELECT 'Чудовище погубившее мир', 2020, id, CURRENT_TIMESTAMP FROM artists WHERE name = 'Слава КПСС' LIMIT 1;
-INSERT INTO albums (title, release_year, artist_id, created_at)
-SELECT 'Vessel', 2013, id, CURRENT_TIMESTAMP FROM artists WHERE name = 'twenty one pilots' LIMIT 1;
+-- Альбомы (release_date — полная дата, без artist_id)
+INSERT INTO albums (title, release_date, created_at)
+VALUES ('Пески времени', '2025-01-01', CURRENT_TIMESTAMP);
+INSERT INTO albums (title, release_date, created_at)
+VALUES ('Чудовище погубившее мир', '2020-01-01', CURRENT_TIMESTAMP);
+INSERT INTO albums (title, release_date, created_at)
+VALUES ('Vessel', '2013-01-01', CURRENT_TIMESTAMP);
+
+-- Участники альбомов (album_artists: альбом — артист, порядок, роль PRIMARY)
+INSERT INTO album_artists (display_order, role, album_id, artist_id)
+SELECT 0, 'PRIMARY', al.id, a.id FROM albums al, artists a WHERE al.title = 'Пески времени' AND a.name = 'Слава КПСС' LIMIT 1;
+INSERT INTO album_artists (display_order, role, album_id, artist_id)
+SELECT 0, 'PRIMARY', al.id, a.id FROM albums al, artists a WHERE al.title = 'Чудовище погубившее мир' AND a.name = 'Слава КПСС' LIMIT 1;
+INSERT INTO album_artists (display_order, role, album_id, artist_id)
+SELECT 0, 'PRIMARY', al.id, a.id FROM albums al, artists a WHERE al.title = 'Vessel' AND a.name = 'twenty one pilots' LIMIT 1;
 
 -- Треки: file_path — имя файла в каталоге storage/tracks (или относительный путь).
 INSERT INTO tracks (title, duration_seconds, file_path, mime_type, track_number, artist_id, album_id, uploaded_by_id, created_at)

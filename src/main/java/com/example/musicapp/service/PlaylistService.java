@@ -29,6 +29,7 @@ public class PlaylistService {
     private final PlaylistRepository playlistRepository;
     private final PlaylistTrackRepository playlistTrackRepository;
     private final TrackRepository trackRepository;
+    private final TrackService trackService;
 
     @Transactional(readOnly = true)
     public Page<PlaylistResponse> findByOwner(User owner, Pageable pageable) {
@@ -152,7 +153,7 @@ public class PlaylistService {
             throw new ForbiddenException("Not the owner of this playlist");
         }
         return playlistTrackRepository.findByPlaylistOrderByPositionAsc(playlist).stream()
-                .map(pt -> trackToResponse(pt.getTrack()))
+                .map(pt -> trackService.toResponse(pt.getTrack()))
                 .collect(Collectors.toList());
     }
 
@@ -171,7 +172,7 @@ public class PlaylistService {
 
     private PlaylistResponse toDetailResponse(Playlist playlist) {
         List<TrackResponse> tracks = playlistTrackRepository.findByPlaylistOrderByPositionAsc(playlist).stream()
-                .map(pt -> trackToResponse(pt.getTrack()))
+                .map(pt -> trackService.toResponse(pt.getTrack()))
                 .collect(Collectors.toList());
         return PlaylistResponse.builder()
                 .id(playlist.getId())
@@ -184,17 +185,4 @@ public class PlaylistService {
                 .build();
     }
 
-    private TrackResponse trackToResponse(Track track) {
-        return TrackResponse.builder()
-                .id(track.getId())
-                .title(track.getTitle())
-                .durationSeconds(track.getDurationSeconds())
-                .mimeType(track.getMimeType())
-                .trackNumber(track.getTrackNumber())
-                .artistId(track.getArtist().getId())
-                .artistName(track.getArtist().getName())
-                .albumId(track.getAlbum() != null ? track.getAlbum().getId() : null)
-                .albumTitle(track.getAlbum() != null ? track.getAlbum().getTitle() : null)
-                .build();
-    }
 }

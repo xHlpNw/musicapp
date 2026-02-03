@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -15,10 +17,10 @@ public class AlbumResponse {
 
     private Long id;
     private String title;
-    private Integer releaseYear;
+    private LocalDate releaseDate;
     private String coverImagePath;
-    private Long artistId;
-    private String artistName;
+    private List<AlbumArtistItem> artists;
+    private Set<Long> genreIds;
     private List<TrackSummary> tracks;
 
     @Data

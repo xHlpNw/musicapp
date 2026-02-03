@@ -4,10 +4,12 @@ import com.example.musicapp.dto.track.CreateTrackRequest;
 import com.example.musicapp.dto.track.TrackResponse;
 import com.example.musicapp.entity.Album;
 import com.example.musicapp.entity.Artist;
+import com.example.musicapp.entity.Genre;
 import com.example.musicapp.entity.Track;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.repository.AlbumRepository;
+import com.example.musicapp.repository.GenreRepository;
 import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -30,7 +32,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,7 @@ public class TrackService {
     private final TrackRepository trackRepository;
     private final ArtistService artistService;
     private final AlbumRepository albumRepository;
+    private final GenreRepository genreRepository;
 
     @Value("${app.storage.path:./storage}")
     private String storagePath;
@@ -78,8 +83,10 @@ public class TrackService {
         if (request.getAlbumId() != null) {
             album = albumRepository.findById(request.getAlbumId())
                     .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + request.getAlbumId()));
-            if (!album.getArtist().getId().equals(artist.getId())) {
-                throw new IllegalArgumentException("Album does not belong to the selected artist");
+            boolean artistParticipates = album.getArtists().stream()
+                    .anyMatch(aa -> aa.getArtist().getId().equals(artist.getId()));
+            if (!artistParticipates) {
+                throw new IllegalArgumentException("Album does not include the selected artist");
             }
         }
 
@@ -106,7 +113,14 @@ public class TrackService {
                 .createdAt(Instant.now())
                 .build();
         track = trackRepository.save(track);
-
+        if (request.getGenreIds() != null && !request.getGenreIds().isEmpty()) {
+            for (Long genreId : request.getGenreIds()) {
+                Genre genre = genreRepository.findById(genreId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Genre not found: " + genreId));
+                track.getGenres().add(genre);
+            }
+            track = trackRepository.save(track);
+        }
         return toResponse(track);
     }
 
@@ -161,6 +175,9 @@ public class TrackService {
     }
 
     public TrackResponse toResponse(Track track) {
+        Set<Long> genreIds = track.getGenres().stream()
+                .map(Genre::getId)
+                .collect(Collectors.toSet());
         return TrackResponse.builder()
                 .id(track.getId())
                 .title(track.getTitle())
@@ -171,6 +188,7 @@ public class TrackService {
                 .artistName(track.getArtist().getName())
                 .albumId(track.getAlbum() != null ? track.getAlbum().getId() : null)
                 .albumTitle(track.getAlbum() != null ? track.getAlbum().getTitle() : null)
+                .genreIds(genreIds)
                 .build();
     }
 }

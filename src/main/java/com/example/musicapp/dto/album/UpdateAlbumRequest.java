@@ -1,5 +1,8 @@
 package com.example.musicapp.dto.album;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +16,18 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AlbumSummaryResponse {
+public class UpdateAlbumRequest {
 
-    private Long id;
+    @Size(max = 255)
     private String title;
+
     private LocalDate releaseDate;
+
+    @Size(max = 500)
     private String coverImagePath;
-    private List<AlbumArtistItem> artists;
+
+    @Valid
+    private List<AlbumParticipantRequest> artists;
+
     private Set<Long> genreIds;
 }

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,4 +30,6 @@ public class CreateTrackRequest {
 
     @NotNull(message = "Duration in seconds is required")
     private Integer durationSeconds;
+
+    private Set<Long> genreIds;
 }

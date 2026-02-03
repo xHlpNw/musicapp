@@ -1,4 +1,4 @@
-package com.example.musicapp.dto.artist;
+package com.example.musicapp.dto.genre;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -7,23 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateArtistRequest {
+public class UpdateGenreRequest {
 
     @NotBlank(message = "Name is required")
     @Size(max = 255)
     private String name;
-
-    @Size(max = 2000)
-    private String description;
-
-    @Size(max = 500)
-    private String coverImagePath;
-
-    private Set<Long> genreIds;
 }

@@ -5,7 +5,9 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tracks")
@@ -53,4 +55,12 @@ public class Track {
     @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PlaylistTrack> playlistTracks = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "track_genres",
+            joinColumns = @JoinColumn(name = "track_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"track_id", "genre_id"}))
+    @Builder.Default
+    private Set<Genre> genres = new LinkedHashSet<>();
 }

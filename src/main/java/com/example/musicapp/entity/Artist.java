@@ -5,7 +5,9 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "artists")
@@ -34,9 +36,17 @@ public class Artist {
 
     @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Album> albums = new ArrayList<>();
+    private List<AlbumArtist> albumParticipations = new ArrayList<>();
 
     @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Track> tracks = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "artist_genres",
+            joinColumns = @JoinColumn(name = "artist_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"artist_id", "genre_id"}))
+    @Builder.Default
+    private Set<Genre> genres = new LinkedHashSet<>();
 }

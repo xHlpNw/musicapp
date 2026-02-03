@@ -3,15 +3,23 @@ package com.example.musicapp.service;
 import com.example.musicapp.dto.artist.ArtistResponse;
 import com.example.musicapp.dto.artist.CreateArtistRequest;
 import com.example.musicapp.entity.Artist;
+import com.example.musicapp.entity.Genre;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.repository.ArtistRepository;
+import com.example.musicapp.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.musicapp.entity.Album;
+
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +27,7 @@ import java.util.stream.Collectors;
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
+    private final GenreRepository genreRepository;
 
     @Transactional(readOnly = true)
     public Page<ArtistResponse> findAll(String q, Pageable pageable) {
@@ -45,6 +54,14 @@ public class ArtistService {
                 .createdAt(Instant.now())
                 .build();
         artist = artistRepository.save(artist);
+        if (request.getGenreIds() != null && !request.getGenreIds().isEmpty()) {
+            for (Long genreId : request.getGenreIds()) {
+                Genre genre = genreRepository.findById(genreId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Genre not found: " + genreId));
+                artist.getGenres().add(genre);
+            }
+            artist = artistRepository.save(artist);
+        }
         return toResponse(artist);
     }
 
@@ -67,27 +84,40 @@ public class ArtistService {
     }
 
     public ArtistResponse toResponse(Artist artist) {
+        Set<Long> genreIds = artist.getGenres().stream()
+                .map(Genre::getId)
+                .collect(Collectors.toSet());
         return ArtistResponse.builder()
                 .id(artist.getId())
                 .name(artist.getName())
                 .description(artist.getDescription())
                 .coverImagePath(artist.getCoverImagePath())
                 .albums(null)
+                .genreIds(genreIds)
                 .build();
     }
 
     private ArtistResponse toDetailResponse(Artist artist) {
+        Set<Long> genreIds = artist.getGenres().stream()
+                .map(Genre::getId)
+                .collect(Collectors.toSet());
+        Set<Long> seenAlbumIds = new HashSet<>();
+        List<ArtistResponse.AlbumSummary> albumSummaries = artist.getAlbumParticipations().stream()
+                .map(ap -> ap.getAlbum())
+                .filter(a -> seenAlbumIds.add(a.getId()))
+                .sorted(Comparator.comparing(Album::getReleaseDate).reversed())
+                .map(a -> new ArtistResponse.AlbumSummary(
+                        a.getId(),
+                        a.getTitle(),
+                        a.getReleaseDate()))
+                .collect(Collectors.toList());
         return ArtistResponse.builder()
                 .id(artist.getId())
                 .name(artist.getName())
                 .description(artist.getDescription())
                 .coverImagePath(artist.getCoverImagePath())
-                .albums(artist.getAlbums().stream()
-                        .map(a -> new ArtistResponse.AlbumSummary(
-                                a.getId(),
-                                a.getTitle(),
-                                a.getReleaseYear()))
-                        .collect(Collectors.toList()))
+                .albums(albumSummaries)
+                .genreIds(genreIds)
                 .build();
     }
 }
