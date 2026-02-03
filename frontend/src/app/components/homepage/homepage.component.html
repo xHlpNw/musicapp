@@ -81,7 +81,7 @@
             </div>
             <div class="track-item__info">
               <span class="track-item__title">{{ track.title }}</span>
-              <span class="track-item__artist">{{ getTrackArtistName(track) }}</span>
+              <span class="track-item__artist">{{ getTrackArtistNames(track) }}</span>
             </div>
             <span class="track-item__duration">{{ formatDuration(track.durationSeconds) }}</span>
           </li>
@@ -99,10 +99,13 @@
     } @else {
       <div class="album-row">
         @for (album of newAlbums; track album.id; let i = $index) {
-          <div class="album-card">
+          <div class="album-card" (mouseenter)="onAlbumCardMouseEnter($event)" (mouseleave)="onAlbumCardMouseLeave($event)">
             <div class="album-card__cover" [ngClass]="album.coverImagePath ? '' : getAlbumCoverClass(i)" [style.background-image]="getAlbumCoverStyle(album)"></div>
             <span class="album-card__title">{{ album.title }}</span>
-            <span class="album-card__artist">{{ getAlbumArtistName(album) }}</span>
+            <div class="album-card__artist-wrap">
+              <span class="album-card__artist-inner album-card__artist-inner--single">{{ getAlbumArtistNames(album) }}</span>
+              <span class="album-card__artist-inner album-card__artist-inner--double">{{ getAlbumArtistNames(album) }} — {{ getAlbumArtistNames(album) }}</span>
+            </div>
           </div>
         }
       </div>

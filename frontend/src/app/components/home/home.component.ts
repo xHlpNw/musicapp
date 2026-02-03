@@ -65,6 +65,13 @@ export class HomeComponent implements OnInit {
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
 
+  /** Все исполнители трека через запятую */
+  getTrackArtistNames(track: TrackResponse): string {
+    if (track.artists?.length) return track.artists.map(a => a.artistName).join(', ');
+    if (track.artistName) return track.artistName;
+    return '—';
+  }
+
   logout(): void {
     this.authService.logout();
   }

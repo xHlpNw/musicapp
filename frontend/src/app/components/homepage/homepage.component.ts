@@ -130,9 +130,10 @@ export class HomepageComponent implements OnInit {
     return url ? this.sanitizer.bypassSecurityTrustStyle('url(' + url + ')') : null;
   }
 
-  getTrackArtistName(track: TrackResponse): string {
+  /** Все исполнители трека через запятую */
+  getTrackArtistNames(track: TrackResponse): string {
+    if (track.artists?.length) return track.artists.map(a => a.artistName).join(', ');
     if (track.artistName) return track.artistName;
-    if (track.artists?.length) return track.artists[0].artistName;
     return '—';
   }
 
@@ -145,9 +146,10 @@ export class HomepageComponent implements OnInit {
     return url ? this.sanitizer.bypassSecurityTrustStyle('url(' + url + ')') : null;
   }
 
-  getAlbumArtistName(album: AlbumSummaryResponse): string {
+  /** Все исполнители альбома через запятую */
+  getAlbumArtistNames(album: AlbumSummaryResponse): string {
+    if (album.artists?.length) return album.artists.map(a => a.artistName).join(', ');
     if (album.artistName) return album.artistName;
-    if (album.artists?.length) return album.artists[0].artistName;
     return '—';
   }
 
@@ -160,5 +162,18 @@ export class HomepageComponent implements OnInit {
   getInitial(user: LoginResponse): string {
     if (!user?.username) return '?';
     return user.username.charAt(0).toUpperCase();
+  }
+
+  /** При наведении на альбом: если список исполнителей не помещается — включаем бегущую строку */
+  onAlbumCardMouseEnter(event: MouseEvent): void {
+    const card = event.currentTarget as HTMLElement;
+    const wrap = card.querySelector('.album-card__artist-wrap') as HTMLElement;
+    if (wrap && wrap.scrollWidth > wrap.clientWidth) {
+      card.classList.add('album-card--artist-marquee');
+    }
+  }
+
+  onAlbumCardMouseLeave(event: MouseEvent): void {
+    (event.currentTarget as HTMLElement).classList.remove('album-card--artist-marquee');
   }
 }

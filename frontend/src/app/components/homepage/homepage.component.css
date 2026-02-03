@@ -380,7 +380,7 @@
   display: flex;
   gap: 1.25rem;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 16px 8px; /* отступы: сверху/снизу — чтобы scale(1.02) не обрезался по вертикали */
   scrollbar-width: thin;
   scrollbar-color: #1C1F24 #15171A;
 }
@@ -454,13 +454,45 @@
   text-overflow: ellipsis;
 }
 
-.album-card__artist {
+.album-card__artist-wrap {
   display: block;
   font-size: 0.875rem;
   color: #9A9A9A;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.album-card__artist-inner {
+  white-space: nowrap;
+}
+
+.album-card__artist-inner--single {
+  display: inline-block;
+}
+
+.album-card__artist-inner--double {
+  display: none;
+  padding-right: 2em;
+}
+
+/* Бегущая строка при наведении, если текст не помещается */
+.album-card--artist-marquee .album-card__artist-inner--single {
+  display: none;
+}
+
+.album-card--artist-marquee .album-card__artist-inner--double {
+  display: inline-block;
+  animation: album-artist-marquee 12s linear infinite;
+}
+
+@keyframes album-artist-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* Artist grid */
