@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -22,6 +23,9 @@ public class RoomResponse {
     private Boolean playing;
     private Integer memberCount;
     private Integer maxMembers;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private List<QueueItemInfo> queue;
     private List<MemberInfo> members;
 
     @Data
@@ -30,5 +34,14 @@ public class RoomResponse {
     public static class MemberInfo {
         private Long userId;
         private String username;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class QueueItemInfo {
+        private Long id;
+        private int position;
+        private Long trackId;
     }
 }

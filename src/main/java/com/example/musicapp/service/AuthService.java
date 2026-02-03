@@ -45,6 +45,7 @@ public class AuthService {
                 .expiresInSeconds(jwtUtil.getExpirationMs() / 1000)
                 .userId(user.getId())
                 .username(user.getUsername())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 
@@ -61,6 +62,7 @@ public class AuthService {
                 .expiresInSeconds(jwtUtil.getExpirationMs() / 1000)
                 .userId(user.getId())
                 .username(user.getUsername())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 }

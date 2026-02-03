@@ -16,4 +16,6 @@ public class CreateGenreRequest {
     @NotBlank(message = "Name is required")
     @Size(max = 255)
     private String name;
+
+    private Long parentId;
 }

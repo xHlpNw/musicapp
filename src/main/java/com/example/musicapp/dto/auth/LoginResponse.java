@@ -16,4 +16,5 @@ public class LoginResponse {
     private long expiresInSeconds;
     private Long userId;
     private String username;
+    private String avatarUrl;
 }

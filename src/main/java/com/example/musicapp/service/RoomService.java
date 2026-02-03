@@ -5,11 +5,13 @@ import com.example.musicapp.dto.room.RoomResponse;
 import com.example.musicapp.dto.room.RoomStateRequest;
 import com.example.musicapp.entity.Room;
 import com.example.musicapp.entity.RoomMember;
+import com.example.musicapp.entity.RoomQueueItem;
 import com.example.musicapp.entity.Track;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.exception.ForbiddenException;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.repository.RoomMemberRepository;
+import com.example.musicapp.repository.RoomQueueItemRepository;
 import com.example.musicapp.repository.RoomRepository;
 import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMemberRepository roomMemberRepository;
+    private final RoomQueueItemRepository roomQueueItemRepository;
     private final TrackRepository trackRepository;
 
     @Transactional(readOnly = true)
@@ -54,13 +57,16 @@ public class RoomService {
 
     @Transactional
     public RoomResponse create(CreateRoomRequest request, User currentUser) {
+        Instant now = Instant.now();
         Room room = Room.builder()
                 .name(request.getName())
                 .maxMembers(request.getMaxMembers())
                 .host(currentUser)
                 .positionSeconds(0.0)
                 .playing(false)
-                .createdAt(Instant.now())
+                .createdAt(now)
+                .updatedAt(now)
+                .queue(new ArrayList<>())
                 .build();
         room = roomRepository.save(room);
         RoomMember member = RoomMember.builder()
@@ -131,8 +137,51 @@ public class RoomService {
         if (request.getPlaying() != null) {
             room.setPlaying(request.getPlaying());
         }
+        room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
         return toDetailResponse(room);
+    }
+
+    @Transactional
+    public void addToQueue(Long roomId, Long trackId, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!room.getHost().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Only the host can add to queue");
+        }
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + trackId));
+        int nextPosition = room.getQueue().stream()
+                .mapToInt(RoomQueueItem::getPosition)
+                .max()
+                .orElse(0) + 1;
+        RoomQueueItem item = RoomQueueItem.builder()
+                .room(room)
+                .track(track)
+                .position(nextPosition)
+                .build();
+        roomQueueItemRepository.save(item);
+        room.getQueue().add(item);
+        room.setUpdatedAt(Instant.now());
+        roomRepository.save(room);
+    }
+
+    @Transactional
+    public void removeFromQueue(Long roomId, Long queueItemId, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!room.getHost().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Only the host can remove from queue");
+        }
+        RoomQueueItem item = roomQueueItemRepository.findById(queueItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Queue item not found: " + queueItemId));
+        if (!item.getRoom().getId().equals(roomId)) {
+            throw new ForbiddenException("Queue item does not belong to this room");
+        }
+        room.getQueue().remove(item);
+        roomQueueItemRepository.delete(item);
+        room.setUpdatedAt(Instant.now());
+        roomRepository.save(room);
     }
 
     private boolean isMember(Room room, User user) {
@@ -142,6 +191,9 @@ public class RoomService {
 
     private RoomResponse toResponse(Room room) {
         long memberCount = roomMemberRepository.countByRoom(room);
+        List<RoomResponse.QueueItemInfo> queue = room.getQueue().stream()
+                .map(qi -> new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), qi.getTrack().getId()))
+                .collect(Collectors.toList());
         return RoomResponse.builder()
                 .id(room.getId())
                 .name(room.getName())
@@ -152,6 +204,9 @@ public class RoomService {
                 .playing(room.isPlaying())
                 .memberCount((int) memberCount)
                 .maxMembers(room.getMaxMembers())
+                .createdAt(room.getCreatedAt())
+                .updatedAt(room.getUpdatedAt())
+                .queue(queue)
                 .members(null)
                 .build();
     }
@@ -163,6 +218,9 @@ public class RoomService {
         if (room.getHost() != null && members.stream().noneMatch(m -> m.getUserId().equals(room.getHost().getId()))) {
             members.add(0, new RoomResponse.MemberInfo(room.getHost().getId(), room.getHost().getUsername()));
         }
+        List<RoomResponse.QueueItemInfo> queue = room.getQueue().stream()
+                .map(qi -> new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), qi.getTrack().getId()))
+                .collect(Collectors.toList());
         return RoomResponse.builder()
                 .id(room.getId())
                 .name(room.getName())
@@ -173,6 +231,9 @@ public class RoomService {
                 .playing(room.isPlaying())
                 .memberCount(members.size())
                 .maxMembers(room.getMaxMembers())
+                .createdAt(room.getCreatedAt())
+                .updatedAt(room.getUpdatedAt())
+                .queue(queue)
                 .members(members)
                 .build();
     }

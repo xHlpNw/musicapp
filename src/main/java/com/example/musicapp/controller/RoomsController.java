@@ -72,4 +72,24 @@ public class RoomsController {
         User user = securityUser.getUser();
         return ResponseEntity.ok(roomService.updateState(id, request, user));
     }
+
+    @PostMapping("/{id}/queue")
+    public ResponseEntity<Void> addToQueue(
+            @PathVariable Long id,
+            @RequestParam Long trackId,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        roomService.addToQueue(id, trackId, user);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}/queue/{queueItemId}")
+    public ResponseEntity<Void> removeFromQueue(
+            @PathVariable Long id,
+            @PathVariable Long queueItemId,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        roomService.removeFromQueue(id, queueItemId, user);
+        return ResponseEntity.noContent().build();
+    }
 }
