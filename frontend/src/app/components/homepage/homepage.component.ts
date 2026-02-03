@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { TrackService } from '../../services/track.service';
@@ -14,14 +14,14 @@ import { ArtistResponse } from '../../models/artist.model';
 import { LoginResponse } from '../../models/auth.model';
 import { PlayerComponent } from '../player/player.component';
 
-const POPULAR_TRACKS_SIZE = 5;
+const POPULAR_TRACKS_SIZE = 10;
 const NEW_ALBUMS_SIZE = 10;
 const POPULAR_ARTISTS_SIZE = 10;
 
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PlayerComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, PlayerComponent],
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.css']
 })
