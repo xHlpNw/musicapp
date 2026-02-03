@@ -6,12 +6,23 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
+app-root {
+  display: block;
+  min-height: 100vh;
+}
+
+/* Страницы входа и регистрации — центрирование и фон */
+.auth-layout {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .container {

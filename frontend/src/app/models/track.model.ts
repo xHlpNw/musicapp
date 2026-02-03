@@ -4,10 +4,12 @@ export interface TrackResponse {
   durationSeconds: number;
   mimeType?: string;
   trackNumber?: number;
-  artistId: number;
-  artistName: string;
+  artistId?: number;
+  artistName?: string;
+  artists?: { artistId: number; artistName: string }[];
   albumId?: number;
   albumTitle?: string;
+  coverImagePath?: string;
 }
 
 export interface PageResponse<T> {

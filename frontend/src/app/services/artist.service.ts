@@ -11,12 +11,15 @@ export class ArtistService {
 
   constructor(private http: HttpClient) {}
 
-  getPage(page = 0, size = 20, q?: string): Observable<PageResponse<ArtistResponse>> {
+  getPage(page = 0, size = 20, q?: string, sort?: string): Observable<PageResponse<ArtistResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
     if (q?.trim()) {
       params = params.set('q', q.trim());
+    }
+    if (sort) {
+      params = params.set('sort', sort);
     }
     return this.http.get<PageResponse<ArtistResponse>>(this.API_URL, { params });
   }

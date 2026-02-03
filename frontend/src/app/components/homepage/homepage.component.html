@@ -1,0 +1,87 @@
+<header class="header">
+  <nav class="nav">
+    <a routerLink="/" class="logo">Stream</a>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Поиск треков, альбомов, исполнителей..."
+        [(ngModel)]="searchQuery"
+      />
+    </div>
+    <div class="nav-links">
+      <a routerLink="/login" class="nav-link">Войти</a>
+    </div>
+  </nav>
+</header>
+
+<main class="main">
+  <section class="section">
+    <h2 class="section__title">Популярные треки</h2>
+    @if (errorTracks) {
+      <p class="section__error">{{ errorTracks }}</p>
+    } @else if (isLoadingTracks) {
+      <p class="section__loading">Загрузка…</p>
+    } @else {
+      <ul class="track-list">
+        @for (track of popularTracks; track track.id; let i = $index) {
+          <li class="track-item">
+            <div class="track-item__cover-wrap">
+              <div class="track-item__cover" [ngClass]="track.coverImagePath ? '' : getTrackCoverClass(i)" [style.background-image]="getTrackCoverStyle(track)"></div>
+              <button type="button" class="track-item__play" aria-label="Воспроизвести">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="track-item__info">
+              <span class="track-item__title">{{ track.title }}</span>
+              <span class="track-item__artist">{{ getTrackArtistName(track) }}</span>
+            </div>
+            <span class="track-item__duration">{{ formatDuration(track.durationSeconds) }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Новые релизы</h2>
+    @if (errorAlbums) {
+      <p class="section__error">{{ errorAlbums }}</p>
+    } @else if (isLoadingAlbums) {
+      <p class="section__loading">Загрузка…</p>
+    } @else {
+      <div class="album-row">
+        @for (album of newAlbums; track album.id; let i = $index) {
+          <div class="album-card">
+            <div class="album-card__cover" [ngClass]="album.coverImagePath ? '' : getAlbumCoverClass(i)" [style.background-image]="getAlbumCoverStyle(album)"></div>
+            <span class="album-card__title">{{ album.title }}</span>
+            <span class="album-card__artist">{{ getAlbumArtistName(album) }}</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Популярные исполнители</h2>
+    @if (errorArtists) {
+      <p class="section__error">{{ errorArtists }}</p>
+    } @else if (isLoadingArtists) {
+      <p class="section__loading">Загрузка…</p>
+    } @else {
+      <div class="artist-grid">
+        @for (artist of popularArtists; track artist.id) {
+          <div class="artist-card">
+            <span class="artist-card__name">{{ artist.name }}</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</main>

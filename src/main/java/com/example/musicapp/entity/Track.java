@@ -34,6 +34,9 @@ public class Track {
     @Column(name = "mime_type", nullable = false)
     private String mimeType;
 
+    @Column(name = "cover_image_path")
+    private String coverImagePath;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

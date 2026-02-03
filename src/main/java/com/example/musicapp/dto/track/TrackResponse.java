@@ -18,6 +18,7 @@ public class TrackResponse {
     private String title;
     private Integer durationSeconds;
     private String mimeType;
+    private String coverImagePath;
     private List<TrackArtistItem> artists;
     private List<AlbumTrackItem> albumTracks;
     private Set<Long> genreIds;

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { HomepageComponent } from './components/homepage/homepage.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -13,7 +14,7 @@ import { HomeComponent } from './components/home/home.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/register', pathMatch: 'full' },
+  { path: '', component: HomepageComponent, pathMatch: 'full' },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent },
@@ -32,5 +33,5 @@ export const routes: Routes = [
       { path: 'tracks/new', component: TrackUploadComponent }
     ]
   },
-  { path: '**', redirectTo: '/register' }
+  { path: '**', redirectTo: '/' }
 ];

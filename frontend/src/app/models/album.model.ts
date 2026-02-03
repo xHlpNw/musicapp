@@ -8,13 +8,22 @@ export interface AlbumResponse {
   tracks?: { id: number; title: string; durationSeconds: number; trackNumber?: number }[];
 }
 
+export interface AlbumArtistItem {
+  artistId: number;
+  artistName: string;
+  displayOrder?: number;
+  role?: string;
+}
+
 export interface AlbumSummaryResponse {
   id: number;
   title: string;
   releaseYear?: number;
+  releaseDate?: string;
   coverImagePath?: string;
-  artistId: number;
-  artistName: string;
+  artistId?: number;
+  artistName?: string;
+  artists?: AlbumArtistItem[];
 }
 
 export interface CreateAlbumRequest {

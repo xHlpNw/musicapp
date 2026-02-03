@@ -220,6 +220,7 @@ public class TrackService {
                 .title(track.getTitle())
                 .durationSeconds(track.getDurationSeconds())
                 .mimeType(track.getMimeType())
+                .coverImagePath(track.getCoverImagePath())
                 .artists(artistItems)
                 .albumTracks(albumTrackItems)
                 .genreIds(genreIds)
