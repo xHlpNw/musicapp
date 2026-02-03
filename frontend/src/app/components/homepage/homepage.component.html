@@ -14,7 +14,17 @@
       />
     </div>
     <div class="nav-links">
-      <a routerLink="/login" class="nav-link">Войти</a>
+      @if (authService.currentUser$ | async; as user) {
+        <a routerLink="/home" class="user-avatar" [title]="user.username" aria-label="Профиль">
+          @if (getAvatarUrl(user); as avatarUrl) {
+            <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
+          } @else {
+            <span class="user-avatar__initial">{{ getInitial(user) }}</span>
+          }
+        </a>
+      } @else {
+        <a routerLink="/login" class="nav-link">Войти</a>
+      }
     </div>
   </nav>
 </header>

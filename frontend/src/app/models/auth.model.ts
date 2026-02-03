@@ -15,6 +15,7 @@ export interface LoginResponse {
   expiresInSeconds: number;
   userId: number;
   username: string;
+  avatarUrl?: string | null;
 }
 
 export interface ErrorResponse {

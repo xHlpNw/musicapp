@@ -6,9 +6,11 @@ import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { TrackService } from '../../services/track.service';
 import { AlbumService } from '../../services/album.service';
 import { ArtistService } from '../../services/artist.service';
+import { AuthService } from '../../services/auth.service';
 import { TrackResponse } from '../../models/track.model';
 import { AlbumSummaryResponse } from '../../models/album.model';
 import { ArtistResponse } from '../../models/artist.model';
+import { LoginResponse } from '../../models/auth.model';
 
 const POPULAR_TRACKS_SIZE = 5;
 const NEW_ALBUMS_SIZE = 10;
@@ -39,6 +41,7 @@ export class HomepageComponent implements OnInit {
     private trackService: TrackService,
     private albumService: AlbumService,
     private artistService: ArtistService,
+    public authService: AuthService,
     private sanitizer: DomSanitizer
   ) {}
 
@@ -133,5 +136,16 @@ export class HomepageComponent implements OnInit {
     if (album.artistName) return album.artistName;
     if (album.artists?.length) return album.artists[0].artistName;
     return '—';
+  }
+
+  /** URL аватарки: если путь относительный — через /api/covers/, иначе как есть. */
+  getAvatarUrl(user: LoginResponse): string | null {
+    if (!user?.avatarUrl) return null;
+    return user.avatarUrl.startsWith('http') ? user.avatarUrl : '/api/covers/' + user.avatarUrl;
+  }
+
+  getInitial(user: LoginResponse): string {
+    if (!user?.username) return '?';
+    return user.username.charAt(0).toUpperCase();
   }
 }

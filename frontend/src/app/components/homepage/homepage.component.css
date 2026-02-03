@@ -93,6 +93,38 @@
   background: #1C1F24;
 }
 
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1C1F24;
+  color: #EDEDED;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.user-avatar:hover {
+  background: #2a2d33;
+  transform: scale(1.05);
+}
+
+.user-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar__initial {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
 /* Main */
 .main {
   max-width: 1400px;
