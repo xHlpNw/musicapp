@@ -1,112 +1,229 @@
-.player-bar {
+/* Контейнер: скруглённый, без обводки */
+.player {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 72px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 900px;
+  min-height: 60px;
+  background: #15171A;
+  border-radius: 24px;
+  border: none;
+  outline: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0 24px;
-  gap: 24px;
+  padding: 12px 16px;
+  gap: 20px;
   z-index: 1000;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
-.player-bar-empty {
+.player--empty {
   justify-content: center;
+  min-height: 72px;
 }
 
-.player-empty-text {
-  color: rgba(255, 255, 255, 0.5);
+.player__empty-text {
+  color: #6B6B6B;
   font-size: 14px;
 }
 
-.player-info {
+/* Левая часть: обложка + название трека и артист */
+.player__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.player__cover {
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  background: #1C1F24;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.player__info {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex: 1;
+  gap: 2px;
 }
 
-.player-title {
-  color: #fff;
-  font-weight: 600;
+.player__title {
+  color: #EDEDED;
+  font-weight: 500;
   font-size: 15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.player-artist {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  white-space: nowrap;
+.player__artist {
+  color: #9A9A9A;
+  font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* без ограничения строк — отображаются все исполнители */
 }
 
-.player-time,
-.player-duration {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
-  margin-top: 2px;
+/* Центр: прогресс и кнопки выровнены по вертикали по центру */
+.player__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 360px;
+  padding-top: 8px;
 }
 
-.player-loading {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 13px;
-  margin-left: 8px;
-}
-
-.player-error {
-  color: #f87171;
-  font-size: 13px;
-  margin-right: 8px;
-}
-
-.player-controls {
+.player__progress-wrap {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
-.player-btn {
-  width: 48px;
-  height: 48px;
+.player__time {
+  color: #EDEDED;
+  font-size: 12px;
+  flex-shrink: 0;
+  min-width: 32px;
+}
+
+.player__time:first-child {
+  text-align: right;
+}
+
+.player__progress {
+  flex: 1;
+  height: 4px;
+  background: #1C1F24;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+}
+
+.player__progress-filled {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #F09020;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+.player__progress-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
+  background: #F09020;
+  box-shadow: 0 0 0 2px #15171A;
+  pointer-events: none;
+  transition: left 0.1s linear;
+}
+
+.player__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.player__btn {
   border: none;
-  background: #667eea;
-  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s, background 0.2s;
+  padding: 0;
+  background: transparent;
+  color: #EDEDED;
+  transition: color 0.2s, transform 0.2s;
 }
 
-.player-btn:hover {
-  background: #764ba2;
+.player__btn:hover:not(:disabled) {
+  color: #F09020;
   transform: scale(1.05);
 }
 
-.player-btn-icon {
-  font-size: 18px;
-  margin-left: 2px;
+.player__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.player-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+.player__btn--play {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #EDEDED;
+}
+
+.player__btn--icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Правая часть: три точки закреплены справа */
+.player__right {
+  flex-shrink: 0;
+  justify-self: end;
+}
+
+.player__more {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #EDEDED;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
 }
 
-.player-progress-bar {
-  height: 100%;
-  background: #667eea;
-  transition: width 0.1s linear;
+.player__more:hover {
+  color: #F09020;
+}
+
+.player__more-dots {
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.player__error {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  color: #f87171;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.player__loading {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  color: #9A9A9A;
+  font-size: 12px;
 }

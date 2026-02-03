@@ -132,6 +132,10 @@
   padding: 2rem 1.5rem 3rem;
 }
 
+.main--with-player {
+  padding-bottom: 7rem;
+}
+
 .section {
   margin-bottom: 2.5rem;
 }

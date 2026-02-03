@@ -43,7 +43,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tracks", "/api/albums", "/api/artists", "/api/covers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tracks", "/api/tracks/*/stream", "/api/albums", "/api/artists", "/api/covers/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .authenticationProvider(authenticationProvider())

@@ -1,9 +1,10 @@
 import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl, SafeStyle } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { PlayerService } from '../../services/player.service';
+import { TrackResponse } from '../../models/track.model';
 
 @Component({
   selector: 'app-player',
@@ -50,6 +51,35 @@ export class PlayerComponent implements OnInit, OnDestroy {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  getArtistName(track: TrackResponse): string {
+    if (track.artistName) return track.artistName;
+    if (track.artists?.length) return track.artists[0].artistName;
+    return '—';
+  }
+
+  /** Все исполнители через запятую. */
+  getArtistNames(track: TrackResponse): string {
+    if (track.artists?.length) {
+      return track.artists.map(a => a.artistName).join(', ');
+    }
+    if (track.artistName) return track.artistName;
+    return '—';
+  }
+
+  getCoverStyle(track: TrackResponse): SafeStyle | null {
+    if (!track?.coverImagePath) return null;
+    const url = track.coverImagePath.startsWith('http') ? track.coverImagePath : '/api/covers/' + track.coverImagePath;
+    return this.sanitizer.bypassSecurityTrustStyle('url(' + url + ')');
+  }
+
+  onPrev(): void {
+    // TODO: предыдущий трек
+  }
+
+  onNext(): void {
+    // TODO: следующий трек
   }
 
   onPlayPause(): void {

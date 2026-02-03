@@ -29,7 +29,7 @@
   </nav>
 </header>
 
-<main class="main">
+<main class="main" [class.main--with-player]="hasActiveTrack">
   <section class="section">
     <h2 class="section__title">Популярные треки</h2>
     @if (errorTracks) {
@@ -42,7 +42,7 @@
           <li class="track-item">
             <div class="track-item__cover-wrap">
               <div class="track-item__cover" [ngClass]="track.coverImagePath ? '' : getTrackCoverClass(i)" [style.background-image]="getTrackCoverStyle(track)"></div>
-              <button type="button" class="track-item__play" aria-label="Воспроизвести">
+              <button type="button" class="track-item__play" aria-label="Воспроизвести" (click)="playTrack(track); $event.stopPropagation()">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
@@ -95,3 +95,7 @@
     }
   </section>
 </main>
+
+@if (hasActiveTrack) {
+  <app-player></app-player>
+}
