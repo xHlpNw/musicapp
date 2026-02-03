@@ -137,7 +137,7 @@ INSERT INTO track_artists (display_order, role, track_id, artist_id) SELECT 0, '
 -- Файлы класть в {app.storage.path}/covers/ по указанному пути (например storage/covers/tracks/1.png).
 -- Раздача: GET /api/covers/{path}
 UPDATE tracks SET cover_image_path = 'albums/peski.jpeg' WHERE title = 'Пески времени';
-UPDATE tracks SET cover_image_path = 'albums/chudovishe.jpeg' WHERE title = 'Чудовище погубившее мир';
+UPDATE tracks SET cover_image_path = 'albums/blade.jpeg' WHERE title = 'Чудовище погубившее мир';
 UPDATE tracks SET cover_image_path = 'albums/chudovishe.jpeg' WHERE title = 'Чучело';
 UPDATE tracks SET cover_image_path = 'albums/chudovishe.jpeg' WHERE title = 'В хрущевских и брежневских домах';
 UPDATE tracks SET cover_image_path = 'albums/chudovishe.jpeg' WHERE title = 'Мёртвый игрок';
