@@ -15,7 +15,7 @@
     </div>
     <div class="nav-links">
       @if (authService.currentUser$ | async; as user) {
-        <a routerLink="/home" class="user-avatar" [title]="user.username" aria-label="Профиль">
+        <a routerLink="/" class="user-avatar" [title]="user.username" aria-label="Профиль">
           @if (getAvatarUrl(user); as avatarUrl) {
             <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
           } @else {
