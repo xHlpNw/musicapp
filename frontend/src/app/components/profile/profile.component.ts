@@ -69,10 +69,11 @@ export class ProfileComponent {
     this.activeModal = 'name';
   }
 
-  changeAvatar(): void {
+  changeAvatar(user: LoginResponse | null): void {
     this.modalError = '';
     this.activeModal = 'avatar';
-    setTimeout(() => this.initAvatarCanvas(), 0);
+    const previousAvatarUrl = user ? this.getAvatarUrl(user) : null;
+    setTimeout(() => this.initAvatarCanvas(previousAvatarUrl), 0);
   }
 
   changePassword(): void {
@@ -114,7 +115,7 @@ export class ProfileComponent {
     });
   }
 
-  initAvatarCanvas(): void {
+  initAvatarCanvas(previousAvatarUrl?: string | null): void {
     const canvas = document.getElementById('avatarCanvas') as HTMLCanvasElement | null;
     if (!canvas) return;
     const size = AVATAR_SIZE;
@@ -126,6 +127,17 @@ export class ProfileComponent {
     ctx.fillRect(0, 0, size, size);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    if (previousAvatarUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, size, size);
+      };
+      img.onerror = () => {
+        // Оставляем пустой фон при ошибке загрузки
+      };
+      img.src = previousAvatarUrl;
+    }
   }
 
   onAvatarCanvasPointerDown(event: PointerEvent): void {
