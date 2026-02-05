@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { RegisterRequest, LoginRequest, LoginResponse } from '../models/auth.model';
+import { RegisterRequest, LoginRequest, LoginResponse, UpdateProfileRequest, UpdatePasswordRequest } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +24,18 @@ export class AuthService {
 
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/login`, request).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
+  updateProfile(request: UpdateProfileRequest): Observable<LoginResponse> {
+    return this.http.patch<LoginResponse>(`${this.API_URL}/me`, request).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
+  updatePassword(request: UpdatePasswordRequest): Observable<LoginResponse> {
+    return this.http.patch<LoginResponse>(`${this.API_URL}/me/password`, request).pipe(
       tap(response => this.handleAuthResponse(response))
     );
   }

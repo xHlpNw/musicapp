@@ -10,6 +10,7 @@ import { AlbumsListComponent } from './components/admin/albums-list/albums-list.
 import { AlbumFormComponent } from './components/admin/album-form/album-form.component';
 import { TracksListComponent } from './components/admin/tracks-list/tracks-list.component';
 import { TrackUploadComponent } from './components/admin/track-upload/track-upload.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterRedirectComponent },
   { path: 'login', component: LoginRedirectComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   {
     path: 'admin',
     component: AdminLayoutComponent,
