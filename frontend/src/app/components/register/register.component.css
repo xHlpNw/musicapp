@@ -1,2 +1,187 @@
-/* Component-specific styles can be added here if needed */
-/* Global styles are in src/styles.css */
+.register-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 2000;
+}
+
+.register-modal {
+  background: #15171A;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px 28px 28px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+.register-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.register-modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #EDEDED;
+  margin: 0;
+}
+
+.register-modal__close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -8px -8px 0 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #EDEDED;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.register-modal__close:hover {
+  background: #1C1F24;
+  color: #F09020;
+}
+
+.register-modal__separator {
+  height: 1px;
+  background: #1C1F24;
+  margin-bottom: 16px;
+}
+
+.register-modal__desc {
+  font-size: 0.9375rem;
+  color: #9A9A9A;
+  line-height: 1.45;
+  margin: 0 0 20px;
+}
+
+.register-modal__error {
+  font-size: 0.875rem;
+  color: #f87171;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: rgba(248, 113, 113, 0.12);
+  border-radius: 8px;
+}
+
+.register-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.register-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.register-modal__field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #EDEDED;
+}
+
+.register-modal__input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.9375rem;
+  color: #EDEDED;
+  background: #1C1F24;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.register-modal__input::placeholder {
+  color: #6B6B6B;
+}
+
+.register-modal__input:focus {
+  border-color: #F09020;
+  box-shadow: 0 0 0 2px rgba(240, 144, 32, 0.25);
+}
+
+.register-modal__input--error {
+  border-color: #f87171;
+}
+
+.register-modal__hint {
+  font-size: 0.8125rem;
+  color: #f87171;
+}
+
+.register-modal__btn {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  border: none;
+  box-sizing: border-box;
+}
+
+.register-modal__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register-modal__btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.register-modal__btn--primary {
+  background: #F09020;
+  color: #0E0F11;
+}
+
+.register-modal__btn--primary:not(:disabled):hover {
+  background: #FFA030;
+}
+
+.register-modal__btn--secondary {
+  background: transparent;
+  color: #EDEDED;
+  border: 1px solid #6B6B6B;
+}
+
+.register-modal__btn--secondary:hover {
+  background: #1C1F24;
+  border-color: #9A9A9A;
+}
+
+.register-modal__footer {
+  margin: 20px 0 0;
+  font-size: 0.9375rem;
+  color: #9A9A9A;
+  text-align: center;
+}
+
+.register-modal__link {
+  color: #F09020;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.register-modal__link:hover {
+  color: #FFA030;
+  text-decoration: underline;
+}

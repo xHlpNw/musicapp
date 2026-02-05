@@ -7,6 +7,7 @@ import { TrackService } from '../../services/track.service';
 import { AlbumService } from '../../services/album.service';
 import { ArtistService } from '../../services/artist.service';
 import { AuthService } from '../../services/auth.service';
+import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
 import { TrackResponse } from '../../models/track.model';
 import { AlbumSummaryResponse } from '../../models/album.model';
@@ -48,8 +49,14 @@ export class HomepageComponent implements OnInit {
     private artistService: ArtistService,
     public authService: AuthService,
     public playerService: PlayerService,
+    private loginOverlay: LoginOverlayService,
     private sanitizer: DomSanitizer
   ) {}
+
+  openLogin(event: Event): void {
+    event.preventDefault();
+    this.loginOverlay.open();
+  }
 
   ngOnInit(): void {
     this.loadPopularTracks();

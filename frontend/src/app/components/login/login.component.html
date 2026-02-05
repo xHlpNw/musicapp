@@ -1,50 +1,64 @@
-<div class="auth-layout">
-  <div class="container">
-  <div class="card">
-    <div class="card-header">
-      <h1>Sign In</h1>
-      <p>Enter your credentials</p>
-    </div>
+<div class="login-overlay" (click)="onBackdropClick($event)">
+  <div class="login-modal" role="dialog" aria-labelledby="login-title" (click)="$event.stopPropagation()">
+    <header class="login-modal__header">
+      <h1 id="login-title" class="login-modal__title">Вход в Stream</h1>
+      <button type="button" class="login-modal__close" aria-label="Закрыть" (click)="close()">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </header>
 
-    <div *ngIf="errorMessage" class="alert alert-error">
-      {{ errorMessage }}
-    </div>
+    <p class="login-modal__desc">
+      Войдите в аккаунт, чтобы сохранять треки, создавать плейлисты и присоединяться к комнатам для совместного прослушивания.
+    </p>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="username">Username</label>
+    @if (errorMessage) {
+      <div class="login-modal__error">{{ errorMessage }}</div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-modal__form">
+      <div class="login-modal__field">
+        <label for="login-email">Email</label>
         <input
           type="text"
-          id="username"
+          id="login-email"
+          class="login-modal__input"
           formControlName="username"
-          [class.error]="username?.invalid && username?.touched"
-          placeholder="Username"
+          [class.login-modal__input--error]="username?.invalid && username?.touched"
+          placeholder="your@email.com"
+          autocomplete="username"
         />
-        <span class="error-message" *ngIf="username?.invalid && username?.touched">
-          Username is required
-        </span>
+        @if (username?.invalid && username?.touched) {
+          <span class="login-modal__hint">Обязательное поле</span>
+        }
       </div>
-      <div class="form-group">
-        <label for="password">Password</label>
+      <div class="login-modal__field">
+        <label for="login-password">Пароль</label>
         <input
           type="password"
-          id="password"
+          id="login-password"
+          class="login-modal__input"
           formControlName="password"
-          [class.error]="password?.invalid && password?.touched"
-          placeholder="Password"
+          [class.login-modal__input--error]="password?.invalid && password?.touched"
+          placeholder="••••••••"
+          autocomplete="current-password"
         />
-        <span class="error-message" *ngIf="password?.invalid && password?.touched">
-          Password is required
-        </span>
+        @if (password?.invalid && password?.touched) {
+          <span class="login-modal__hint">Обязательное поле</span>
+        }
       </div>
-      <button type="submit" class="btn" [disabled]="isLoading">
-        {{ isLoading ? 'Signing in...' : 'Sign In' }}
+      <button type="submit" class="login-modal__btn login-modal__btn--primary" [disabled]="isLoading">
+        {{ isLoading ? 'Вход…' : 'Войти' }}
+      </button>
+      <button type="button" class="login-modal__btn login-modal__btn--secondary" (click)="close()">
+        Продолжить без входа
       </button>
     </form>
 
-    <div class="text-center mt-3">
-      <p>Don't have an account? <a routerLink="/register" class="link">Sign Up</a></p>
-    </div>
-  </div>
+    <p class="login-modal__footer">
+      Нет аккаунта?
+      <a href="#" class="login-modal__link" (click)="openRegister($event)">Зарегистрироваться</a>
+    </p>
   </div>
 </div>
