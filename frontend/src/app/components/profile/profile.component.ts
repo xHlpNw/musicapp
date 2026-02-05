@@ -4,13 +4,14 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { LoginResponse } from '../../models/auth.model';
+import { SideNavComponent } from '../side-nav/side-nav.component';
 
 type ProfileModal = 'name' | 'avatar' | 'password' | 'logout' | null;
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, SideNavComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })

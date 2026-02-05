@@ -1,0 +1,28 @@
+<aside class="side-nav-wrap">
+  <nav class="side-nav">
+    <a routerLink="/" class="side-nav__link" routerLinkActive="side-nav__link--active" [routerLinkActiveOptions]="{ exact: true }" title="Главная">
+      <span class="side-nav__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
+      <span class="side-nav__label">Главная</span>
+    </a>
+    <a routerLink="/playlists" class="side-nav__link" title="Плейлисты">
+      <span class="side-nav__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </span>
+      <span class="side-nav__label">Плейлисты</span>
+    </a>
+    <a routerLink="/rooms" class="side-nav__link" title="Комнаты">
+      <span class="side-nav__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </span>
+      <span class="side-nav__label">Комнаты</span>
+    </a>
+    <a routerLink="/favorites" class="side-nav__link" title="Избранное">
+      <span class="side-nav__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </span>
+      <span class="side-nav__label">Избранное</span>
+    </a>
+  </nav>
+</aside>
