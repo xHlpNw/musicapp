@@ -8,6 +8,8 @@ import { SideNavComponent } from '../side-nav/side-nav.component';
 
 type ProfileModal = 'name' | 'avatar' | 'password' | 'logout' | null;
 
+const AVATAR_SIZE = 256;
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -18,12 +20,20 @@ type ProfileModal = 'name' | 'avatar' | 'password' | 'logout' | null;
 export class ProfileComponent {
   activeModal: ProfileModal = null;
   editNameValue = '';
-  editAvatarValue = '';
   editPasswordCurrent = '';
   editPasswordNew = '';
   editPasswordConfirm = '';
   modalError = '';
   modalSaving = false;
+
+  /** Рисование аватара */
+  avatarDrawColor = '#EDEDED';
+  avatarDrawSize = 6;
+  private isDrawing = false;
+  private lastX = 0;
+  private lastY = 0;
+  private boundPointerMove = (e: PointerEvent) => this.onAvatarCanvasPointerMove(e);
+  private boundPointerUp = () => this.onAvatarCanvasPointerUp();
 
   constructor(
     public authService: AuthService,
@@ -36,7 +46,9 @@ export class ProfileComponent {
 
   getAvatarUrl(user: LoginResponse | null): string | null {
     if (!user?.avatarUrl) return null;
-    return user.avatarUrl.startsWith('http') ? user.avatarUrl : '/api/covers/' + user.avatarUrl;
+    const base = user.avatarUrl.startsWith('http') ? user.avatarUrl : '/api/covers/' + user.avatarUrl;
+    const sep = base.includes('?') ? '&' : '?';
+    return user.avatarVersion ? `${base}${sep}v=${user.avatarVersion}` : base;
   }
 
   getInitial(user: LoginResponse | null): string {
@@ -57,10 +69,10 @@ export class ProfileComponent {
     this.activeModal = 'name';
   }
 
-  changeAvatar(user: LoginResponse | null): void {
+  changeAvatar(): void {
     this.modalError = '';
-    this.editAvatarValue = user?.avatarUrl ?? '';
     this.activeModal = 'avatar';
+    setTimeout(() => this.initAvatarCanvas(), 0);
   }
 
   changePassword(): void {
@@ -77,6 +89,7 @@ export class ProfileComponent {
 
   closeModal(event?: Event): void {
     if (event && event.target !== event.currentTarget) return;
+    this.onAvatarCanvasPointerUp();
     this.activeModal = null;
     this.modalError = '';
   }
@@ -101,9 +114,98 @@ export class ProfileComponent {
     });
   }
 
+  initAvatarCanvas(): void {
+    const canvas = document.getElementById('avatarCanvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const size = AVATAR_SIZE;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.fillStyle = '#1C1F24';
+    ctx.fillRect(0, 0, size, size);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+
+  onAvatarCanvasPointerDown(event: PointerEvent): void {
+    const canvas = document.getElementById('avatarCanvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    event.preventDefault();
+    this.isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const scale = canvas.width / rect.width;
+    this.lastX = (event.clientX - rect.left) * scale;
+    this.lastY = (event.clientY - rect.top) * scale;
+    document.addEventListener('pointermove', this.boundPointerMove);
+    document.addEventListener('pointerup', this.boundPointerUp);
+  }
+
+  onAvatarCanvasPointerMove(event: PointerEvent): void {
+    if (!this.isDrawing) return;
+    const canvas = document.getElementById('avatarCanvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = canvas.width / rect.width;
+    const x = (event.clientX - rect.left) * scale;
+    const y = (event.clientY - rect.top) * scale;
+    ctx.strokeStyle = this.avatarDrawColor;
+    ctx.lineWidth = this.avatarDrawSize;
+    ctx.beginPath();
+    ctx.moveTo(this.lastX, this.lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    this.lastX = x;
+    this.lastY = y;
+  }
+
+  onAvatarCanvasPointerUp(): void {
+    this.isDrawing = false;
+    document.removeEventListener('pointermove', this.boundPointerMove);
+    document.removeEventListener('pointerup', this.boundPointerUp);
+  }
+
+  onAvatarCanvasPointerLeave(): void {
+    if (this.isDrawing) this.onAvatarCanvasPointerUp();
+  }
+
+  clearAvatarCanvas(): void {
+    this.initAvatarCanvas();
+  }
+
+  resetAvatarToDefault(): void {
+    this.modalError = '';
+    this.modalSaving = true;
+    this.authService.clearAvatar().subscribe({
+      next: () => {
+        this.modalSaving = false;
+        this.activeModal = null;
+      },
+      error: (err) => {
+        this.modalSaving = false;
+        this.modalError = err.error?.error || 'Не удалось сбросить аватар';
+      }
+    });
+  }
+
   saveAvatar(): void {
-    // TODO: API смена аватара, когда будет endpoint
-    this.activeModal = null;
+    const canvas = document.getElementById('avatarCanvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL('image/png');
+    this.modalError = '';
+    this.modalSaving = true;
+    this.authService.updateAvatar(dataUrl).subscribe({
+      next: () => {
+        this.modalSaving = false;
+        this.activeModal = null;
+      },
+      error: (err) => {
+        this.modalSaving = false;
+        this.modalError = err.error?.error || 'Не удалось сохранить аватар';
+      }
+    });
   }
 
   savePassword(): void {

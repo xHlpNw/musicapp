@@ -3,6 +3,7 @@ package com.example.musicapp.controller;
 import com.example.musicapp.dto.auth.LoginRequest;
 import com.example.musicapp.dto.auth.LoginResponse;
 import com.example.musicapp.dto.auth.RegisterRequest;
+import com.example.musicapp.dto.auth.UpdateAvatarRequest;
 import com.example.musicapp.dto.auth.UpdatePasswordRequest;
 import com.example.musicapp.dto.auth.UpdateProfileRequest;
 import com.example.musicapp.service.AuthService;
@@ -46,6 +47,20 @@ public class AuthController {
             @Valid @RequestBody UpdatePasswordRequest request,
             @AuthenticationPrincipal SecurityUser securityUser) {
         LoginResponse response = authService.updatePassword(securityUser.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/me/avatar")
+    public ResponseEntity<LoginResponse> updateAvatar(
+            @Valid @RequestBody UpdateAvatarRequest request,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        LoginResponse response = authService.updateAvatar(securityUser.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/me/avatar")
+    public ResponseEntity<LoginResponse> clearAvatar(@AuthenticationPrincipal SecurityUser securityUser) {
+        LoginResponse response = authService.clearAvatar(securityUser.getId());
         return ResponseEntity.ok(response);
     }
 }

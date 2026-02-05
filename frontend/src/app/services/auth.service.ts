@@ -40,6 +40,18 @@ export class AuthService {
     );
   }
 
+  updateAvatar(imageData: string): Observable<LoginResponse> {
+    return this.http.patch<LoginResponse>(`${this.API_URL}/me/avatar`, { imageData }).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
+  clearAvatar(): Observable<LoginResponse> {
+    return this.http.delete<LoginResponse>(`${this.API_URL}/me/avatar`).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -55,9 +67,10 @@ export class AuthService {
   }
 
   private handleAuthResponse(response: LoginResponse): void {
+    const userWithVersion = { ...response, avatarVersion: Date.now() };
     localStorage.setItem(this.TOKEN_KEY, response.accessToken);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(response));
-    this.currentUserSubject.next(response);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(userWithVersion));
+    this.currentUserSubject.next(userWithVersion);
   }
 
   private getUserFromStorage(): LoginResponse | null {

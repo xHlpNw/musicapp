@@ -56,7 +56,7 @@
       <h2 class="profile-settings__title">Настройки</h2>
       <ul class="profile-settings__list">
         <li><button type="button" class="profile-settings__item" (click)="changeName(user)">Изменить имя</button></li>
-        <li><button type="button" class="profile-settings__item" (click)="changeAvatar(user)">Изменить аватар</button></li>
+        <li><button type="button" class="profile-settings__item" (click)="changeAvatar()">Изменить аватар</button></li>
         <li><button type="button" class="profile-settings__item" (click)="changePassword()">Изменить пароль</button></li>
         <li><button type="button" class="profile-settings__item profile-settings__item--logout" (click)="confirmLogout()">Выйти</button></li>
       </ul>
@@ -93,22 +93,44 @@
     </div>
   }
 
-  <!-- Оверлей: изменить аватар -->
+  <!-- Оверлей: нарисовать аватар -->
   @if (activeModal === 'avatar') {
     <div class="profile-overlay" (click)="closeModal($event)">
-      <div class="profile-modal" (click)="$event.stopPropagation()">
+      <div class="profile-modal profile-modal--avatar" (click)="$event.stopPropagation()">
         <header class="profile-modal__header">
-          <h2 class="profile-modal__title">Изменить аватар</h2>
+          <h2 class="profile-modal__title">Нарисовать аватар</h2>
           <button type="button" class="profile-modal__close" aria-label="Закрыть" (click)="closeModal()">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </header>
         <div class="profile-modal__body">
-          <input type="text" class="profile-modal__input" [(ngModel)]="editAvatarValue" placeholder="URL аватара" />
+          @if (modalError && activeModal === 'avatar') {
+            <p class="profile-modal__error">{{ modalError }}</p>
+          }
+          <p class="profile-modal__avatar-hint">Нарисуйте аватар на холсте ниже.</p>
+          <div class="profile-avatar-tools">
+            <label class="profile-avatar-tools__label">
+              Цвет
+              <input type="color" class="profile-avatar-tools__color" [(ngModel)]="avatarDrawColor" />
+            </label>
+            <label class="profile-avatar-tools__label profile-avatar-tools__brush">
+              Размер кисти {{ avatarDrawSize }}px
+              <input type="range" class="profile-avatar-tools__range" min="2" max="40" step="2" [(ngModel)]="avatarDrawSize" />
+            </label>
+            <button type="button" class="profile-modal__btn profile-modal__btn--secondary profile-avatar-tools__btn" (click)="resetAvatarToDefault()" [disabled]="modalSaving">Стандартный аватар</button>
+            <button type="button" class="profile-modal__btn profile-modal__btn--secondary profile-avatar-tools__btn" (click)="clearAvatarCanvas()">Очистить</button>
+          </div>
+          <div class="profile-avatar-canvas-wrap">
+            <canvas
+              id="avatarCanvas"
+              class="profile-avatar-canvas"
+              (pointerdown)="onAvatarCanvasPointerDown($event)"
+              (pointerleave)="onAvatarCanvasPointerLeave()"
+            ></canvas>
+          </div>
         </div>
-        <div class="profile-modal__actions">
-          <button type="button" class="profile-modal__btn profile-modal__btn--secondary" (click)="closeModal()">Отмена</button>
-          <button type="button" class="profile-modal__btn profile-modal__btn--primary" (click)="saveAvatar()">Сохранить</button>
+        <div class="profile-modal__actions profile-modal__actions--avatar">
+          <button type="button" class="profile-modal__btn profile-modal__btn--primary" (click)="saveAvatar()" [disabled]="modalSaving">{{ modalSaving ? 'Сохранение…' : 'Сохранить' }}</button>
         </div>
       </div>
     </div>

@@ -16,6 +16,8 @@ export interface LoginResponse {
   userId: number;
   username: string;
   avatarUrl?: string | null;
+  /** Версия для cache-busting URL аватара (добавляется на клиенте) */
+  avatarVersion?: number;
 }
 
 export interface UpdateProfileRequest {

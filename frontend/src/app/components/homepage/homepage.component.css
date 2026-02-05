@@ -122,8 +122,7 @@
 }
 
 .user-avatar:hover {
-  background: #2a2d33;
-  transform: scale(1.05);
+  box-shadow: 0 0 0 1px #C86810;
 }
 
 .user-avatar__img {

@@ -161,10 +161,12 @@ export class HomepageComponent implements OnInit {
     return '—';
   }
 
-  /** URL аватарки: если путь относительный — через /api/covers/, иначе как есть. */
+  /** URL аватарки: если путь относительный — через /api/covers/, иначе как есть. Cache-busting по avatarVersion. */
   getAvatarUrl(user: LoginResponse): string | null {
     if (!user?.avatarUrl) return null;
-    return user.avatarUrl.startsWith('http') ? user.avatarUrl : '/api/covers/' + user.avatarUrl;
+    const base = user.avatarUrl.startsWith('http') ? user.avatarUrl : '/api/covers/' + user.avatarUrl;
+    const sep = base.includes('?') ? '&' : '?';
+    return user.avatarVersion ? `${base}${sep}v=${user.avatarVersion}` : base;
   }
 
   getInitial(user: LoginResponse): string {
