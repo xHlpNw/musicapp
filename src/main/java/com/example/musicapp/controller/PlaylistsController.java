@@ -24,6 +24,13 @@ public class PlaylistsController {
 
     private final PlaylistService playlistService;
 
+    /** Все плейлисты (для раздела «Все плейлисты» на странице Плейлисты). */
+    @GetMapping("/browse")
+    public ResponseEntity<Page<PlaylistResponse>> browse(
+            @PageableDefault(size = 24) Pageable pageable) {
+        return ResponseEntity.ok(playlistService.findAll(pageable));
+    }
+
     @GetMapping
     public ResponseEntity<Page<PlaylistResponse>> findMy(
             @RequestParam(required = false) String q,
@@ -37,11 +44,8 @@ public class PlaylistsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlaylistResponse> findById(
-            @PathVariable Long id,
-            @AuthenticationPrincipal SecurityUser securityUser) {
-        User user = securityUser.getUser();
-        return ResponseEntity.ok(playlistService.findById(id, user));
+    public ResponseEntity<PlaylistResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(playlistService.findById(id));
     }
 
     @PostMapping
@@ -72,11 +76,8 @@ public class PlaylistsController {
     }
 
     @GetMapping("/{id}/tracks")
-    public ResponseEntity<List<TrackResponse>> getTracks(
-            @PathVariable Long id,
-            @AuthenticationPrincipal SecurityUser securityUser) {
-        User user = securityUser.getUser();
-        return ResponseEntity.ok(playlistService.getTracks(id, user));
+    public ResponseEntity<List<TrackResponse>> getTracks(@PathVariable Long id) {
+        return ResponseEntity.ok(playlistService.getTracks(id));
     }
 
     @PostMapping("/{id}/tracks")

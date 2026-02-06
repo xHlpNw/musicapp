@@ -90,7 +90,7 @@ SELECT 'Я убью себя', 162, 'KPSS_YaUbiuSebia.mp3', 'audio/mpeg', u.id, 
 INSERT INTO tracks (title, duration_seconds, file_path, mime_type, uploaded_by_id, created_at)
 SELECT 'Ни надежды, ни Бога, ни хип-хопа', 716, 'KPSS_NiNadezhdi.mp3', 'audio/mpeg', u.id, CURRENT_TIMESTAMP FROM users u WHERE u.username = 'admin' LIMIT 1;
 INSERT INTO tracks (title, duration_seconds, file_path, mime_type, uploaded_by_id, created_at)
-SELECT 'Car radio', 716, 'CarRadio.mp3', 'audio/mpeg', u.id, CURRENT_TIMESTAMP FROM users u WHERE u.username = 'admin' LIMIT 1;
+SELECT 'Car radio', 267, 'CarRadio.mp3', 'audio/mpeg', u.id, CURRENT_TIMESTAMP FROM users u WHERE u.username = 'admin' LIMIT 1;
 
 -- Связь трек–альбом (album_tracks: альбом, трек, позиция)
 INSERT INTO album_tracks (position, album_id, track_id) SELECT 1, al.id, t.id FROM albums al, tracks t WHERE al.title = 'Пески времени' AND t.title = 'Пески времени' LIMIT 1;

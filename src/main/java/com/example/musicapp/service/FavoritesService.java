@@ -134,6 +134,7 @@ public class FavoritesService {
         userRepository.save(u);
     }
 
+    /** Удаляет плейлист только из избранного пользователя; сам плейлист в БД не удаляется. */
     @Transactional
     public void removeFavoritePlaylist(Long playlistId, User user) {
         Playlist playlist = playlistRepository.findById(playlistId)

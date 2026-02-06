@@ -362,7 +362,10 @@
 
 /* Playlist card */
 .favorites-playlist-card {
-  cursor: default;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .favorites-playlist-card__cover {

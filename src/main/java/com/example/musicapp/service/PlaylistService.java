@@ -32,6 +32,11 @@ public class PlaylistService {
     private final TrackService trackService;
 
     @Transactional(readOnly = true)
+    public Page<PlaylistResponse> findAll(Pageable pageable) {
+        return playlistRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public Page<PlaylistResponse> findByOwner(User owner, Pageable pageable) {
         return playlistRepository.findByOwner(owner, pageable).map(this::toResponse);
     }
@@ -46,12 +51,9 @@ public class PlaylistService {
     }
 
     @Transactional(readOnly = true)
-    public PlaylistResponse findById(Long id, User currentUser) {
+    public PlaylistResponse findById(Long id) {
         Playlist playlist = playlistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist not found: " + id));
-        if (!playlist.getOwner().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not the owner of this playlist");
-        }
         return toDetailResponse(playlist);
     }
 
@@ -146,12 +148,9 @@ public class PlaylistService {
     }
 
     @Transactional(readOnly = true)
-    public List<TrackResponse> getTracks(Long playlistId, User currentUser) {
+    public List<TrackResponse> getTracks(Long playlistId) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist not found: " + playlistId));
-        if (!playlist.getOwner().getId().equals(currentUser.getId())) {
-            throw new ForbiddenException("Not the owner of this playlist");
-        }
         return playlistTrackRepository.findByPlaylistOrderByPositionAsc(playlist).stream()
                 .map(pt -> trackService.toResponse(pt.getTrack()))
                 .collect(Collectors.toList());

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PlaylistResponse, CreatePlaylistRequest, PageResponse } from '../models/playlist.model';
+import { TrackResponse } from '../models/track.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +20,18 @@ export class PlaylistService {
     return this.http.get<PageResponse<PlaylistResponse>>(this.API_URL, { params });
   }
 
+  /** Все плейлисты (для раздела «Все плейлисты»). */
+  getBrowsePlaylists(page = 0, size = 24): Observable<PageResponse<PlaylistResponse>> {
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<PageResponse<PlaylistResponse>>(`${this.API_URL}/browse`, { params });
+  }
+
   getById(id: number): Observable<PlaylistResponse> {
     return this.http.get<PlaylistResponse>(`${this.API_URL}/${id}`);
+  }
+
+  getTracks(id: number): Observable<TrackResponse[]> {
+    return this.http.get<TrackResponse[]>(`${this.API_URL}/${id}/tracks`);
   }
 
   create(request: CreatePlaylistRequest): Observable<PlaylistResponse> {

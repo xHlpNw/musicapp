@@ -40,6 +40,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.currentTime = 0;
       this.isPlaying = false;
     });
+    this.playerService.playRequest$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const audio = this.audioRef?.nativeElement;
+      if (audio?.src && this.playerService.getCurrentTrack()) {
+        audio.play().catch(() => {});
+      }
+    });
+    this.playerService.pauseRequest$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const audio = this.audioRef?.nativeElement;
+      if (audio) {
+        audio.pause();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -112,15 +124,25 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   onPlay(): void {
     this.isPlaying = true;
+    this.playerService.setPlaying(true);
   }
 
   onPause(): void {
     this.isPlaying = false;
+    this.playerService.setPlaying(false);
   }
 
   onEnded(): void {
     this.isPlaying = false;
     this.currentTime = 0;
+    this.playerService.setPlaying(false);
+  }
+
+  onCanPlay(): void {
+    const audio = this.audioRef?.nativeElement;
+    if (audio && this.playerService.getCurrentTrack()) {
+      audio.play().catch(() => {});
+    }
   }
 
   get progressPercent(): number {

@@ -13,6 +13,7 @@ import { TrackUploadComponent } from './components/admin/track-upload/track-uplo
 import { ProfileComponent } from './components/profile/profile.component';
 import { FavoritesComponent } from './components/favorites/favorites.component';
 import { PlaylistsComponent } from './components/playlists/playlists.component';
+import { PlaylistDetailComponent } from './components/playlist-detail/playlist-detail.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'playlists', component: PlaylistsComponent, canActivate: [authGuard] },
+  { path: 'playlists/:id', component: PlaylistDetailComponent },
   {
     path: 'admin',
     component: AdminLayoutComponent,

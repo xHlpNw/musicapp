@@ -27,10 +27,14 @@ export class PlaylistsComponent implements OnInit {
 
   createdPlaylists: PlaylistResponse[] = [];
   savedPlaylists: PlaylistResponse[] = [];
+  /** Популярные плейлисты: первые 8 из каталога (не привязаны к пользователю). */
+  popularPlaylists: PlaylistResponse[] = [];
   isLoadingCreated = false;
   isLoadingSaved = false;
+  isLoadingPopular = false;
   errorCreated = '';
   errorSaved = '';
+  errorPopular = '';
 
   showCreateModal = false;
   createName = '';
@@ -61,7 +65,23 @@ export class PlaylistsComponent implements OnInit {
     });
     this.loadCreated();
     this.loadSaved();
+    this.loadPopularPlaylists();
     this.playerService.currentTrack$.subscribe(t => this.hasActiveTrack = !!t);
+  }
+
+  loadPopularPlaylists(): void {
+    this.isLoadingPopular = true;
+    this.errorPopular = '';
+    this.playlistService.getBrowsePlaylists(0, 8).subscribe({
+      next: (res) => {
+        this.popularPlaylists = res.content;
+        this.isLoadingPopular = false;
+      },
+      error: () => {
+        this.errorPopular = 'Не удалось загрузить плейлисты';
+        this.isLoadingPopular = false;
+      }
+    });
   }
 
   loadCreated(): void {
@@ -100,10 +120,6 @@ export class PlaylistsComponent implements OnInit {
       this.searchDebounce = null;
       this.loadCreated();
     }, 300);
-  }
-
-  get popularPlaylists(): PlaylistResponse[] {
-    return this.savedPlaylists;
   }
 
   get filteredMyPlaylists(): PlaylistResponse[] {

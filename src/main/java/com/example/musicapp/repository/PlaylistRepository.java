@@ -18,5 +18,7 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
 
     Page<Playlist> findByOwnerAndNameContainingIgnoreCase(User owner, String name, Pageable pageable);
 
+    Page<Playlist> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
     boolean existsByIdAndOwner(Long id, User owner);
 }

@@ -1,0 +1,125 @@
+<header class="header">
+  <nav class="nav">
+    <a routerLink="/" class="logo">Stream</a>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" class="search-input" placeholder="Поиск треков, альбомов, исполнителей..." readonly tabindex="-1" aria-hidden="true" />
+    </div>
+    <div class="nav-links">
+      @if (authService.currentUser$ | async; as user) {
+        <a routerLink="/profile" class="user-avatar" [title]="user.username" aria-label="Профиль">
+          @if (getAvatarUrl(user); as avatarUrl) {
+            <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
+          } @else {
+            <span class="user-avatar__initial">{{ getInitial(user) }}</span>
+          }
+        </a>
+      } @else {
+        <a href="#" class="nav-link" (click)="openLogin($event)">Войти</a>
+      }
+    </div>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main" [class.main--with-player]="hasActiveTrack">
+      @if (isLoading && !playlist) {
+        <p class="pld-muted">Загрузка…</p>
+      } @else if (error && !playlist) {
+        <p class="pld-muted">{{ error }}</p>
+      } @else if (playlist) {
+        <a routerLink="/playlists" class="pld-back">← К плейлистам</a>
+
+        <section class="pld-hero">
+          <div class="pld-hero__cover" [ngClass]="getPlaylistCoverClass(0)"></div>
+          <div class="pld-hero__info">
+            <h1 class="pld-hero__title">{{ playlist.name }}</h1>
+            <p class="pld-hero__author">{{ playlist.ownerUsername }}</p>
+            @if (playlist.description) {
+              <p class="pld-hero__desc">{{ playlist.description }}</p>
+            }
+            <p class="pld-hero__meta">
+              {{ playlist.trackCount }} {{ playlist.trackCount === 1 ? 'трек' : playlist.trackCount >= 2 && playlist.trackCount <= 4 ? 'трека' : 'треков' }}
+              · {{ formatTotalDuration() }}
+            </p>
+            <div class="pld-actions">
+              @if (isPlaylistPlaying()) {
+                <button type="button" class="pld-actions__play" (click)="stopPlaylist()">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                  </svg>
+                  Остановить
+                </button>
+              } @else {
+                <button type="button" class="pld-actions__play" (click)="playPlaylist()">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  Воспроизвести
+                </button>
+              }
+              <button type="button" class="pld-actions__icon" [class.pld-actions__icon--active]="isHeartActive()" (click)="toggleFavorite($event)" [attr.aria-label]="isHeartActive() ? 'Убрать из избранного' : 'Добавить в избранное'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+              <button type="button" class="pld-actions__icon" aria-label="Ещё">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                  <circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="pld-tracks">
+          @if (isLoading && tracks.length === 0) {
+            <p class="pld-muted">Загрузка треков…</p>
+          } @else if (error && tracks.length === 0) {
+            <p class="pld-muted">{{ error }}</p>
+          } @else if (tracks.length === 0) {
+            <p class="pld-empty">В плейлисте пока нет треков.</p>
+            <p class="pld-empty-sub">Добавьте треки через меню «Ещё» у трека на главной или в альбоме.</p>
+          } @else {
+            <ul class="pld-track-list">
+              @for (track of tracks; track track.id; let i = $index) {
+                <li class="pld-track-row" [class.pld-track-row--current]="isCurrentTrack(track)" [class.pld-track-row--playing]="isTrackPlaying(track)" (click)="playTrack(track)">
+                  <span class="pld-track-row__num">{{ i + 1 }}</span>
+                  <div class="pld-track-row__cover-wrap">
+                    <div class="pld-track-row__cover" [ngClass]="track.coverImagePath ? '' : getTrackCoverClass(i)" [style.background-image]="getTrackCoverStyle(track)"></div>
+                    <button type="button" class="pld-track-row__play" [class.pld-track-row__play--current]="isCurrentTrack(track)" (click)="toggleTrackPlayPause(track, $event)" [attr.aria-label]="isTrackPlaying(track) ? 'Пауза' : 'Воспроизвести'">
+                      @if (isTrackPlaying(track)) {
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      }
+                    </button>
+                  </div>
+                  <div class="pld-track-row__info">
+                    <span class="pld-track-row__title">{{ track.title }}</span>
+                    <span class="pld-track-row__artist">{{ getTrackArtistNames(track) }}</span>
+                  </div>
+                  <span class="pld-track-row__duration">{{ formatDuration(track.durationSeconds) }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </main>
+  </div>
+</div>
+
+@if (hasActiveTrack) {
+  <app-player></app-player>
+}

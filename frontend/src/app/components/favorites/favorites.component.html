@@ -114,26 +114,26 @@
         </section>
       }
 
-      <!-- Плейлисты -->
+      <!-- Плейлисты: созданные пользователем + сохранённые в избранное -->
       @if (activeTab === 'playlists') {
         <section class="favorites-content">
-          @if (isLoadingPlaylists) {
+          @if (isLoadingPlaylists || isLoadingCreatedPlaylists) {
             <p class="favorites-loading">Загрузка…</p>
-          } @else if (errorPlaylists) {
+          } @else if (errorPlaylists && errorCreatedPlaylists) {
             <p class="favorites-error">{{ errorPlaylists }}</p>
-          } @else if (favoritePlaylists.length === 0) {
-            <p class="favorites-empty">В избранном пока нет плейлистов.</p>
+          } @else if (displayPlaylists.length === 0) {
+            <p class="favorites-empty">Нет плейлистов: создайте свой или сохраните чужой в избранное.</p>
           } @else {
             <div class="favorites-grid favorites-grid--playlists">
-              @for (playlist of favoritePlaylists; track playlist.id; let i = $index) {
-                <div class="favorites-playlist-card">
+              @for (playlist of displayPlaylists; track playlist.id; let i = $index) {
+                <a [routerLink]="['/playlists', playlist.id]" class="favorites-playlist-card">
                   <div
                     class="favorites-playlist-card__cover"
                     [ngClass]="getPlaylistCoverClass(i)"
                   ></div>
                   <span class="favorites-playlist-card__title">{{ playlist.name }}</span>
                   <span class="favorites-playlist-card__count">{{ trackCountLabel(playlist.trackCount) }}</span>
-                </div>
+                </a>
               }
             </div>
           }

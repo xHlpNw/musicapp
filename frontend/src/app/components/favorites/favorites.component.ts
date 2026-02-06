@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { FavoritesService } from '../../services/favorites.service';
+import { PlaylistService } from '../../services/playlist.service';
 import { AuthService } from '../../services/auth.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
@@ -28,16 +29,21 @@ export class FavoritesComponent implements OnInit {
   activeTab: FavoritesTab = 'tracks';
 
   favoriteTracks: TrackResponse[] = [];
+  /** Сохранённые в избранное плейлисты (чужие) */
   favoritePlaylists: PlaylistResponse[] = [];
+  /** Плейлисты, созданные пользователем */
+  createdPlaylists: PlaylistResponse[] = [];
   favoriteAlbums: AlbumSummaryResponse[] = [];
   favoriteArtists: ArtistResponse[] = [];
 
   isLoadingTracks = false;
   isLoadingPlaylists = false;
+  isLoadingCreatedPlaylists = false;
   isLoadingAlbums = false;
   isLoadingArtists = false;
   errorTracks = '';
   errorPlaylists = '';
+  errorCreatedPlaylists = '';
   errorAlbums = '';
   errorArtists = '';
 
@@ -46,6 +52,7 @@ export class FavoritesComponent implements OnInit {
 
   constructor(
     private favoritesService: FavoritesService,
+    private playlistService: PlaylistService,
     public authService: AuthService,
     public playerService: PlayerService,
     private loginOverlay: LoginOverlayService,
@@ -71,6 +78,7 @@ export class FavoritesComponent implements OnInit {
   loadAll(): void {
     this.loadTracks();
     this.loadPlaylists();
+    this.loadCreatedPlaylists();
     this.loadAlbums();
     this.loadArtists();
   }
@@ -103,6 +111,28 @@ export class FavoritesComponent implements OnInit {
         this.isLoadingPlaylists = false;
       }
     });
+  }
+
+  loadCreatedPlaylists(): void {
+    this.isLoadingCreatedPlaylists = true;
+    this.errorCreatedPlaylists = '';
+    this.playlistService.getMyPlaylists(undefined, 0, 500).subscribe({
+      next: (res) => {
+        this.createdPlaylists = res.content;
+        this.isLoadingCreatedPlaylists = false;
+      },
+      error: () => {
+        this.errorCreatedPlaylists = 'Не удалось загрузить созданные плейлисты';
+        this.isLoadingCreatedPlaylists = false;
+      }
+    });
+  }
+
+  /** Для вкладки «Плейлисты»: созданные пользователем + сохранённые в избранное (без дубликатов) */
+  get displayPlaylists(): PlaylistResponse[] {
+    const createdIds = new Set(this.createdPlaylists.map(p => p.id));
+    const onlySaved = this.favoritePlaylists.filter(p => !createdIds.has(p.id));
+    return [...this.createdPlaylists, ...onlySaved];
   }
 
   loadAlbums(): void {

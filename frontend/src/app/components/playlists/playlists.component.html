@@ -62,20 +62,20 @@
 
       <section class="playlists-section">
         <h2 class="playlists-section__title">Популярные плейлисты</h2>
-        @if (isLoadingSaved && popularPlaylists.length === 0) {
+        @if (isLoadingPopular && popularPlaylists.length === 0) {
           <p class="playlists-section__muted">Загрузка…</p>
-        } @else if (errorSaved && popularPlaylists.length === 0) {
-          <p class="playlists-section__muted">{{ errorSaved }}</p>
+        } @else if (errorPopular && popularPlaylists.length === 0) {
+          <p class="playlists-section__muted">{{ errorPopular }}</p>
         } @else if (popularPlaylists.length === 0) {
-          <p class="playlists-section__muted">Пока нет сохранённых плейлистов.</p>
+          <p class="playlists-section__muted">Пока нет плейлистов.</p>
         } @else {
           <div class="playlists-row">
             @for (p of popularPlaylists; track p.id; let i = $index) {
-              <div class="playlists-card">
+              <a [routerLink]="['/playlists', p.id]" class="playlists-card">
                 <div class="playlists-card__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
                 <span class="playlists-card__name">{{ p.name }}</span>
                 <span class="playlists-card__meta">{{ p.ownerUsername }}</span>
-              </div>
+              </a>
             }
           </div>
         }
@@ -129,11 +129,11 @@
         } @else {
           <div class="playlists-grid">
             @for (p of filteredMyPlaylists; track p.id; let i = $index) {
-              <div class="playlists-card">
+              <a [routerLink]="['/playlists', p.id]" class="playlists-card">
                 <div class="playlists-card__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
                 <span class="playlists-card__name">{{ p.name }}</span>
                 <span class="playlists-card__meta">{{ trackCountLabel(p.trackCount) }}</span>
-              </div>
+              </a>
             }
           </div>
         }

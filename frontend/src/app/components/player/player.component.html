@@ -2,6 +2,7 @@
   [src]="streamUrlSafe$ | async"
   (timeupdate)="onTimeUpdate()"
   (loadedmetadata)="onLoadedMetadata()"
+  (canplay)="onCanPlay()"
   (play)="onPlay()"
   (pause)="onPause()"
   (ended)="onEnded()">
