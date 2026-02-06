@@ -9,3 +9,18 @@ export interface PlaylistResponse {
   tracks?: TrackResponse[];
   trackCount: number;
 }
+
+export interface CreatePlaylistRequest {
+  name: string;
+  description?: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+}

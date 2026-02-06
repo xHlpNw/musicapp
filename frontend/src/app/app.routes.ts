@@ -12,6 +12,7 @@ import { TracksListComponent } from './components/admin/tracks-list/tracks-list.
 import { TrackUploadComponent } from './components/admin/track-upload/track-upload.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FavoritesComponent } from './components/favorites/favorites.component';
+import { PlaylistsComponent } from './components/playlists/playlists.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
+  { path: 'playlists', component: PlaylistsComponent, canActivate: [authGuard] },
   {
     path: 'admin',
     component: AdminLayoutComponent,

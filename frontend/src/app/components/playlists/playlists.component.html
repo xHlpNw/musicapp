@@ -1,0 +1,197 @@
+<header class="header">
+  <nav class="nav">
+    <a routerLink="/" class="logo">Stream</a>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Поиск треков, альбомов, исполнителей..."
+        readonly
+        tabindex="-1"
+        aria-hidden="true"
+      />
+    </div>
+    <div class="nav-links">
+      @if (authService.currentUser$ | async; as user) {
+        <a routerLink="/profile" class="user-avatar" [title]="user.username" aria-label="Профиль">
+          @if (getAvatarUrl(user); as avatarUrl) {
+            <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
+          } @else {
+            <span class="user-avatar__initial">{{ getInitial(user) }}</span>
+          }
+        </a>
+      } @else {
+        <a href="#" class="nav-link" (click)="openLogin($event)">Войти</a>
+      }
+    </div>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main" [class.main--with-player]="hasActiveTrack">
+      <h1 class="playlists-title">Плейлисты</h1>
+
+      <div class="playlists-toolbar">
+        <div class="playlists-search-wrap">
+          <svg class="playlists-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="search"
+            class="playlists-search-input"
+            placeholder="Поиск по плейлистам"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+          />
+        </div>
+        <button type="button" class="playlists-create-btn" (click)="openCreateModal()">
+          <svg class="playlists-create-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Создать плейлист
+        </button>
+      </div>
+
+      <section class="playlists-section">
+        <h2 class="playlists-section__title">Популярные плейлисты</h2>
+        @if (isLoadingSaved && popularPlaylists.length === 0) {
+          <p class="playlists-section__muted">Загрузка…</p>
+        } @else if (errorSaved && popularPlaylists.length === 0) {
+          <p class="playlists-section__muted">{{ errorSaved }}</p>
+        } @else if (popularPlaylists.length === 0) {
+          <p class="playlists-section__muted">Пока нет сохранённых плейлистов.</p>
+        } @else {
+          <div class="playlists-row">
+            @for (p of popularPlaylists; track p.id; let i = $index) {
+              <div class="playlists-card">
+                <div class="playlists-card__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
+                <span class="playlists-card__name">{{ p.name }}</span>
+                <span class="playlists-card__meta">{{ p.ownerUsername }}</span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="playlists-section playlists-section--my">
+        <h2 class="playlists-section__title">Мои плейлисты</h2>
+        <nav class="playlists-filters" aria-label="Фильтр плейлистов">
+          <button
+            type="button"
+            class="playlists-filter"
+            [class.playlists-filter--active]="myPlaylistsFilter === 'all'"
+            (click)="myPlaylistsFilter = 'all'"
+          >
+            Все
+          </button>
+          <button
+            type="button"
+            class="playlists-filter"
+            [class.playlists-filter--active]="myPlaylistsFilter === 'created'"
+            (click)="myPlaylistsFilter = 'created'"
+          >
+            Созданные мной
+          </button>
+          <button
+            type="button"
+            class="playlists-filter"
+            [class.playlists-filter--active]="myPlaylistsFilter === 'saved'"
+            (click)="myPlaylistsFilter = 'saved'"
+          >
+            Сохранённые
+          </button>
+        </nav>
+        @if (myPlaylistsFilter === 'created' && isLoadingCreated && createdPlaylists.length === 0) {
+          <p class="playlists-section__muted">Загрузка…</p>
+        } @else if (myPlaylistsFilter === 'saved' && isLoadingSaved && savedPlaylists.length === 0) {
+          <p class="playlists-section__muted">Загрузка…</p>
+        } @else if (filteredMyPlaylists.length === 0) {
+          <p class="playlists-section__muted">
+            @if (myPlaylistsFilter === 'all') {
+              У вас пока нет плейлистов. Создайте первый или сохраните чужой в избранное.
+            } @else if (myPlaylistsFilter === 'created') {
+              Вы ещё не создали ни одного плейлиста.
+            } @else {
+              В избранном пока нет плейлистов.
+            }
+          </p>
+          <button type="button" class="playlists-empty-action" (click)="openCreateModal()">
+            Создать плейлист
+          </button>
+        } @else {
+          <div class="playlists-grid">
+            @for (p of filteredMyPlaylists; track p.id; let i = $index) {
+              <div class="playlists-card">
+                <div class="playlists-card__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
+                <span class="playlists-card__name">{{ p.name }}</span>
+                <span class="playlists-card__meta">{{ trackCountLabel(p.trackCount) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </main>
+  </div>
+</div>
+
+@if (showCreateModal) {
+  <div class="playlists-overlay" (click)="closeCreateModal()">
+    <div class="playlists-modal" role="dialog" aria-labelledby="create-playlist-title" (click)="$event.stopPropagation()">
+      <header class="playlists-modal__header">
+        <h2 id="create-playlist-title" class="playlists-modal__title">Создать плейлист</h2>
+        <button type="button" class="playlists-modal__close" aria-label="Закрыть" (click)="closeCreateModal()">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </header>
+      <div class="playlists-modal__body">
+        @if (createError) {
+          <p class="playlists-modal__error">{{ createError }}</p>
+        }
+        <div class="playlists-modal__field">
+          <label for="create-name">Название</label>
+          <input
+            type="text"
+            id="create-name"
+            class="playlists-modal__input"
+            [(ngModel)]="createName"
+            placeholder="Новый плейлист"
+            maxlength="255"
+          />
+        </div>
+        <div class="playlists-modal__field">
+          <label for="create-desc">Описание (необязательно)</label>
+          <input
+            type="text"
+            id="create-desc"
+            class="playlists-modal__input"
+            [(ngModel)]="createDescription"
+            placeholder="Краткое описание"
+            maxlength="2000"
+          />
+        </div>
+        <div class="playlists-modal__actions">
+          <button type="button" class="playlists-modal__btn playlists-modal__btn--secondary" (click)="closeCreateModal()">
+            Отмена
+          </button>
+          <button type="button" class="playlists-modal__btn playlists-modal__btn--primary" (click)="onCreateSubmit()" [disabled]="isCreating">
+            {{ isCreating ? 'Создание…' : 'Создать' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (hasActiveTrack) {
+  <app-player></app-player>
+}
