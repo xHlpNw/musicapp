@@ -160,3 +160,15 @@ UPDATE albums SET cover_image_path = 'albums/vessel.jpeg' WHERE title = 'Vessel'
 UPDATE artists SET cover_image_path = 'artists/kpss.jpeg' WHERE name = 'Слава КПСС';
 UPDATE artists SET cover_image_path = 'artists/21pilots.jpeg' WHERE name = 'twenty one pilots';
 UPDATE artists SET cover_image_path = 'artists/tyomniy.jpeg' WHERE name = 'Тёмный принц';
+
+-- Избранное пользователя admin: пара треков, пара альбомов, один исполнитель
+INSERT INTO user_favorite_tracks (user_id, track_id)
+SELECT u.id, t.id FROM users u, tracks t WHERE u.username = 'admin' AND t.title = 'Пески времени' LIMIT 1;
+INSERT INTO user_favorite_tracks (user_id, track_id)
+SELECT u.id, t.id FROM users u, tracks t WHERE u.username = 'admin' AND t.title = 'Чудовище погубившее мир' LIMIT 1;
+INSERT INTO user_favorite_albums (user_id, album_id)
+SELECT u.id, al.id FROM users u, albums al WHERE u.username = 'admin' AND al.title = 'Пески времени' LIMIT 1;
+INSERT INTO user_favorite_albums (user_id, album_id)
+SELECT u.id, al.id FROM users u, albums al WHERE u.username = 'admin' AND al.title = 'Vessel' LIMIT 1;
+INSERT INTO user_favorite_artists (user_id, artist_id)
+SELECT u.id, a.id FROM users u, artists a WHERE u.username = 'admin' AND a.name = 'Слава КПСС' LIMIT 1;

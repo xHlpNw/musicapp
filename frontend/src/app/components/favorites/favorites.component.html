@@ -1,0 +1,201 @@
+<header class="header">
+  <nav class="nav">
+    <a routerLink="/" class="logo">Stream</a>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Поиск треков, альбомов, исполнителей..."
+        [(ngModel)]="searchQuery"
+      />
+    </div>
+    <div class="nav-links">
+      @if (authService.currentUser$ | async; as user) {
+        <a routerLink="/profile" class="user-avatar" [title]="user.username" aria-label="Профиль">
+          @if (getAvatarUrl(user); as avatarUrl) {
+            <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
+          } @else {
+            <span class="user-avatar__initial">{{ getInitial(user) }}</span>
+          }
+        </a>
+      } @else {
+        <a href="#" class="nav-link" (click)="openLogin($event)">Войти</a>
+      }
+    </div>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main" [class.main--with-player]="hasActiveTrack">
+      <h1 class="favorites-title">Избранное</h1>
+
+      <nav class="favorites-tabs" aria-label="Категории избранного">
+        <button
+          type="button"
+          class="favorites-tab"
+          [class.favorites-tab--active]="activeTab === 'tracks'"
+          (click)="setTab('tracks')"
+        >
+          Треки
+        </button>
+        <button
+          type="button"
+          class="favorites-tab"
+          [class.favorites-tab--active]="activeTab === 'playlists'"
+          (click)="setTab('playlists')"
+        >
+          Плейлисты
+        </button>
+        <button
+          type="button"
+          class="favorites-tab"
+          [class.favorites-tab--active]="activeTab === 'albums'"
+          (click)="setTab('albums')"
+        >
+          Альбомы
+        </button>
+        <button
+          type="button"
+          class="favorites-tab"
+          [class.favorites-tab--active]="activeTab === 'artists'"
+          (click)="setTab('artists')"
+        >
+          Исполнители
+        </button>
+      </nav>
+
+      <!-- Треки -->
+      @if (activeTab === 'tracks') {
+        <section class="favorites-content">
+          @if (isLoadingTracks) {
+            <p class="favorites-loading">Загрузка…</p>
+          } @else if (errorTracks) {
+            <p class="favorites-error">{{ errorTracks }}</p>
+          } @else if (favoriteTracks.length === 0) {
+            <p class="favorites-empty">В избранном пока нет треков.</p>
+          } @else {
+            <ul class="favorites-track-list">
+              @for (track of favoriteTracks; track track.id; let i = $index) {
+                <li class="favorites-track-item">
+                  <span class="favorites-track-num">{{ i + 1 }}</span>
+                  <div class="favorites-track-item__cover-wrap">
+                    <div
+                      class="favorites-track-item__cover"
+                      [ngClass]="track.coverImagePath ? '' : getTrackCoverClass(i)"
+                      [style.background-image]="getTrackCoverStyle(track)"
+                    ></div>
+                    <button
+                      type="button"
+                      class="favorites-track-item__play"
+                      aria-label="Воспроизвести"
+                      (click)="playTrack(track); $event.stopPropagation()"
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="favorites-track-item__info">
+                    <span class="favorites-track-item__title">{{ track.title }}</span>
+                    <span class="favorites-track-item__artist">{{ getTrackArtistNames(track) }}</span>
+                  </div>
+                  <span class="favorites-track-item__duration">{{ formatDuration(track.durationSeconds) }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <!-- Плейлисты -->
+      @if (activeTab === 'playlists') {
+        <section class="favorites-content">
+          @if (isLoadingPlaylists) {
+            <p class="favorites-loading">Загрузка…</p>
+          } @else if (errorPlaylists) {
+            <p class="favorites-error">{{ errorPlaylists }}</p>
+          } @else if (favoritePlaylists.length === 0) {
+            <p class="favorites-empty">В избранном пока нет плейлистов.</p>
+          } @else {
+            <div class="favorites-grid favorites-grid--playlists">
+              @for (playlist of favoritePlaylists; track playlist.id; let i = $index) {
+                <div class="favorites-playlist-card">
+                  <div
+                    class="favorites-playlist-card__cover"
+                    [ngClass]="getPlaylistCoverClass(i)"
+                  ></div>
+                  <span class="favorites-playlist-card__title">{{ playlist.name }}</span>
+                  <span class="favorites-playlist-card__count">{{ trackCountLabel(playlist.trackCount) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <!-- Альбомы -->
+      @if (activeTab === 'albums') {
+        <section class="favorites-content">
+          @if (isLoadingAlbums) {
+            <p class="favorites-loading">Загрузка…</p>
+          } @else if (errorAlbums) {
+            <p class="favorites-error">{{ errorAlbums }}</p>
+          } @else if (favoriteAlbums.length === 0) {
+            <p class="favorites-empty">В избранном пока нет альбомов.</p>
+          } @else {
+            <div class="favorites-grid favorites-grid--albums">
+              @for (album of favoriteAlbums; track album.id; let i = $index) {
+                <div class="favorites-album-card">
+                  <div
+                    class="favorites-album-card__cover"
+                    [ngClass]="album.coverImagePath ? '' : getAlbumCoverClass(i)"
+                    [style.background-image]="getAlbumCoverStyle(album)"
+                  ></div>
+                  <span class="favorites-album-card__title">{{ album.title }}</span>
+                  <span class="favorites-album-card__artist">{{ getAlbumArtistNames(album) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <!-- Исполнители -->
+      @if (activeTab === 'artists') {
+        <section class="favorites-content">
+          @if (isLoadingArtists) {
+            <p class="favorites-loading">Загрузка…</p>
+          } @else if (errorArtists) {
+            <p class="favorites-error">{{ errorArtists }}</p>
+          } @else if (favoriteArtists.length === 0) {
+            <p class="favorites-empty">В избранном пока нет исполнителей.</p>
+          } @else {
+            <div class="favorites-grid favorites-grid--artists">
+              @for (artist of favoriteArtists; track artist.id; let i = $index) {
+                <div class="favorites-artist-card">
+                  <div
+                    class="favorites-artist-card__avatar"
+                    [ngClass]="artist.coverImagePath ? '' : getArtistCoverClass(i)"
+                    [style.background-image]="getArtistCoverStyle(artist)"
+                  ></div>
+                  <span class="favorites-artist-card__name">{{ artist.name }}</span>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+    </main>
+  </div>
+</div>
+
+@if (hasActiveTrack) {
+  <app-player></app-player>
+}
