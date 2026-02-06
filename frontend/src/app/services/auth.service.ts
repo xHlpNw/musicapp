@@ -70,13 +70,13 @@ export class AuthService {
   /** При загрузке приложения: если токен в storage просрочен — очищаем и не считаем пользователя авторизованным */
   private getInitialUser(): LoginResponse | null {
     const token = this.getToken();
-    const user = this.getUserFromStorage();
-    if (!user || !token) return null;
-    if (this.isTokenExpired(token)) {
+    if (!token || this.isTokenExpired(token)) {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
       return null;
     }
+    const user = this.getUserFromStorage();
+    if (!user) return null;
     return user;
   }
 

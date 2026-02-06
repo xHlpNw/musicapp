@@ -68,12 +68,17 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new BadCredentialsException("Invalid username or password");
         }
+        // Повторная загрузка по id гарантирует актуальные данные из БД (в т.ч. avatarUrl)
+        // и избегает возможного устаревшего кэша/прокси при повторном входе после истечения токена.
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new BadCredentialsException("User not found"));
         String token = jwtUtil.generateToken(user.getUsername());
         return LoginResponse.builder()
                 .accessToken(token)
