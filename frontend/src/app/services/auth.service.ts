@@ -11,7 +11,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'access_token';
   private readonly USER_KEY = 'current_user';
 
-  private currentUserSubject = new BehaviorSubject<LoginResponse | null>(this.getUserFromStorage());
+  private currentUserSubject = new BehaviorSubject<LoginResponse | null>(this.getInitialUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {}
@@ -63,7 +63,32 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token && !this.isTokenExpired(token);
+  }
+
+  /** При загрузке приложения: если токен в storage просрочен — очищаем и не считаем пользователя авторизованным */
+  private getInitialUser(): LoginResponse | null {
+    const token = this.getToken();
+    const user = this.getUserFromStorage();
+    if (!user || !token) return null;
+    if (this.isTokenExpired(token)) {
+      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.USER_KEY);
+      return null;
+    }
+    return user;
+  }
+
+  /** Проверка срока действия JWT по полю exp (секунды с эпохи). Только чтение payload, без верификации подписи. */
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp as number;
+      return typeof exp === 'number' && exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
   }
 
   private handleAuthResponse(response: LoginResponse): void {
