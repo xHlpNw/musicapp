@@ -172,3 +172,35 @@ INSERT INTO user_favorite_albums (user_id, album_id)
 SELECT u.id, al.id FROM users u, albums al WHERE u.username = 'admin' AND al.title = 'Vessel' LIMIT 1;
 INSERT INTO user_favorite_artists (user_id, artist_id)
 SELECT u.id, a.id FROM users u, artists a WHERE u.username = 'admin' AND a.name = 'Слава КПСС' LIMIT 1;
+
+-- Плейлисты: один создан admin, два созданы demo (admin их сохраняет в избранное)
+INSERT INTO playlists (name, description, created_at, owner_id)
+SELECT 'Мой плейлист', 'Подборка от admin', CURRENT_TIMESTAMP, u.id FROM users u WHERE u.username = 'admin' LIMIT 1;
+INSERT INTO playlists (name, description, created_at, owner_id)
+SELECT 'Рок-хиты', 'Лучшее из рока', CURRENT_TIMESTAMP, u.id FROM users u WHERE u.username = 'demo' LIMIT 1;
+INSERT INTO playlists (name, description, created_at, owner_id)
+SELECT 'Для работы', 'Фоновая музыка', CURRENT_TIMESTAMP, u.id FROM users u WHERE u.username = 'demo' LIMIT 1;
+
+-- Треки в плейлисте admin (Мой плейлист)
+INSERT INTO playlist_tracks (position, playlist_id, track_id)
+SELECT 1, p.id, t.id FROM playlists p, tracks t, users u
+WHERE p.owner_id = u.id AND u.username = 'admin' AND p.name = 'Мой плейлист' AND t.title = 'Пески времени' LIMIT 1;
+INSERT INTO playlist_tracks (position, playlist_id, track_id)
+SELECT 2, p.id, t.id FROM playlists p, tracks t, users u
+WHERE p.owner_id = u.id AND u.username = 'admin' AND p.name = 'Мой плейлист' AND t.title = 'Car radio' LIMIT 1;
+
+-- Треки в плейлистах demo (по одному для примера)
+INSERT INTO playlist_tracks (position, playlist_id, track_id)
+SELECT 1, p.id, t.id FROM playlists p, tracks t, users u
+WHERE p.owner_id = u.id AND u.username = 'demo' AND p.name = 'Рок-хиты' AND t.title = 'Car radio' LIMIT 1;
+INSERT INTO playlist_tracks (position, playlist_id, track_id)
+SELECT 1, p.id, t.id FROM playlists p, tracks t, users u
+WHERE p.owner_id = u.id AND u.username = 'demo' AND p.name = 'Для работы' AND t.title = 'Чучело' LIMIT 1;
+
+-- Избранные плейлисты admin: два сохранённых (плейлисты demo)
+INSERT INTO user_favorite_playlists (user_id, playlist_id)
+SELECT u.id, p.id FROM users u, playlists p, users owner
+WHERE u.username = 'admin' AND p.owner_id = owner.id AND owner.username = 'demo' AND p.name = 'Рок-хиты' LIMIT 1;
+INSERT INTO user_favorite_playlists (user_id, playlist_id)
+SELECT u.id, p.id FROM users u, playlists p, users owner
+WHERE u.username = 'admin' AND p.owner_id = owner.id AND owner.username = 'demo' AND p.name = 'Для работы' LIMIT 1;
