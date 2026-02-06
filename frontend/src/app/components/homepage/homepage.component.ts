@@ -43,6 +43,10 @@ export class HomepageComponent implements OnInit {
 
   /** Плеер показывается только когда выбран трек */
   hasActiveTrack = false;
+  /** Текущий трек в плеере (для выделения в списке и кнопки play/pause) */
+  currentTrack: TrackResponse | null = null;
+  /** Идёт ли воспроизведение */
+  isPlaying = false;
 
   constructor(
     private trackService: TrackService,
@@ -65,11 +69,32 @@ export class HomepageComponent implements OnInit {
     this.loadPopularArtists();
     this.playerService.currentTrack$.subscribe(track => {
       this.hasActiveTrack = !!track;
+      this.currentTrack = track ?? null;
+    });
+    this.playerService.isPlaying$.subscribe(playing => {
+      this.isPlaying = playing;
     });
   }
 
   playTrack(track: TrackResponse): void {
     this.playerService.setCurrentTrack(track);
+  }
+
+  isCurrentTrack(track: TrackResponse): boolean {
+    const current = this.playerService.getCurrentTrack();
+    return current != null && current.id === track.id;
+  }
+
+  togglePlayPause(track: TrackResponse): void {
+    if (!this.isCurrentTrack(track)) {
+      this.playerService.setCurrentTrack(track);
+      return;
+    }
+    if (this.playerService.isPlaying()) {
+      this.playerService.requestPause();
+    } else {
+      this.playerService.playCurrent();
+    }
   }
 
   loadPopularTracks(): void {

@@ -43,14 +43,30 @@
     } @else {
       <ul class="track-list">
         @for (track of popularTracks; track track.id; let i = $index) {
-          <li class="track-item">
+          <li class="track-item" [class.track-item--playing]="isCurrentTrack(track)">
             <div class="track-item__cover-wrap">
               <div class="track-item__cover" [ngClass]="track.coverImagePath ? '' : getTrackCoverClass(i)" [style.background-image]="getTrackCoverStyle(track)"></div>
-              <button type="button" class="track-item__play" aria-label="Воспроизвести" (click)="playTrack(track); $event.stopPropagation()">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </button>
+              @if (isCurrentTrack(track)) {
+                @if (isPlaying) {
+                  <button type="button" class="track-item__control track-item__control--pause" aria-label="Пауза" (click)="togglePlayPause(track); $event.stopPropagation()">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                    </svg>
+                  </button>
+                } @else {
+                  <button type="button" class="track-item__control track-item__control--play" aria-label="Воспроизвести" (click)="togglePlayPause(track); $event.stopPropagation()">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </button>
+                }
+              } @else {
+                <button type="button" class="track-item__play" aria-label="Воспроизвести" (click)="playTrack(track); $event.stopPropagation()">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </button>
+              }
             </div>
             <div class="track-item__info">
               <span class="track-item__title">{{ track.title }}</span>

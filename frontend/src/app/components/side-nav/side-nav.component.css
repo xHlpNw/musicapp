@@ -3,11 +3,10 @@
   left: 0;
   top: 52px;
   width: 180px;
-  height: calc(100vh - 52px);
+  height: calc(100vh - 104px);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -28px;
   z-index: 5;
   transition: background-color 0.2s ease;
 }
