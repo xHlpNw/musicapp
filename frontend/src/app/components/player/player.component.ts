@@ -1,15 +1,19 @@
 import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl, SafeStyle } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { PlayerService } from '../../services/player.service';
+import { AuthService } from '../../services/auth.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { TrackResponse } from '../../models/track.model';
+import { LoginResponse } from '../../models/auth.model';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css']
 })
@@ -19,6 +23,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   titleOverflows = false;
   marqueeScrollPx = 0;
+  favoriteTrackIds = new Set<number>();
+  volumeLevel = 1;
+  isMuted = false;
+
   currentTrack$ = this.playerService.currentTrack$;
   loading$ = this.playerService.loading$;
   error$ = this.playerService.error$;
@@ -34,10 +42,29 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   constructor(
     private playerService: PlayerService,
+    private authService: AuthService,
+    private favoritesService: FavoritesService,
     private sanitizer: DomSanitizer
   ) {}
 
+  get volumePercent(): number {
+    return Math.round(this.volumeLevel * 100);
+  }
+
+  currentUser: LoginResponse | null = null;
+
   ngOnInit(): void {
+    this.authService.currentUser$.pipe(takeUntil(this.destroy$)).subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        this.favoritesService.getTracks().subscribe({
+          next: list => { this.favoriteTrackIds = new Set(list.map(t => t.id)); },
+          error: () => { this.favoriteTrackIds = new Set(); }
+        });
+      } else {
+        this.favoriteTrackIds = new Set();
+      }
+    });
     this.playerService.currentTrack$.pipe(takeUntil(this.destroy$)).subscribe(track => {
       this.duration = track?.durationSeconds ?? 0;
       this.currentTime = 0;
@@ -85,6 +112,50 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
     if (track.artistName) return track.artistName;
     return '—';
+  }
+
+  isTrackFavorite(track: TrackResponse): boolean {
+    return this.favoriteTrackIds.has(track.id);
+  }
+
+  toggleFavorite(track: TrackResponse): void {
+    if (!this.currentUser) return;
+    if (this.favoriteTrackIds.has(track.id)) {
+      this.favoritesService.removeTrack(track.id).subscribe({
+        next: () => { this.favoriteTrackIds.delete(track.id); }
+      });
+    } else {
+      this.favoritesService.addTrack(track.id).subscribe({
+        next: () => { this.favoriteTrackIds.add(track.id); }
+      });
+    }
+  }
+
+  toggleMute(): void {
+    const audio = this.audioRef?.nativeElement;
+    if (!audio) return;
+    this.isMuted = !this.isMuted;
+    if (this.isMuted) {
+      audio.muted = true;
+    } else {
+      audio.muted = false;
+      audio.volume = this.volumeLevel;
+    }
+  }
+
+  private applyVolume(): void {
+    const audio = this.audioRef?.nativeElement;
+    if (audio) {
+      audio.muted = this.isMuted;
+      audio.volume = this.volumeLevel;
+    }
+  }
+
+  onVolumeChange(percent: number): void {
+    const value = Math.max(0, Math.min(100, percent)) / 100;
+    this.volumeLevel = value;
+    this.isMuted = value === 0;
+    this.applyVolume();
   }
 
   checkTitleOverflow(): void {
