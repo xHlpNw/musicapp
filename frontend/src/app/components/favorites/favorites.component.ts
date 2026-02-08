@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,10 @@ import { AlbumSummaryResponse } from '../../models/album.model';
 import { ArtistResponse } from '../../models/artist.model';
 import { PlaylistResponse } from '../../models/playlist.model';
 import { LoginResponse } from '../../models/auth.model';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import type { FavoritesKind } from '../../services/favorites.service';
 
 export type FavoritesTab = 'tracks' | 'playlists' | 'albums' | 'artists';
 
@@ -24,8 +27,9 @@ export type FavoritesTab = 'tracks' | 'playlists' | 'albums' | 'artists';
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.css']
 })
-export class FavoritesComponent implements OnInit {
+export class FavoritesComponent implements OnInit, OnDestroy {
   activeTab: FavoritesTab = 'tracks';
+  private destroy$ = new Subject<void>();
 
   favoriteTracks: TrackResponse[] = [];
   /** Сохранённые в избранное плейлисты (чужие) */
@@ -68,6 +72,17 @@ export class FavoritesComponent implements OnInit {
     this.playerService.currentTrack$.subscribe(track => {
       this.hasActiveTrack = !!track;
     });
+    this.favoritesService.favoritesChanged$.pipe(takeUntil(this.destroy$)).subscribe((kind: FavoritesKind) => {
+      if (kind === 'tracks') this.loadTracks();
+      else if (kind === 'playlists') this.loadPlaylists();
+      else if (kind === 'albums') this.loadAlbums();
+      else if (kind === 'artists') this.loadArtists();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   setTab(tab: FavoritesTab): void {

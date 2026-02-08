@@ -1,16 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TrackResponse } from '../models/track.model';
 import { AlbumSummaryResponse } from '../models/album.model';
 import { ArtistResponse } from '../models/artist.model';
 import { PlaylistResponse } from '../models/playlist.model';
+
+export type FavoritesKind = 'tracks' | 'albums' | 'artists' | 'playlists';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FavoritesService {
   private readonly API_URL = '/api/favorites';
+  private readonly changed$ = new Subject<FavoritesKind>();
+
+  /** Срабатывает после успешного добавления или удаления из избранного (треки, альбомы, исполнители, плейлисты). */
+  readonly favoritesChanged$ = this.changed$.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -31,34 +38,50 @@ export class FavoritesService {
   }
 
   addTrack(id: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/tracks/${id}`, {});
+    return this.http.post<void>(`${this.API_URL}/tracks/${id}`, {}).pipe(
+      tap(() => this.changed$.next('tracks'))
+    );
   }
 
   removeTrack(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/tracks/${id}`);
+    return this.http.delete<void>(`${this.API_URL}/tracks/${id}`).pipe(
+      tap(() => this.changed$.next('tracks'))
+    );
   }
 
   addAlbum(id: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/albums/${id}`, {});
+    return this.http.post<void>(`${this.API_URL}/albums/${id}`, {}).pipe(
+      tap(() => this.changed$.next('albums'))
+    );
   }
 
   removeAlbum(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/albums/${id}`);
+    return this.http.delete<void>(`${this.API_URL}/albums/${id}`).pipe(
+      tap(() => this.changed$.next('albums'))
+    );
   }
 
   addArtist(id: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/artists/${id}`, {});
+    return this.http.post<void>(`${this.API_URL}/artists/${id}`, {}).pipe(
+      tap(() => this.changed$.next('artists'))
+    );
   }
 
   removeArtist(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/artists/${id}`);
+    return this.http.delete<void>(`${this.API_URL}/artists/${id}`).pipe(
+      tap(() => this.changed$.next('artists'))
+    );
   }
 
   addPlaylist(id: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/playlists/${id}`, {});
+    return this.http.post<void>(`${this.API_URL}/playlists/${id}`, {}).pipe(
+      tap(() => this.changed$.next('playlists'))
+    );
   }
 
   removePlaylist(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/playlists/${id}`);
+    return this.http.delete<void>(`${this.API_URL}/playlists/${id}`).pipe(
+      tap(() => this.changed$.next('playlists'))
+    );
   }
 }

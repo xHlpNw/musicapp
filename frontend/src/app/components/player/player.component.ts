@@ -65,6 +65,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.favoriteTrackIds = new Set();
       }
     });
+    this.favoritesService.favoritesChanged$.pipe(takeUntil(this.destroy$)).subscribe(kind => {
+      if (kind === 'tracks' && this.currentUser) {
+        this.favoritesService.getTracks().subscribe({
+          next: list => { this.favoriteTrackIds = new Set(list.map(t => t.id)); },
+          error: () => { this.favoriteTrackIds = new Set(); }
+        });
+      }
+    });
     this.playerService.currentTrack$.pipe(takeUntil(this.destroy$)).subscribe(track => {
       this.duration = track?.durationSeconds ?? 0;
       this.currentTime = 0;

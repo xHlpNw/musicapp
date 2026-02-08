@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
@@ -11,8 +11,8 @@ import { PlaylistResponse } from '../../models/playlist.model';
 import { TrackResponse } from '../../models/track.model';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
-import { switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { switchMap, takeUntil, filter } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-playlist-detail',
@@ -21,7 +21,7 @@ import { of } from 'rxjs';
   templateUrl: './playlist-detail.component.html',
   styleUrls: ['./playlist-detail.component.css']
 })
-export class PlaylistDetailComponent implements OnInit {
+export class PlaylistDetailComponent implements OnInit, OnDestroy {
   playlist: PlaylistResponse | null = null;
   tracks: TrackResponse[] = [];
   isLoading = true;
@@ -32,6 +32,7 @@ export class PlaylistDetailComponent implements OnInit {
   hasActiveTrack = false;
   isPlaying = false;
   playerLoading = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -57,6 +58,10 @@ export class PlaylistDetailComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       this.loadFavoriteIds();
     }
+    this.favoritesService.favoritesChanged$.pipe(
+      takeUntil(this.destroy$),
+      filter(kind => kind === 'playlists')
+    ).subscribe(() => this.loadFavoriteIds());
     this.route.paramMap.pipe(
       switchMap(params => {
         const id = params.get('id');
@@ -100,6 +105,11 @@ export class PlaylistDetailComponent implements OnInit {
         if (this.playlist) this.isFavorite = this.favoritePlaylistIds.has(this.playlist.id);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   playPlaylist(): void {
