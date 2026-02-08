@@ -1,4 +1,4 @@
-/* Контейнер: зернистое стекло (размытие + полупрозрачность + шум) */
+/* Стеклянная панель в стиле iOS 26 (Liquid Glass): матовое стекло, размытие, глубина */
 .player {
   position: fixed;
   bottom: 24px;
@@ -7,36 +7,39 @@
   width: calc(100% - 32px);
   max-width: 900px;
   min-height: 60px;
-  background: rgba(21, 23, 26, 0.75);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  border: none;
+  background: rgba(45, 45, 50, 0.4);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   outline: none;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 6px 10px;
+  padding: 8px 12px;
   gap: 20px;
   z-index: 1000;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.06),
+    0 12px 40px -8px rgba(0, 0, 0, 0.35),
+    0 24px 64px -16px rgba(0, 0, 0, 0.2);
   overflow: visible;
 }
 
-/* Зернистое стекло: пропорции текстуры как у плеера (широкий прямоугольник) — без растяжения */
+/* Лёгкое верхнее свечение — отражение на стекле */
 .player::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* SVG 600x40 — те же пропорции, что и плеер (~15:1); baseFrequency выше = мельче зерно; slope выше = выразительнее */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='40'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.38' numOctaves='4' result='n'/%3E%3CfeComponentTransfer in='n' result='na'%3E%3CfeFuncA type='linear' slope='0.08' intercept='0.01'/%3E%3C/feComponentTransfer%3E%3CfeComposite in='SourceGraphic' in2='na' operator='in' result='out'/%3E%3C/filter%3E%3Crect width='600' height='40' fill='%23fff' filter='url(%23g)'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-position: 50% 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 35%
+  );
   pointer-events: none;
   z-index: 0;
-  opacity: 0.85;
 }
 
 .player > * {
@@ -67,10 +70,12 @@
   width: 50px;
   height: 50px;
   border-radius: 12px;
-  background: #1C1F24;
+  background: rgba(30, 30, 34, 0.6);
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .player__info {
@@ -257,11 +262,14 @@
   transform: translateX(-50%);
   margin-bottom: 4px;
   padding: 6px 8px;
-  background: rgba(21, 23, 26, 0.95);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: rgba(50, 50, 55, 0.45);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.04) inset,
+    0 8px 24px -4px rgba(0, 0, 0, 0.35);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
