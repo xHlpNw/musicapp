@@ -13,7 +13,6 @@ import { TrackResponse } from '../../models/track.model';
 import { AlbumSummaryResponse } from '../../models/album.model';
 import { ArtistResponse } from '../../models/artist.model';
 import { LoginResponse } from '../../models/auth.model';
-import { PlayerComponent } from '../player/player.component';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 
 const POPULAR_TRACKS_SIZE = 10;
@@ -23,7 +22,7 @@ const POPULAR_ARTISTS_SIZE = 10;
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, PlayerComponent, SideNavComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, SideNavComponent],
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.css']
 })

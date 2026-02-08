@@ -10,7 +10,6 @@ import { PlayerService } from '../../services/player.service';
 import { PlaylistResponse } from '../../models/playlist.model';
 import { TrackResponse } from '../../models/track.model';
 import { LoginResponse } from '../../models/auth.model';
-import { PlayerComponent } from '../player/player.component';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -18,7 +17,7 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, PlayerComponent, SideNavComponent],
+  imports: [CommonModule, RouterLink, SideNavComponent],
   templateUrl: './playlist-detail.component.html',
   styleUrls: ['./playlist-detail.component.css']
 })

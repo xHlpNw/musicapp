@@ -12,7 +12,15 @@
   <div class="player__left">
     <div class="player__cover" [style.background-image]="getCoverStyle(track)"></div>
     <div class="player__info">
-      <span class="player__title">{{ track.title }}</span>
+      <div class="player__title-wrap" #titleWrap>
+        <div
+          class="player__title-inner"
+          [class.player__title-inner--marquee]="titleOverflows"
+          [style.--marquee-scroll]="marqueeScrollPx + 'px'"
+        >
+          <span class="player__title-text">{{ track.title }}</span>
+        </div>
+      </div>
       <span class="player__artist">{{ getArtistNames(track) }}</span>
     </div>
   </div>
@@ -47,7 +55,6 @@
   </div>
 
   <p class="player__error" *ngIf="error$ | async as err">{{ err }}</p>
-  <p class="player__loading" *ngIf="loading$ | async">Загрузка…</p>
 </div>
 
 <div class="player player--empty" *ngIf="!(currentTrack$ | async)">

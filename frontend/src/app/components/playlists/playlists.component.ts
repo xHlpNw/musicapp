@@ -9,7 +9,6 @@ import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
 import { PlaylistResponse } from '../../models/playlist.model';
 import { LoginResponse } from '../../models/auth.model';
-import { PlayerComponent } from '../player/player.component';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 
 export type MyPlaylistsFilter = 'all' | 'created' | 'saved';
@@ -17,7 +16,7 @@ export type MyPlaylistsFilter = 'all' | 'created' | 'saved';
 @Component({
   selector: 'app-playlists',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PlayerComponent, SideNavComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SideNavComponent],
   templateUrl: './playlists.component.html',
   styleUrls: ['./playlists.component.css']
 })

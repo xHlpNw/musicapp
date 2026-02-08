@@ -3,15 +3,20 @@ import { AsyncPipe } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { PlayerComponent } from './components/player/player.component';
 import { LoginOverlayService } from './services/login-overlay.service';
 import { RegisterOverlayService } from './services/register-overlay.service';
+import { PlayerService } from './services/player.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AsyncPipe, LoginComponent, RegisterComponent],
+  imports: [RouterOutlet, AsyncPipe, LoginComponent, RegisterComponent, PlayerComponent],
   template: `
     <router-outlet></router-outlet>
+    @if (playerService.currentTrack$ | async) {
+      <app-player />
+    }
     @if (loginOverlay.isOpen$ | async) {
       <app-login />
     }
@@ -24,6 +29,7 @@ import { RegisterOverlayService } from './services/register-overlay.service';
 export class AppComponent {
   constructor(
     public loginOverlay: LoginOverlayService,
-    public registerOverlay: RegisterOverlayService
+    public registerOverlay: RegisterOverlayService,
+    public playerService: PlayerService
   ) {}
 }

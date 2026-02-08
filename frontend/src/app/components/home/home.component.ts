@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TrackService } from '../../services/track.service';
-import { PlayerComponent } from '../player/player.component';
 import { PlayerService } from '../../services/player.service';
 import { AuthService } from '../../services/auth.service';
 import { TrackResponse } from '../../models/track.model';
@@ -11,7 +10,7 @@ import { TrackResponse } from '../../models/track.model';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PlayerComponent],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })

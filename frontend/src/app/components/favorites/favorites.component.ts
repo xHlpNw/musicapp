@@ -13,7 +13,6 @@ import { AlbumSummaryResponse } from '../../models/album.model';
 import { ArtistResponse } from '../../models/artist.model';
 import { PlaylistResponse } from '../../models/playlist.model';
 import { LoginResponse } from '../../models/auth.model';
-import { PlayerComponent } from '../player/player.component';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 
 export type FavoritesTab = 'tracks' | 'playlists' | 'albums' | 'artists';
@@ -21,7 +20,7 @@ export type FavoritesTab = 'tracks' | 'playlists' | 'albums' | 'artists';
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PlayerComponent, SideNavComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SideNavComponent],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.css']
 })

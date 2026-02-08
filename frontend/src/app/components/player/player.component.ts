@@ -15,7 +15,10 @@ import { TrackResponse } from '../../models/track.model';
 })
 export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild('audioEl') audioRef!: ElementRef<HTMLAudioElement>;
+  @ViewChild('titleWrap') titleWrapRef: ElementRef<HTMLElement> | null = null;
 
+  titleOverflows = false;
+  marqueeScrollPx = 0;
   currentTrack$ = this.playerService.currentTrack$;
   loading$ = this.playerService.loading$;
   error$ = this.playerService.error$;
@@ -39,6 +42,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.duration = track?.durationSeconds ?? 0;
       this.currentTime = 0;
       this.isPlaying = false;
+      this.titleOverflows = false;
+      if (track) {
+        setTimeout(() => this.checkTitleOverflow(), 0);
+      }
     });
     this.playerService.playRequest$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       const audio = this.audioRef?.nativeElement;
@@ -78,6 +85,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
     if (track.artistName) return track.artistName;
     return '—';
+  }
+
+  checkTitleOverflow(): void {
+    const wrap = this.titleWrapRef?.nativeElement;
+    if (!wrap) return;
+    const inner = wrap.firstElementChild as HTMLElement | null;
+    if (!inner) return;
+    const overflows = inner.scrollWidth > wrap.clientWidth;
+    this.titleOverflows = overflows;
+    if (overflows) {
+      this.marqueeScrollPx = -(inner.scrollWidth - wrap.clientWidth);
+    }
   }
 
   getCoverStyle(track: TrackResponse): SafeStyle | null {
