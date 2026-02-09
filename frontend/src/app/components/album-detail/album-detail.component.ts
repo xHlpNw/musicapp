@@ -9,15 +9,17 @@ import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
 import { AlbumResponse } from '../../models/album.model';
 import { TrackResponse } from '../../models/track.model';
+import { TrackActionsContext } from '../track-actions/track-actions.component';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import { TrackActionsComponent } from '../track-actions/track-actions.component';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-album-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SideNavComponent],
+  imports: [CommonModule, RouterLink, SideNavComponent, TrackActionsComponent],
   templateUrl: './album-detail.component.html',
   styleUrls: ['./album-detail.component.css']
 })
@@ -94,6 +96,16 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
     if (this.album.artistId != null) return this.album.artistId;
     if (this.album.artists?.length) return this.album.artists[0].artistId;
     return null;
+  }
+
+  /** Контекст для track-actions: альбом и исполнители (треки в альбоме приходят без этих полей). */
+  getAlbumTrackContext(): TrackActionsContext | undefined {
+    if (!this.album) return undefined;
+    const albumId = this.album.id;
+    const artists = this.album.artists?.length
+      ? this.album.artists.map(a => ({ artistId: a.artistId, artistName: a.artistName }))
+      : (this.getAlbumArtistId() != null ? [{ artistId: this.getAlbumArtistId()!, artistName: this.getAlbumArtistName() }] : undefined);
+    return { albumId, artists };
   }
 
   /** Треки альбома могут быть TrackSummary (id, title, durationSeconds). Для воспроизведения загружаем полный трек. */

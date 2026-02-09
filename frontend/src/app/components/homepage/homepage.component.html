@@ -73,6 +73,7 @@
               <span class="track-item__artist">{{ getTrackArtistNames(track) }}</span>
             </div>
             <span class="track-item__duration">{{ formatDuration(track.durationSeconds) }}</span>
+            <app-track-actions [track]="track" class="track-item__actions" />
           </li>
         }
       </ul>

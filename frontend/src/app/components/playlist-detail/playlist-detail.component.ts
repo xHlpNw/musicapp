@@ -11,13 +11,14 @@ import { PlaylistResponse } from '../../models/playlist.model';
 import { TrackResponse } from '../../models/track.model';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import { TrackActionsComponent } from '../track-actions/track-actions.component';
 import { switchMap, takeUntil, filter } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SideNavComponent],
+  imports: [CommonModule, RouterLink, SideNavComponent, TrackActionsComponent],
   templateUrl: './playlist-detail.component.html',
   styleUrls: ['./playlist-detail.component.css']
 })

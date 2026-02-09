@@ -1,0 +1,39 @@
+<div class="track-actions" (click)="$event.stopPropagation()">
+  <button
+    type="button"
+    class="track-actions__heart"
+    [class.track-actions__heart--active]="isFavorite()"
+    (click)="toggleFavorite($event)"
+    [attr.aria-label]="isFavorite() ? 'Убрать из избранного' : 'Добавить в избранное'"
+  >
+    <svg viewBox="0 0 24 24" width="18" height="18" [attr.fill]="isFavorite() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+  </button>
+  <div class="track-actions__more-wrap">
+    <div class="track-actions__more-trigger">
+      <div class="track-actions__more-menu">
+        <button type="button" class="track-actions__more-item" (click)="addToQueue($event)">Добавить в очередь</button>
+        <button type="button" class="track-actions__more-item" (click)="addToQueueNext($event)">Играть следующим</button>
+        @if (hasAlbum() && getAlbumId() != null) {
+          <button type="button" class="track-actions__more-item" (click)="goToAlbum($event)">Перейти к альбому</button>
+        }
+        @if (getTrackArtists().length === 1) {
+          <button type="button" class="track-actions__more-item" (click)="goToArtist(getTrackArtists()[0].artistId, $event)">Перейти к исполнителю</button>
+        } @else if (getTrackArtists().length > 1) {
+          <div class="track-actions__more-item track-actions__more-item--sub">
+            <span class="track-actions__more-item__label">Перейти к исполнителю</span>
+            <div class="track-actions__more-submenu">
+              @for (a of getTrackArtists(); track a.artistId) {
+                <button type="button" class="track-actions__more-item" (click)="goToArtist(a.artistId, $event)">{{ a.artistName }}</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <button type="button" class="track-actions__more-btn" aria-label="Ещё">
+        <span class="track-actions__more-dots">⋯</span>
+      </button>
+    </div>
+  </div>
+</div>

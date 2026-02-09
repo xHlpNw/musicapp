@@ -16,6 +16,7 @@ import { LoginResponse } from '../../models/auth.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import { TrackActionsComponent } from '../track-actions/track-actions.component';
 import type { FavoritesKind } from '../../services/favorites.service';
 
 export type FavoritesTab = 'tracks' | 'playlists' | 'albums' | 'artists';
@@ -23,7 +24,7 @@ export type FavoritesTab = 'tracks' | 'playlists' | 'albums' | 'artists';
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, SideNavComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SideNavComponent, TrackActionsComponent],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.css']
 })

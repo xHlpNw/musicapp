@@ -244,6 +244,11 @@
   background: rgba(28, 31, 36, 0.5);
 }
 
+.ald-track-row:has(.track-actions__more-wrap:hover) {
+  position: relative;
+  z-index: 100;
+}
+
 .ald-track-row:hover .ald-track-row__num {
   color: #F09020;
 }
@@ -357,4 +362,9 @@
   flex-shrink: 0;
   font-size: 0.875rem;
   color: #9A9A9A;
+}
+
+.ald-track-row__actions {
+  flex-shrink: 0;
+  margin-left: 8px;
 }

@@ -110,6 +110,7 @@
                     <span class="pld-track-row__artist">{{ getTrackArtistNames(track) }}</span>
                   </div>
                   <span class="pld-track-row__duration">{{ formatDuration(track.durationSeconds) }}</span>
+                  <app-track-actions [track]="track" class="pld-track-row__actions" />
                 </li>
               }
             </ul>

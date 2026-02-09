@@ -75,6 +75,7 @@
                   </div>
                   <span class="ald-track-row__title">{{ track.title }}</span>
                   <span class="ald-track-row__duration">{{ formatDuration(track.durationSeconds) }}</span>
+                  <app-track-actions [track]="track" [context]="getAlbumTrackContext()" class="ald-track-row__actions" />
                 </li>
               }
             </ul>
