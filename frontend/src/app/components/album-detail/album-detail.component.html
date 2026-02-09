@@ -33,9 +33,8 @@
             <ul class="ald-track-list">
               @for (track of album.tracks; track track.id; let i = $index) {
                 <li class="ald-track-row" [class.ald-track-row--current]="isCurrentTrack(track.id)" [class.ald-track-row--playing]="isTrackPlaying(track.id)" (click)="playTrack(track.id)">
-                  <span class="ald-track-row__num">{{ i + 1 }}</span>
-                  <div class="ald-track-row__cover-wrap">
-                    <div class="ald-track-row__cover" [ngClass]="getTrackCoverClass(i)"></div>
+                  <div class="ald-track-row__num-cell">
+                    <span class="ald-track-row__num">{{ i + 1 }}</span>
                     <button type="button" class="ald-track-row__play" [class.ald-track-row__play--current]="isCurrentTrack(track.id)" (click)="toggleTrackPlayPause(track.id, $event)" [attr.aria-label]="isTrackPlaying(track.id) ? 'Пауза' : 'Воспроизвести'">
                       @if (isTrackPlaying(track.id)) {
                         <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">

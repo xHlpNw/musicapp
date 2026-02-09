@@ -71,6 +71,7 @@ export class TrackActionsComponent implements OnInit, OnDestroy {
 
   getAlbumId(): number | null {
     if (this.track.albumId != null) return this.track.albumId;
+    if (this.track.albumTracks?.length && this.track.albumTracks[0].albumId != null) return this.track.albumTracks[0].albumId;
     return this.context?.albumId ?? null;
   }
 
@@ -125,15 +126,18 @@ export class TrackActionsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/artist', artistId]);
   }
 
-  /** Если трек пришёл без полей для плеера (например из альбома) — подгружаем по id. */
+  /** Если трек пришёл без полей для плеера (обложка, исполнитель — например из альбома) — подгружаем по id. */
   private ensureFullTrackThen(fn: (t: TrackResponse) => void): void {
-    if (this.track.title != null && this.track.durationSeconds != null) {
+    const hasDisplayInfo = this.track.coverImagePath != null
+      || this.track.artistName != null
+      || (this.track.artists != null && this.track.artists.length > 0);
+    if (this.track.title != null && this.track.durationSeconds != null && hasDisplayInfo) {
       fn(this.track);
       return;
     }
     this.trackService.getById(this.track.id).subscribe({
       next: full => fn(full),
-      error: () => {}
+      error: () => fn(this.track)
     });
   }
 }

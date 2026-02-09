@@ -119,8 +119,21 @@
 
 .ald-track-list {
   list-style: none;
+  list-style-type: none;
   padding: 0;
   margin: 0;
+}
+
+/* Убираем пунктирный outline при фокусе (клавиатура/клик), заменяем на аккуратную обводку */
+.ald-track-list button:focus,
+.ald-track-list a:focus,
+.ald-track-row:focus-within {
+  outline: none;
+}
+.ald-track-list button:focus-visible,
+.ald-track-list a:focus-visible {
+  outline: 2px solid #F09020;
+  outline-offset: 2px;
 }
 
 .ald-track-row {
@@ -151,43 +164,27 @@
   color: #F09020;
 }
 
-.ald-track-row__num {
-  flex-shrink: 0;
-  width: 28px;
-  text-align: right;
-  font-size: 0.95rem;
-  color: #9A9A9A;
-  transition: color 0.2s;
-}
-
-.ald-track-row__cover-wrap {
+/* Ячейка с номером трека; при наведении/текущем треке вместо номера — кнопка воспроизведения */
+.ald-track-row__num-cell {
   position: relative;
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ald-track-row__cover-wrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0);
-  transition: background 0.2s;
+.ald-track-row__num {
+  font-size: 0.95rem;
+  color: #9A9A9A;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+.ald-track-row:hover .ald-track-row__num,
+.ald-track-row--current .ald-track-row__num {
+  opacity: 0;
   pointer-events: none;
-}
-
-.ald-track-row:hover .ald-track-row__cover-wrap::after,
-.ald-track-row--current .ald-track-row__cover-wrap::after {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.ald-track-row__cover {
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-  background-size: cover;
-  background-position: center;
 }
 
 .ald-track-row__play {
@@ -195,8 +192,8 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,12 +204,13 @@
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s, color 0.2s, transform 0.2s;
-  z-index: 1;
+  pointer-events: none;
 }
 
 .ald-track-row:hover .ald-track-row__play,
 .ald-track-row--current .ald-track-row__play {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .ald-track-row__play:hover {
@@ -221,25 +219,6 @@
 
 .ald-track-row__play--current {
   color: #F09020;
-}
-
-.ald-track-row__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
-}
-.ald-track-row__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
-}
-.ald-track-row__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
-}
-.ald-track-row__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
-}
-.ald-track-row__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
-}
-.ald-track-row__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
 }
 
 .ald-track-row__title {

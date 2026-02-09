@@ -18,6 +18,11 @@
   cursor: pointer;
   border-radius: 50%;
   transition: color 0.2s, transform 0.2s;
+  outline: none;
+}
+.track-actions__heart:focus-visible {
+  outline: 2px solid #F09020;
+  outline-offset: 2px;
 }
 
 .track-actions__heart:hover {
@@ -79,6 +84,11 @@
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
+  outline: none;
+}
+.track-actions__more-btn:focus-visible {
+  outline: 2px solid #F09020;
+  outline-offset: 2px;
 }
 
 .track-actions__more-wrap:hover .track-actions__more-btn {
@@ -136,11 +146,17 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
+  outline: none;
 }
 
 .track-actions__more-item:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #F09020;
+}
+
+.track-actions__more-item:focus-visible {
+  outline: 2px solid #F09020;
+  outline-offset: -2px;
 }
 
 .track-actions__more-item--sub {

@@ -9,6 +9,8 @@ export interface TrackResponse {
   artists?: { artistId: number; artistName: string }[];
   albumId?: number;
   albumTitle?: string;
+  /** Альбомы, в которые входит трек (бэкенд может отдавать только это, без albumId на верхнем уровне) */
+  albumTracks?: { albumId: number; albumTitle?: string; position?: number }[];
   coverImagePath?: string;
 }
 
