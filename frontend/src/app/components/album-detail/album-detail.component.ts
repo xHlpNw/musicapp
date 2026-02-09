@@ -12,6 +12,7 @@ import { TrackResponse } from '../../models/track.model';
 import { TrackActionsContext } from '../track-actions/track-actions.component';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import { AppHeaderComponent } from '../app-header/app-header.component';
 import { TrackActionsComponent } from '../track-actions/track-actions.component';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
@@ -19,7 +20,7 @@ import { of, Subject } from 'rxjs';
 @Component({
   selector: 'app-album-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SideNavComponent, TrackActionsComponent],
+  imports: [CommonModule, RouterLink, SideNavComponent, AppHeaderComponent, TrackActionsComponent],
   templateUrl: './album-detail.component.html',
   styleUrls: ['./album-detail.component.css']
 })

@@ -10,13 +10,14 @@ import { PlayerService } from '../../services/player.service';
 import { PlaylistResponse } from '../../models/playlist.model';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import { AppHeaderComponent } from '../app-header/app-header.component';
 
 export type MyPlaylistsFilter = 'all' | 'created' | 'saved';
 
 @Component({
   selector: 'app-playlists',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, SideNavComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SideNavComponent, AppHeaderComponent],
   templateUrl: './playlists.component.html',
   styleUrls: ['./playlists.component.css']
 })

@@ -1,35 +1,4 @@
-<header class="header">
-  <nav class="nav">
-    <a routerLink="/" class="logo">Stream</a>
-    <div class="search-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input
-        type="search"
-        class="search-input"
-        placeholder="Поиск треков, альбомов, исполнителей..."
-        readonly
-        tabindex="-1"
-        aria-hidden="true"
-      />
-    </div>
-    <div class="nav-links">
-      @if (authService.currentUser$ | async; as user) {
-        <a routerLink="/profile" class="user-avatar" [title]="user.username" aria-label="Профиль">
-          @if (getAvatarUrl(user); as avatarUrl) {
-            <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
-          } @else {
-            <span class="user-avatar__initial">{{ getInitial(user) }}</span>
-          }
-        </a>
-      } @else {
-        <a href="#" class="nav-link" (click)="openLogin($event)">Войти</a>
-      }
-    </div>
-  </nav>
-</header>
+<app-header />
 
 <div class="page-layout">
   <app-side-nav />

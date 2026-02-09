@@ -9,13 +9,14 @@ import { PlayerService } from '../../services/player.service';
 import { ArtistResponse } from '../../models/artist.model';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
+import { AppHeaderComponent } from '../app-header/app-header.component';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-artist-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SideNavComponent],
+  imports: [CommonModule, RouterLink, SideNavComponent, AppHeaderComponent],
   templateUrl: './artist-detail.component.html',
   styleUrls: ['./artist-detail.component.css']
 })
