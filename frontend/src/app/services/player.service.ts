@@ -23,6 +23,9 @@ export class PlayerService {
   public playRequest$ = this.playRequestSubject.asObservable();
   public pauseRequest$ = this.pauseRequestSubject.asObservable();
 
+  private queueSubject = new BehaviorSubject<TrackResponse[]>([]);
+  public queue$ = this.queueSubject.asObservable();
+
   private currentBlobUrl: string | null = null;
 
   constructor(private trackService: TrackService) {}
@@ -84,5 +87,28 @@ export class PlayerService {
   /** Запрос на паузу (плеер и трек остаются выбранными) */
   requestPause(): void {
     this.pauseRequestSubject.next();
+  }
+
+  /** Добавить трек в конец очереди воспроизведения */
+  addToQueue(track: TrackResponse): void {
+    this.queueSubject.next([...this.queueSubject.value, track]);
+  }
+
+  /** Добавить трек следующим (после текущего, перед остальной очередью) */
+  addToQueueNext(track: TrackResponse): void {
+    this.queueSubject.next([track, ...this.queueSubject.value]);
+  }
+
+  getQueue(): TrackResponse[] {
+    return this.queueSubject.value;
+  }
+
+  /** Вызвать при окончании текущего трека: воспроизвести следующий из очереди, если есть */
+  onCurrentTrackEnded(): void {
+    const queue = this.queueSubject.value;
+    if (queue.length === 0) return;
+    const [next, ...rest] = queue;
+    this.queueSubject.next(rest);
+    this.setCurrentTrack(next);
   }
 }

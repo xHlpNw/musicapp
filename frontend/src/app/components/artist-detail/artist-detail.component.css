@@ -1,0 +1,273 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #0E0F11;
+  color: #EDEDED;
+}
+
+.page-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.page-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  background: #15171A;
+  padding: 0.75rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.nav {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #EDEDED;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo:hover {
+  opacity: 0.9;
+}
+
+.search-wrap {
+  flex: 1;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #6B6B6B;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 16px 10px 44px;
+  background: #1C1F24;
+  border: none;
+  border-radius: 24px;
+  color: #EDEDED;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-link {
+  color: #EDEDED;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 8px 18px;
+  border-radius: 24px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+  background: #1C1F24;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1C1F24;
+  color: #EDEDED;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.user-avatar:hover {
+  box-shadow: 0 0 0 1px #C86810;
+}
+
+.user-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar__initial {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.main--with-player {
+  padding-bottom: 7rem;
+}
+
+.ard-back {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: #9A9A9A;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+
+.ard-back:hover {
+  color: #F09020;
+}
+
+.ard-hero {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+}
+
+.ard-hero__cover {
+  flex-shrink: 0;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: #1C1F24;
+  background-size: cover;
+  background-position: center;
+}
+
+.ard-hero__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ard-hero__title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #EDEDED;
+  margin: 0 0 0.25rem;
+}
+
+.ard-hero__desc {
+  font-size: 0.95rem;
+  color: #9A9A9A;
+  margin: 0 0 0.5rem;
+  line-height: 1.45;
+}
+
+.ard-hero__meta {
+  font-size: 0.9rem;
+  color: #9A9A9A;
+  margin: 0 0 1.25rem;
+}
+
+.ard-albums {
+  margin-top: 2rem;
+}
+
+.ard-albums__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #EDEDED;
+  margin: 0 0 1rem;
+}
+
+.ard-muted,
+.ard-empty {
+  font-size: 0.95rem;
+  color: #9A9A9A;
+  margin: 0;
+}
+
+.ard-album-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.5rem;
+}
+
+.ard-album-item__link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s;
+}
+
+.ard-album-item__link:hover {
+  transform: scale(1.02);
+}
+
+.ard-album-item__cover {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 0.5rem;
+}
+
+.ard-album-item__cover.cover--1 {
+  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+}
+.ard-album-item__cover.cover--2 {
+  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+}
+.ard-album-item__cover.cover--3 {
+  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+}
+.ard-album-item__cover.cover--4 {
+  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+}
+.ard-album-item__cover.cover--5 {
+  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+}
+.ard-album-item__cover.cover--6 {
+  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+}
+
+.ard-album-item__title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #EDEDED;
+  margin-bottom: 2px;
+}
+
+.ard-album-item__link:hover .ard-album-item__title {
+  color: #F09020;
+}
+
+.ard-album-item__year {
+  font-size: 0.875rem;
+  color: #9A9A9A;
+}

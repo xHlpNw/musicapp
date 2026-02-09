@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl, SafeStyle } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
@@ -44,7 +45,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private playerService: PlayerService,
     private authService: AuthService,
     private favoritesService: FavoritesService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private router: Router
   ) {}
 
   get volumePercent(): number {
@@ -189,7 +191,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onNext(): void {
-    // TODO: следующий трек
+    this.playerService.onCurrentTrackEnded();
   }
 
   onPlayPause(): void {
@@ -234,6 +236,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.isPlaying = false;
     this.currentTime = 0;
     this.playerService.setPlaying(false);
+    this.playerService.onCurrentTrackEnded();
   }
 
   onCanPlay(): void {
@@ -246,6 +249,34 @@ export class PlayerComponent implements OnInit, OnDestroy {
   get progressPercent(): number {
     if (this.duration <= 0) return 0;
     return (this.currentTime / this.duration) * 100;
+  }
+
+  /** Есть ли у трека альбом для перехода */
+  hasAlbum(track: TrackResponse): boolean {
+    return track.albumId != null;
+  }
+
+  /** Список исполнителей для подменю (всегда массив, 1+ элементов) */
+  getTrackArtists(track: TrackResponse): { artistId: number; artistName: string }[] {
+    if (track.artists?.length) return track.artists;
+    if (track.artistId != null && track.artistName) return [{ artistId: track.artistId, artistName: track.artistName }];
+    return [];
+  }
+
+  addToQueue(track: TrackResponse): void {
+    this.playerService.addToQueue(track);
+  }
+
+  addToQueueNext(track: TrackResponse): void {
+    this.playerService.addToQueueNext(track);
+  }
+
+  goToAlbum(track: TrackResponse): void {
+    if (track.albumId != null) this.router.navigate(['/album', track.albumId]);
+  }
+
+  goToArtist(artistId: number): void {
+    this.router.navigate(['/artist', artistId]);
   }
 
   onProgressClick(event: MouseEvent): void {

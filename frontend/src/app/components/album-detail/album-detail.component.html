@@ -1,0 +1,88 @@
+<header class="header">
+  <nav class="nav">
+    <a routerLink="/" class="logo">Stream</a>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" class="search-input" placeholder="Поиск..." readonly tabindex="-1" aria-hidden="true" />
+    </div>
+    <div class="nav-links">
+      @if (authService.currentUser$ | async; as user) {
+        <a routerLink="/profile" class="user-avatar" [title]="user.username" aria-label="Профиль">
+          @if (getAvatarUrl(user); as avatarUrl) {
+            <img [src]="avatarUrl" [alt]="user.username" class="user-avatar__img" />
+          } @else {
+            <span class="user-avatar__initial">{{ getInitial(user) }}</span>
+          }
+        </a>
+      } @else {
+        <a href="#" class="nav-link" (click)="openLogin($event)">Войти</a>
+      }
+    </div>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main" [class.main--with-player]="hasActiveTrack">
+      @if (isLoading && !album) {
+        <p class="ald-muted">Загрузка…</p>
+      } @else if (error && !album) {
+        <p class="ald-muted">{{ error }}</p>
+      } @else if (album) {
+        <a routerLink="/" class="ald-back">← На главную</a>
+
+        <section class="ald-hero">
+          <div class="ald-hero__cover" [ngClass]="album.coverImagePath ? '' : getTrackCoverClass(0)" [style.background-image]="getCoverStyle(album.coverImagePath)"></div>
+          <div class="ald-hero__info">
+            <h1 class="ald-hero__title">{{ album.title }}</h1>
+            @if (getAlbumArtistId(); as artistId) {
+              <a [routerLink]="['/artist', artistId]" class="ald-hero__artist">{{ getAlbumArtistName() }}</a>
+            } @else {
+              <p class="ald-hero__artist">{{ getAlbumArtistName() }}</p>
+            }
+            @if (album.releaseYear) {
+              <p class="ald-hero__meta">{{ album.releaseYear }} · {{ album.tracks?.length ?? 0 }} треков</p>
+            } @else {
+              <p class="ald-hero__meta">{{ album.tracks?.length ?? 0 }} треков</p>
+            }
+          </div>
+        </section>
+
+        <section class="ald-tracks">
+          @if (album.tracks && album.tracks.length > 0) {
+            <ul class="ald-track-list">
+              @for (track of album.tracks; track track.id; let i = $index) {
+                <li class="ald-track-row" [class.ald-track-row--current]="isCurrentTrack(track.id)" [class.ald-track-row--playing]="isTrackPlaying(track.id)" (click)="playTrack(track.id)">
+                  <span class="ald-track-row__num">{{ i + 1 }}</span>
+                  <div class="ald-track-row__cover-wrap">
+                    <div class="ald-track-row__cover" [ngClass]="getTrackCoverClass(i)"></div>
+                    <button type="button" class="ald-track-row__play" [class.ald-track-row__play--current]="isCurrentTrack(track.id)" (click)="toggleTrackPlayPause(track.id, $event)" [attr.aria-label]="isTrackPlaying(track.id) ? 'Пауза' : 'Воспроизвести'">
+                      @if (isTrackPlaying(track.id)) {
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      }
+                    </button>
+                  </div>
+                  <span class="ald-track-row__title">{{ track.title }}</span>
+                  <span class="ald-track-row__duration">{{ formatDuration(track.durationSeconds) }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="ald-empty">В альбоме пока нет треков.</p>
+          }
+        </section>
+      }
+    </main>
+  </div>
+</div>

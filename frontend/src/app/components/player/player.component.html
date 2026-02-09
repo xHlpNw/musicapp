@@ -71,9 +71,32 @@
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
       </svg>
     </button>
-    <button type="button" class="player__more" aria-label="Ещё">
-      <span class="player__more-dots">⋯</span>
-    </button>
+    <div class="player__more-wrap">
+      <div class="player__more-trigger">
+      <div class="player__more-menu">
+        <button type="button" class="player__more-item" (click)="addToQueue(track)">Добавить в очередь</button>
+        <button type="button" class="player__more-item" (click)="addToQueueNext(track)">Играть следующим</button>
+        @if (hasAlbum(track)) {
+          <button type="button" class="player__more-item" (click)="goToAlbum(track)">Перейти к альбому</button>
+        }
+        @if (getTrackArtists(track).length === 1) {
+          <button type="button" class="player__more-item" (click)="goToArtist(getTrackArtists(track)[0].artistId)">Перейти к исполнителю</button>
+        } @else if (getTrackArtists(track).length > 1) {
+          <div class="player__more-item player__more-item--sub">
+            <span class="player__more-item__label">Перейти к исполнителю</span>
+            <div class="player__more-submenu">
+              @for (a of getTrackArtists(track); track a.artistId) {
+                <button type="button" class="player__more-item" (click)="goToArtist(a.artistId)">{{ a.artistName }}</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <button type="button" class="player__more" aria-label="Ещё">
+        <span class="player__more-dots">⋯</span>
+      </button>
+      </div>
+    </div>
   </div>
 
   <p class="player__error" *ngIf="error$ | async as err">{{ err }}</p>

@@ -2,10 +2,12 @@ export interface AlbumResponse {
   id: number;
   title: string;
   releaseYear?: number;
+  releaseDate?: string;
   coverImagePath?: string;
-  artistId: number;
-  artistName: string;
-  tracks?: { id: number; title: string; durationSeconds: number; trackNumber?: number }[];
+  artistId?: number;
+  artistName?: string;
+  artists?: AlbumArtistItem[];
+  tracks?: { id: number; title: string; durationSeconds: number; trackNumber?: number; position?: number }[];
 }
 
 export interface AlbumArtistItem {

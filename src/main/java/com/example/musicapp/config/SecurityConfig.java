@@ -45,8 +45,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tracks", "/api/tracks/*/stream", "/api/albums", "/api/artists", "/api/covers/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/playlists/*", "/api/playlists/*/tracks").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tracks", "/api/tracks/*/stream", "/api/albums", "/api/albums/*", "/api/artists", "/api/artists/*", "/api/covers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/playlists", "/api/playlists/*", "/api/playlists/*/tracks").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .exceptionHandling(ex -> ex

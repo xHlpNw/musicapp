@@ -21,8 +21,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(request).pipe(
     catchError((err: HttpErrorResponse) => {
       if (err.status === 401 && req.url.includes('/api/') && !isPublicAuthRequest(req.url)) {
-        auth.logout();
-        router.navigate(['/login']);
+        setTimeout(() => {
+          auth.logout();
+          router.navigate(['/login']);
+        }, 0);
       }
       return throwError(() => err);
     })
