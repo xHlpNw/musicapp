@@ -153,7 +153,7 @@
           } @else {
             <div class="favorites-grid favorites-grid--albums">
               @for (album of favoriteAlbums; track album.id; let i = $index) {
-                <div class="favorites-album-card">
+                <a [routerLink]="['/album', album.id]" class="favorites-album-card">
                   <div
                     class="favorites-album-card__cover"
                     [ngClass]="album.coverImagePath ? '' : getAlbumCoverClass(i)"
@@ -161,7 +161,7 @@
                   ></div>
                   <span class="favorites-album-card__title">{{ album.title }}</span>
                   <span class="favorites-album-card__artist">{{ getAlbumArtistNames(album) }}</span>
-                </div>
+                </a>
               }
             </div>
           }
@@ -180,14 +180,14 @@
           } @else {
             <div class="favorites-grid favorites-grid--artists">
               @for (artist of favoriteArtists; track artist.id; let i = $index) {
-                <div class="favorites-artist-card">
+                <a [routerLink]="['/artist', artist.id]" class="favorites-artist-card">
                   <div
                     class="favorites-artist-card__avatar"
                     [ngClass]="artist.coverImagePath ? '' : getArtistCoverClass(i)"
                     [style.background-image]="getArtistCoverStyle(artist)"
                   ></div>
                   <span class="favorites-artist-card__name">{{ artist.name }}</span>
-                </div>
+                </a>
               }
             </div>
           }

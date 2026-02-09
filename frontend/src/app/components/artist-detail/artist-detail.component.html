@@ -34,7 +34,6 @@
       } @else if (error && !artist) {
         <p class="ard-muted">{{ error }}</p>
       } @else if (artist) {
-        <a routerLink="/" class="ard-back">← На главную</a>
 
         <section class="ard-hero">
           <div class="ard-hero__cover" [style.background-image]="getCoverStyle(artist.coverImagePath)"></div>

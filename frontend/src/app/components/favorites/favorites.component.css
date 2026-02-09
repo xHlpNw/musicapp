@@ -423,6 +423,17 @@
 }
 
 /* Album card */
+.favorites-album-card {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.favorites-album-card:hover .favorites-album-card__title {
+  color: #F09020;
+}
+
 .favorites-album-card__cover {
   width: 100%;
   aspect-ratio: 1;
@@ -472,10 +483,17 @@
 
 /* Artist card — круглый аватар, имя по центру снизу */
 .favorites-artist-card {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+.favorites-artist-card:hover .favorites-artist-card__name {
+  color: #F09020;
 }
 
 .favorites-artist-card__avatar {

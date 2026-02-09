@@ -34,7 +34,6 @@
       } @else if (error && !album) {
         <p class="ald-muted">{{ error }}</p>
       } @else if (album) {
-        <a routerLink="/" class="ald-back">← На главную</a>
 
         <section class="ald-hero">
           <div class="ald-hero__cover" [ngClass]="album.coverImagePath ? '' : getTrackCoverClass(0)" [style.background-image]="getCoverStyle(album.coverImagePath)"></div>
