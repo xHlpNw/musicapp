@@ -10,7 +10,6 @@
       } @else if (error && !playlist) {
         <p class="pld-muted">{{ error }}</p>
       } @else if (playlist) {
-        <a routerLink="/playlists" class="pld-back">← К плейлистам</a>
 
         <section class="pld-hero">
           <div class="pld-hero__cover" [ngClass]="getPlaylistCoverClass(0)"></div>

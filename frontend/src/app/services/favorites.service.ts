@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TrackResponse } from '../models/track.model';
 import { AlbumSummaryResponse } from '../models/album.model';
 import { ArtistResponse } from '../models/artist.model';
@@ -21,8 +21,11 @@ export class FavoritesService {
 
   constructor(private http: HttpClient) {}
 
+  /** Избранные треки: от недавно добавленного к давно добавленному. */
   getTracks(): Observable<TrackResponse[]> {
-    return this.http.get<TrackResponse[]>(`${this.API_URL}/tracks`);
+    return this.http.get<TrackResponse[]>(`${this.API_URL}/tracks`).pipe(
+      map(list => list.slice().reverse())
+    );
   }
 
   getAlbums(): Observable<AlbumSummaryResponse[]> {
