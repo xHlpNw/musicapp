@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -73,6 +74,14 @@ public class PlaylistsController {
         User user = securityUser.getUser();
         playlistService.delete(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/cover")
+    public ResponseEntity<PlaylistResponse> uploadCover(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        return ResponseEntity.ok(playlistService.uploadCover(id, file, securityUser.getUser()));
     }
 
     @GetMapping("/{id}/tracks")

@@ -14,17 +14,32 @@ import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PlaylistService {
+
+    @Value("${app.storage.path:./storage}")
+    private String storagePath;
+
+    private Path playlistsCoversDir;
 
     private final PlaylistRepository playlistRepository;
     private final PlaylistTrackRepository playlistTrackRepository;
@@ -86,6 +101,12 @@ public class PlaylistService {
         return toDetailResponse(playlist);
     }
 
+    @PostConstruct
+    public void init() throws IOException {
+        playlistsCoversDir = Paths.get(storagePath).resolve("covers").resolve("playlists").toAbsolutePath();
+        Files.createDirectories(playlistsCoversDir);
+    }
+
     @Transactional
     public void delete(Long id, User currentUser) {
         Playlist playlist = playlistRepository.findById(id)
@@ -94,6 +115,39 @@ public class PlaylistService {
             throw new ForbiddenException("Not the owner of this playlist");
         }
         playlistRepository.delete(playlist);
+    }
+
+    @Transactional
+    public PlaylistResponse uploadCover(Long id, MultipartFile file, User currentUser) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist not found: " + id));
+        if (!playlist.getOwner().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Not the owner of this playlist");
+        }
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is required");
+        }
+        String ext = getImageExtension(file.getOriginalFilename()).orElse("jpg");
+        String fileName = id + "." + ext;
+        Path targetFile = playlistsCoversDir.resolve(fileName);
+        try {
+            Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save cover", e);
+        }
+        String relativePath = "playlists/" + fileName;
+        playlist.setCoverImagePath(relativePath);
+        playlistRepository.save(playlist);
+        return toDetailResponse(playlist);
+    }
+
+    private Optional<String> getImageExtension(String filename) {
+        if (filename == null || filename.isBlank()) return Optional.empty();
+        String lower = filename.toLowerCase(Locale.ROOT);
+        if (lower.endsWith(".jpeg") || lower.endsWith(".jpg")) return Optional.of("jpg");
+        if (lower.endsWith(".png")) return Optional.of("png");
+        if (lower.endsWith(".webp")) return Optional.of("webp");
+        return Optional.empty();
     }
 
     @Transactional
@@ -162,6 +216,7 @@ public class PlaylistService {
                 .id(playlist.getId())
                 .name(playlist.getName())
                 .description(playlist.getDescription())
+                .coverImagePath(playlist.getCoverImagePath())
                 .ownerId(playlist.getOwner().getId())
                 .ownerUsername(playlist.getOwner().getUsername())
                 .trackCount(count)
@@ -177,6 +232,7 @@ public class PlaylistService {
                 .id(playlist.getId())
                 .name(playlist.getName())
                 .description(playlist.getDescription())
+                .coverImagePath(playlist.getCoverImagePath())
                 .ownerId(playlist.getOwner().getId())
                 .ownerUsername(playlist.getOwner().getUsername())
                 .tracks(tracks)

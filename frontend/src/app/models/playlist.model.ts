@@ -4,6 +4,7 @@ export interface PlaylistResponse {
   id: number;
   name: string;
   description?: string;
+  coverImagePath?: string;
   ownerId: number;
   ownerUsername: string;
   tracks?: TrackResponse[];
@@ -12,6 +13,11 @@ export interface PlaylistResponse {
 
 export interface CreatePlaylistRequest {
   name: string;
+  description?: string;
+}
+
+export interface UpdatePlaylistRequest {
+  name?: string;
   description?: string;
 }
 

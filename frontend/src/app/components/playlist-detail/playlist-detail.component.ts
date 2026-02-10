@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
@@ -34,6 +34,7 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
   hasActiveTrack = false;
   isPlaying = false;
   playerLoading = false;
+  @ViewChild('coverInput') coverInputRef: ElementRef<HTMLInputElement> | null = null;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -149,10 +150,58 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Плейлист создан текущим пользователем — показываем меню (удалить, обложка, название). */
+  isOwner(): boolean {
+    if (!this.currentUser || !this.playlist) return false;
+    return this.playlist.ownerId === this.currentUser.userId;
+  }
+
   /** Жёлтое сердечко: плейлист в избранном или создан текущим пользователем */
   isHeartActive(): boolean {
     if (!this.currentUser || !this.playlist) return false;
     return this.isFavorite || this.playlist.ownerId === this.currentUser.userId;
+  }
+
+  openRename(event: Event): void {
+    event.stopPropagation();
+    if (!this.playlist) return;
+    const name = window.prompt('Новое название плейлиста', this.playlist.name);
+    if (name == null || name.trim() === '' || name.trim() === this.playlist.name) return;
+    this.playlistService.update(this.playlist.id, { name: name.trim() }).subscribe({
+      next: (updated) => {
+        this.playlist = updated;
+      },
+      error: () => {}
+    });
+  }
+
+  openChangeCover(event: Event): void {
+    event.stopPropagation();
+    if (!this.playlist) return;
+    this.coverInputRef?.nativeElement?.click();
+  }
+
+  onCoverFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || !this.playlist) return;
+    this.playlistService.uploadCover(this.playlist.id, file).subscribe({
+      next: (updated) => {
+        this.playlist = updated;
+      },
+      error: () => {}
+    });
+  }
+
+  deletePlaylist(event: Event): void {
+    event.stopPropagation();
+    if (!this.playlist) return;
+    if (!window.confirm(`Удалить плейлист «${this.playlist.name}»? Это действие нельзя отменить.`)) return;
+    this.playlistService.delete(this.playlist.id).subscribe({
+      next: () => this.router.navigate(['/playlists']),
+      error: () => {}
+    });
   }
 
   toggleFavorite(event: Event): void {
@@ -228,6 +277,11 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
 
   getPlaylistCoverClass(index: number): string {
     return 'cover--' + ((index % 6) + 1);
+  }
+
+  getPlaylistCoverStyle(): SafeStyle | null {
+    const url = this.playlist ? this.getCoversUrl(this.playlist.coverImagePath) : null;
+    return url ? this.sanitizer.bypassSecurityTrustStyle('url(' + url + ')') : null;
   }
 
   getAvatarUrl(user: LoginResponse): string | null {

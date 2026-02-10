@@ -12,7 +12,8 @@
       } @else if (playlist) {
 
         <section class="pld-hero">
-          <div class="pld-hero__cover" [ngClass]="getPlaylistCoverClass(0)"></div>
+          <div class="pld-hero__cover" [ngClass]="playlist.coverImagePath ? '' : getPlaylistCoverClass(0)" [style.background-image]="getPlaylistCoverStyle()"></div>
+          <input #coverInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onCoverFileSelected($event)" style="display: none" />
           <div class="pld-hero__info">
             <h1 class="pld-hero__title">{{ playlist.name }}</h1>
             <p class="pld-hero__author">{{ playlist.ownerUsername }}</p>
@@ -44,11 +45,18 @@
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
               </button>
-              <button type="button" class="pld-actions__icon" aria-label="Ещё">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-                  <circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/>
-                </svg>
-              </button>
+              @if (isOwner()) {
+                <div class="pld-actions__more-wrap">
+                  <div class="pld-actions__more-menu">
+                    <button type="button" class="pld-actions__more-item" (click)="openRename($event)">Изменить название</button>
+                    <button type="button" class="pld-actions__more-item" (click)="openChangeCover($event)">Изменить обложку</button>
+                    <button type="button" class="pld-actions__more-item pld-actions__more-item--danger" (click)="deletePlaylist($event)">Удалить плейлист</button>
+                  </div>
+                  <button type="button" class="pld-actions__icon" aria-label="Ещё">
+                    <span class="pld-actions__more-dots">⋯</span>
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </section>

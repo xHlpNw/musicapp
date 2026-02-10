@@ -26,6 +26,9 @@ public class Playlist {
     @Column(length = 2000)
     private String description;
 
+    @Column(name = "cover_image_path")
+    private String coverImagePath;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

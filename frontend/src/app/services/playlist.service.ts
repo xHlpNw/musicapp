@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PlaylistResponse, CreatePlaylistRequest, PageResponse } from '../models/playlist.model';
+import { PlaylistResponse, CreatePlaylistRequest, UpdatePlaylistRequest, PageResponse } from '../models/playlist.model';
 import { TrackResponse } from '../models/track.model';
 
 @Injectable({
@@ -36,5 +36,19 @@ export class PlaylistService {
 
   create(request: CreatePlaylistRequest): Observable<PlaylistResponse> {
     return this.http.post<PlaylistResponse>(this.API_URL, request);
+  }
+
+  update(id: number, request: UpdatePlaylistRequest): Observable<PlaylistResponse> {
+    return this.http.put<PlaylistResponse>(`${this.API_URL}/${id}`, request);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
+
+  uploadCover(id: number, file: File): Observable<PlaylistResponse> {
+    const formData = new FormData();
+    formData.set('file', file);
+    return this.http.post<PlaylistResponse>(`${this.API_URL}/${id}/cover`, formData);
   }
 }
