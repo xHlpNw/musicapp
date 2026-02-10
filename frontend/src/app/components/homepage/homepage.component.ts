@@ -77,8 +77,16 @@ export class HomepageComponent implements OnInit {
     });
   }
 
+  /** Воспроизвести подборку «Популярные треки» с выбранного: весь список в плеер, «Следующий»/«Предыдущий» и очередь работают по этому списку. */
   playTrack(track: TrackResponse): void {
-    this.playerService.setCurrentTrack(track);
+    this.playPopularTrackAt(track);
+  }
+
+  private playPopularTrackAt(track: TrackResponse): void {
+    if (!this.popularTracks.length) return;
+    const index = this.popularTracks.findIndex(t => t.id === track.id);
+    if (index < 0) return;
+    this.playerService.setPlaylist([...this.popularTracks], index);
   }
 
   isCurrentTrack(track: TrackResponse): boolean {
@@ -88,7 +96,7 @@ export class HomepageComponent implements OnInit {
 
   togglePlayPause(track: TrackResponse): void {
     if (!this.isCurrentTrack(track)) {
-      this.playerService.setCurrentTrack(track);
+      this.playPopularTrackAt(track);
       return;
     }
     if (this.playerService.isPlaying()) {
