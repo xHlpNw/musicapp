@@ -16,10 +16,12 @@ import { PlaylistsComponent } from './components/playlists/playlists.component';
 import { PlaylistDetailComponent } from './components/playlist-detail/playlist-detail.component';
 import { AlbumDetailComponent } from './components/album-detail/album-detail.component';
 import { ArtistDetailComponent } from './components/artist-detail/artist-detail.component';
+import { SearchComponent } from './components/search/search.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomepageComponent, pathMatch: 'full' },
+  { path: 'search', component: SearchComponent },
   { path: 'register', component: RegisterRedirectComponent },
   { path: 'login', component: LoginRedirectComponent },
   { path: 'dashboard', component: DashboardComponent },

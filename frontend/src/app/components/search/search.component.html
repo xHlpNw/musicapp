@@ -1,0 +1,110 @@
+<app-header [(searchValue)]="searchQuery" [searchReadonly]="false" />
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main" [class.main--with-player]="hasActiveTrack">
+      @if (!searchQuery.trim()) {
+        <div class="search-empty">
+          <p class="search-empty__text">Введите запрос в поле поиска и нажмите Enter</p>
+          <p class="search-empty__hint">Ищутся треки, альбомы и исполнители</p>
+        </div>
+      } @else {
+        <section class="section">
+          <h2 class="section__title">Треки</h2>
+          @if (errorTracks) {
+            <p class="section__error">{{ errorTracks }}</p>
+          } @else if (isLoadingTracks) {
+            <p class="section__loading">Загрузка…</p>
+          } @else if (tracks.length === 0) {
+            <p class="section__empty">Ничего не найдено</p>
+          } @else {
+            <ul class="track-list">
+              @for (track of tracks; track track.id; let i = $index) {
+                <li class="track-item" [class.track-item--playing]="isCurrentTrack(track)">
+                  <div class="track-item__cover-wrap">
+                    <div class="track-item__cover" [ngClass]="track.coverImagePath ? '' : getTrackCoverClass(i)" [style.background-image]="getTrackCoverStyle(track)"></div>
+                    @if (isCurrentTrack(track)) {
+                      @if (isPlaying) {
+                        <button type="button" class="track-item__control track-item__control--pause" aria-label="Пауза" (click)="togglePlayPause(track); $event.stopPropagation()">
+                          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                          </svg>
+                        </button>
+                      } @else {
+                        <button type="button" class="track-item__control track-item__control--play" aria-label="Воспроизвести" (click)="togglePlayPause(track); $event.stopPropagation()">
+                          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </button>
+                      }
+                    } @else {
+                      <button type="button" class="track-item__play" aria-label="Воспроизвести" (click)="playTrack(track); $event.stopPropagation()">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                  <div class="track-item__info">
+                    <span class="track-item__title">{{ track.title }}</span>
+                    <span class="track-item__artist">{{ getTrackArtistNames(track) }}</span>
+                  </div>
+                  <span class="track-item__duration">{{ formatDuration(track.durationSeconds) }}</span>
+                  <app-track-actions [track]="track" class="track-item__actions" />
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="section">
+          <h2 class="section__title">Альбомы</h2>
+          @if (errorAlbums) {
+            <p class="section__error">{{ errorAlbums }}</p>
+          } @else if (isLoadingAlbums) {
+            <p class="section__loading">Загрузка…</p>
+          } @else if (albums.length === 0) {
+            <p class="section__empty">Ничего не найдено</p>
+          } @else {
+            <div class="album-row">
+              @for (album of albums; track album.id; let i = $index) {
+                <a [routerLink]="['/album', album.id]" class="album-card" (mouseenter)="onAlbumCardMouseEnter($event)" (mouseleave)="onAlbumCardMouseLeave($event)">
+                  <div class="album-card__cover" [ngClass]="album.coverImagePath ? '' : getAlbumCoverClass(i)" [style.background-image]="getAlbumCoverStyle(album)"></div>
+                  <span class="album-card__title">{{ album.title }}</span>
+                  <div class="album-card__artist-wrap">
+                    <span class="album-card__artist-inner album-card__artist-inner--single">{{ getAlbumArtistNames(album) }}</span>
+                    <span class="album-card__artist-inner album-card__artist-inner--double">{{ getAlbumArtistNames(album) }} — {{ getAlbumArtistNames(album) }}</span>
+                  </div>
+                </a>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="section">
+          <h2 class="section__title">Исполнители</h2>
+          @if (errorArtists) {
+            <p class="section__error">{{ errorArtists }}</p>
+          } @else if (isLoadingArtists) {
+            <p class="section__loading">Загрузка…</p>
+          } @else if (artists.length === 0) {
+            <p class="section__empty">Ничего не найдено</p>
+          } @else {
+            <div class="artist-grid">
+              @for (artist of artists; track artist.id) {
+                <a [routerLink]="['/artist', artist.id]" class="artist-card">
+                  @if (getArtistCoverStyle(artist); as coverStyle) {
+                    <div class="artist-card__cover" [style.background-image]="coverStyle"></div>
+                  }
+                  <span class="artist-card__name">{{ artist.name }}</span>
+                </a>
+              }
+            </div>
+          }
+        </section>
+      }
+    </main>
+  </div>
+</div>

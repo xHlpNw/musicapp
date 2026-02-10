@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
@@ -20,7 +20,8 @@ export class AppHeaderComponent {
 
   constructor(
     public authService: AuthService,
-    private loginOverlay: LoginOverlayService
+    private loginOverlay: LoginOverlayService,
+    private router: Router
   ) {}
 
   openLogin(event: Event): void {
@@ -41,5 +42,12 @@ export class AppHeaderComponent {
 
   onSearchInput(value: string): void {
     this.searchValueChange.emit(value);
+  }
+
+  onSearchEnter(event: Event): void {
+    if (this.searchReadonly) return;
+    event.preventDefault();
+    const q = this.searchValue?.trim() || '';
+    this.router.navigate(['/search'], { queryParams: q ? { q } : {} });
   }
 }
