@@ -109,13 +109,35 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
     return { albumId, artists };
   }
 
-  /** Треки альбома могут быть TrackSummary (id, title, durationSeconds). Для воспроизведения загружаем полный трек. */
+  /** Треки альбома могут быть TrackSummary (id, title, durationSeconds). Для воспроизведения загружаем полный трек и ставим в очередь остальные треки альбома. */
   playTrack(trackId: number, event?: Event): void {
     if (event) event.stopPropagation();
+    this.playAlbumTrackAt(trackId);
+  }
+
+  /** Воспроизвести альбом с заданного трека: весь список + индекс. */
+  private playAlbumTrackAt(trackId: number): void {
+    const list = this.album?.tracks;
+    if (!list?.length) return;
+    const index = list.findIndex(t => t.id === trackId);
+    if (index < 0) return;
+    const fullList = this.albumTracksToMinimal(list);
     this.trackService.getById(trackId).subscribe({
-      next: (track) => this.playerService.setCurrentTrack(track),
+      next: (track) => {
+        fullList[index] = track;
+        this.playerService.setPlaylist(fullList, index);
+      },
       error: () => {}
     });
+  }
+
+  /** Преобразовать album.tracks в минимальный TrackResponse[] (id, title, durationSeconds). */
+  private albumTracksToMinimal(tracks: { id: number; title: string; durationSeconds: number }[]): TrackResponse[] {
+    return tracks.map(t => ({
+      id: t.id,
+      title: t.title,
+      durationSeconds: t.durationSeconds
+    } as TrackResponse));
   }
 
   isCurrentTrack(trackId: number): boolean {
@@ -132,10 +154,7 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
     if (this.isTrackPlaying(trackId)) {
       this.playerService.requestPause();
     } else {
-      this.trackService.getById(trackId).subscribe({
-        next: (track) => this.playerService.setCurrentTrack(track),
-        error: () => {}
-      });
+      this.playAlbumTrackAt(trackId);
     }
   }
 

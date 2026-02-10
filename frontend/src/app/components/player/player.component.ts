@@ -187,11 +187,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onPrev(): void {
-    // TODO: предыдущий трек
+    if (this.playerService.goToPrevious()) return;
+    const audio = this.audioRef?.nativeElement;
+    if (audio && this.currentTime > 2) {
+      audio.currentTime = 0;
+      this.currentTime = 0;
+    }
   }
 
   onNext(): void {
-    this.playerService.onCurrentTrackEnded();
+    this.playerService.goToNext();
   }
 
   onPlayPause(): void {
