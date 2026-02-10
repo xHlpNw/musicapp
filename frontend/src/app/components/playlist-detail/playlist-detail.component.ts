@@ -116,7 +116,7 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
   }
 
   playPlaylist(): void {
-    if (this.tracks.length) this.playerService.setCurrentTrack(this.tracks[0]);
+    if (this.tracks.length) this.playerService.setPlaylist([...this.tracks], 0);
   }
 
   stopPlaylist(): void {
@@ -136,9 +136,17 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
     return this.isCurrentTrack(track) && this.isPlaying;
   }
 
+  /** Воспроизвести плейлист с выбранного трека: весь список в плеер, «Следующий»/«Предыдущий» и «Добавить в очередь» работают по этому списку. */
   playTrack(track: TrackResponse, event?: Event): void {
     if (event) event.stopPropagation();
-    this.playerService.setCurrentTrack(track);
+    this.playPlaylistTrackAt(track);
+  }
+
+  private playPlaylistTrackAt(track: TrackResponse): void {
+    if (!this.tracks.length) return;
+    const index = this.tracks.findIndex(t => t.id === track.id);
+    if (index < 0) return;
+    this.playerService.setPlaylist([...this.tracks], index);
   }
 
   toggleTrackPlayPause(track: TrackResponse, event: Event): void {
@@ -146,7 +154,7 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
     if (this.isTrackPlaying(track)) {
       this.playerService.requestPause();
     } else {
-      this.playerService.setCurrentTrack(track);
+      this.playPlaylistTrackAt(track);
     }
   }
 
