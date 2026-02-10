@@ -146,8 +146,16 @@ export class SearchComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Воспроизвести результаты поиска (треки) с выбранного: весь список в плеер, «Следующий»/«Предыдущий» и очередь по этому списку. */
   playTrack(track: TrackResponse): void {
-    this.playerService.setCurrentTrack(track);
+    this.playSearchTrackAt(track);
+  }
+
+  private playSearchTrackAt(track: TrackResponse): void {
+    if (!this.tracks.length) return;
+    const index = this.tracks.findIndex(t => t.id === track.id);
+    if (index < 0) return;
+    this.playerService.setPlaylist([...this.tracks], index);
   }
 
   isCurrentTrack(track: TrackResponse): boolean {
@@ -157,7 +165,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   togglePlayPause(track: TrackResponse): void {
     if (!this.isCurrentTrack(track)) {
-      this.playerService.setCurrentTrack(track);
+      this.playSearchTrackAt(track);
       return;
     }
     if (this.playerService.isPlaying()) {
