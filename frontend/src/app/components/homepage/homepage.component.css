@@ -255,6 +255,9 @@
   width: 160px;
   cursor: pointer;
   transition: transform 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .album-card:hover {
@@ -358,6 +361,9 @@
   background: #15171A;
   border-radius: 10px;
   transition: background 0.15s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .artist-card:hover {

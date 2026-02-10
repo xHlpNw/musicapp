@@ -60,14 +60,14 @@
     } @else {
       <div class="album-row">
         @for (album of newAlbums; track album.id; let i = $index) {
-          <div class="album-card" (mouseenter)="onAlbumCardMouseEnter($event)" (mouseleave)="onAlbumCardMouseLeave($event)">
+          <a [routerLink]="['/album', album.id]" class="album-card" (mouseenter)="onAlbumCardMouseEnter($event)" (mouseleave)="onAlbumCardMouseLeave($event)">
             <div class="album-card__cover" [ngClass]="album.coverImagePath ? '' : getAlbumCoverClass(i)" [style.background-image]="getAlbumCoverStyle(album)"></div>
             <span class="album-card__title">{{ album.title }}</span>
             <div class="album-card__artist-wrap">
               <span class="album-card__artist-inner album-card__artist-inner--single">{{ getAlbumArtistNames(album) }}</span>
               <span class="album-card__artist-inner album-card__artist-inner--double">{{ getAlbumArtistNames(album) }} — {{ getAlbumArtistNames(album) }}</span>
             </div>
-          </div>
+          </a>
         }
       </div>
     }
@@ -82,9 +82,9 @@
     } @else {
       <div class="artist-grid">
         @for (artist of popularArtists; track artist.id) {
-          <div class="artist-card">
+          <a [routerLink]="['/artist', artist.id]" class="artist-card">
             <span class="artist-card__name">{{ artist.name }}</span>
-          </div>
+          </a>
         }
       </div>
     }
