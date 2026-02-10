@@ -25,11 +25,12 @@ public class PlaylistsController {
 
     private final PlaylistService playlistService;
 
-    /** Все плейлисты (для раздела «Все плейлисты» на странице Плейлисты). */
+    /** Все плейлисты (каталог). Опционально поиск по имени через q. */
     @GetMapping("/browse")
     public ResponseEntity<Page<PlaylistResponse>> browse(
+            @RequestParam(required = false) String q,
             @PageableDefault(size = 24) Pageable pageable) {
-        return ResponseEntity.ok(playlistService.findAll(pageable));
+        return ResponseEntity.ok(playlistService.findAllForBrowse(q, pageable));
     }
 
     @GetMapping

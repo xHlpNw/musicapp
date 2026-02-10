@@ -72,7 +72,9 @@ export class PlaylistsComponent implements OnInit {
   loadPopularPlaylists(): void {
     this.isLoadingPopular = true;
     this.errorPopular = '';
-    this.playlistService.getBrowsePlaylists(0, 8).subscribe({
+    const q = this.searchQuery.trim() || undefined;
+    const size = q ? 50 : 8;
+    this.playlistService.getBrowsePlaylists(0, size, q).subscribe({
       next: (res) => {
         this.popularPlaylists = res.content;
         this.isLoadingPopular = false;
@@ -87,7 +89,7 @@ export class PlaylistsComponent implements OnInit {
   loadCreated(): void {
     this.isLoadingCreated = true;
     this.errorCreated = '';
-    this.playlistService.getMyPlaylists(this.searchQuery.trim() || undefined, 0, 100).subscribe({
+    this.playlistService.getMyPlaylists(undefined, 0, 100).subscribe({
       next: (res) => {
         this.createdPlaylists = res.content;
         this.isLoadingCreated = false;
@@ -118,7 +120,7 @@ export class PlaylistsComponent implements OnInit {
     if (this.searchDebounce) clearTimeout(this.searchDebounce);
     this.searchDebounce = setTimeout(() => {
       this.searchDebounce = null;
-      this.loadCreated();
+      this.loadPopularPlaylists();
     }, 300);
   }
 

@@ -30,13 +30,13 @@
       </div>
 
       <section class="playlists-section">
-        <h2 class="playlists-section__title">Популярные плейлисты</h2>
+        <h2 class="playlists-section__title">{{ searchQuery.trim() ? 'Результаты поиска' : 'Популярные плейлисты' }}</h2>
         @if (isLoadingPopular && popularPlaylists.length === 0) {
           <p class="playlists-section__muted">Загрузка…</p>
         } @else if (errorPopular && popularPlaylists.length === 0) {
           <p class="playlists-section__muted">{{ errorPopular }}</p>
         } @else if (popularPlaylists.length === 0) {
-          <p class="playlists-section__muted">Пока нет плейлистов.</p>
+          <p class="playlists-section__muted">{{ searchQuery.trim() ? 'Ничего не найдено' : 'Пока нет плейлистов.' }}</p>
         } @else {
           <div class="playlists-row">
             @for (p of popularPlaylists; track p.id; let i = $index) {

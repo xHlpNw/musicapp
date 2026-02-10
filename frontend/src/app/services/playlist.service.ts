@@ -20,9 +20,12 @@ export class PlaylistService {
     return this.http.get<PageResponse<PlaylistResponse>>(this.API_URL, { params });
   }
 
-  /** Все плейлисты (для раздела «Все плейлисты»). */
-  getBrowsePlaylists(page = 0, size = 24): Observable<PageResponse<PlaylistResponse>> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+  /** Все плейлисты (каталог). Опционально поиск по имени — параметр q. */
+  getBrowsePlaylists(page = 0, size = 24, q?: string): Observable<PageResponse<PlaylistResponse>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (q?.trim()) {
+      params = params.set('q', q.trim());
+    }
     return this.http.get<PageResponse<PlaylistResponse>>(`${this.API_URL}/browse`, { params });
   }
 

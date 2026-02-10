@@ -51,6 +51,15 @@ public class PlaylistService {
         return playlistRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
     }
 
+    /** Поиск по всем плейлистам (каталог / browse). По имени при переданном q, иначе все по дате. */
+    @Transactional(readOnly = true)
+    public Page<PlaylistResponse> findAllForBrowse(String q, Pageable pageable) {
+        if (q != null && !q.isBlank()) {
+            return playlistRepository.findByNameContainingIgnoreCase(q.trim(), pageable).map(this::toResponse);
+        }
+        return playlistRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+    }
+
     @Transactional(readOnly = true)
     public Page<PlaylistResponse> findByOwner(User owner, Pageable pageable) {
         return playlistRepository.findByOwner(owner, pageable).map(this::toResponse);
