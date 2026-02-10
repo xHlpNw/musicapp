@@ -88,6 +88,11 @@ export class HistoryComponent implements OnInit {
   formatPlayedAt(playedAt: string): string {
     if (!playedAt) return '—';
     const d = new Date(playedAt);
+    const now = new Date();
+    const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    if (isToday) {
+      return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    }
     return d.toLocaleDateString('ru-RU', {
       day: '2-digit',
       month: 'short',
