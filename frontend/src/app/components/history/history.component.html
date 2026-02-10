@@ -1,0 +1,64 @@
+<app-header [searchValue]="searchQuery" [searchReadonly]="true" />
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main" [class.main--with-player]="hasActiveTrack">
+      <h1 class="history-title">Недавно прослушанное</h1>
+
+      @if (isLoading) {
+        <p class="history-loading">Загрузка…</p>
+      } @else if (error) {
+        <p class="history-error">{{ error }}</p>
+      } @else if (items.length === 0) {
+        <p class="history-empty">Вы ещё ничего не слушали.</p>
+      } @else {
+        <ul class="history-list">
+          @for (item of items; track item.id; let i = $index) {
+            <li
+              class="history-item"
+              [class.history-item--current]="isCurrentTrack(item.playedTrack)"
+              [class.history-item--playing]="isTrackPlaying(item.playedTrack)"
+              (click)="playTrack(item.playedTrack)"
+            >
+              <span class="history-item__time">{{ formatPlayedAt(item.playedAt) }}</span>
+              <span class="history-item__num">{{ i + 1 }}</span>
+              <div class="history-item__cover-wrap">
+                <div
+                  class="history-item__cover"
+                  [ngClass]="item.playedTrack.coverImagePath ? '' : getTrackCoverClass(i)"
+                  [style.background-image]="getTrackCoverStyle(item.playedTrack)"
+                ></div>
+                <button
+                  type="button"
+                  class="history-item__play"
+                  aria-label="Воспроизвести"
+                  (click)="playTrack(item.playedTrack); $event.stopPropagation()"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="history-item__info">
+                <span class="history-item__title">{{ item.playedTrack.title }}</span>
+                <span class="history-item__artist">{{ getTrackArtistNames(item.playedTrack) }}</span>
+              </div>
+              <span class="history-item__duration">{{ formatDuration(item.playedTrack.durationSeconds) }}</span>
+              <app-track-actions [track]="item.playedTrack" class="history-item__actions" />
+            </li>
+          }
+        </ul>
+
+        @if (totalPages > 1) {
+          <div class="history-pagination">
+            <button type="button" class="btn btn-small" [disabled]="currentPage === 0" (click)="prevPage()">Назад</button>
+            <span class="history-pagination-info">Страница {{ currentPage + 1 }} из {{ totalPages }} (всего {{ totalElements }})</span>
+            <button type="button" class="btn btn-small" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">Вперёд</button>
+          </div>
+        }
+      }
+    </main>
+  </div>
+</div>

@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { TrackResponse } from '../models/track.model';
 import { TrackService } from './track.service';
+import { AuthService } from './auth.service';
+import { ListenHistoryService } from './listen-history.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +38,11 @@ export class PlayerService {
 
   private currentBlobUrl: string | null = null;
 
-  constructor(private trackService: TrackService) {}
+  constructor(
+    private trackService: TrackService,
+    private authService: AuthService,
+    private listenHistoryService: ListenHistoryService
+  ) {}
 
   setCurrentTrack(track: TrackResponse | null): void {
     this.errorSubject.next(null);
@@ -97,6 +103,11 @@ export class PlayerService {
     this.currentTrackSubject.next(track);
     this.streamUrlSubject.next(null);
     this.loadingSubject.next(true);
+    this.authService.currentUser$.pipe(take(1)).subscribe(user => {
+      if (user) {
+        this.listenHistoryService.recordPlay(track.id).subscribe({ error: () => {} });
+      }
+    });
     this.trackService.getStreamBlob(track.id).subscribe({
       next: (blob) => {
         this.currentBlobUrl = URL.createObjectURL(blob);

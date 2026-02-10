@@ -17,6 +17,7 @@ import { PlaylistDetailComponent } from './components/playlist-detail/playlist-d
 import { AlbumDetailComponent } from './components/album-detail/album-detail.component';
 import { ArtistDetailComponent } from './components/artist-detail/artist-detail.component';
 import { SearchComponent } from './components/search/search.component';
+import { HistoryComponent } from './components/history/history.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
+  { path: 'history', component: HistoryComponent, canActivate: [authGuard] },
   { path: 'playlists', component: PlaylistsComponent },
   { path: 'playlists/:id', component: PlaylistDetailComponent },
   { path: 'album/:id', component: AlbumDetailComponent },
