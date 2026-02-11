@@ -72,6 +72,38 @@ export class HistoryComponent implements OnInit {
     }
   }
 
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadPage();
+    }
+  }
+
+  /** Элементы пагинации: страница (номер) или многоточие. */
+  getPaginationPages(): ({ kind: 'page'; num: number } | { kind: 'ellipsis' })[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    const result: ({ kind: 'page'; num: number } | { kind: 'ellipsis' })[] = [];
+    if (total <= 7) {
+      for (let i = 0; i < total; i++) result.push({ kind: 'page', num: i });
+      return result;
+    }
+    const show = (p: number) => { if (p >= 0 && p < total) result.push({ kind: 'page', num: p }); };
+    show(0);
+    if (current > 2) result.push({ kind: 'ellipsis' });
+    for (let p = Math.max(1, current - 1); p <= Math.min(total - 2, current + 1); p++) show(p);
+    if (current < total - 3) result.push({ kind: 'ellipsis' });
+    if (total > 1) show(total - 1);
+    return result;
+  }
+
+  /** Диапазон записей на текущей странице (например "1–20"). */
+  getPageRange(): string {
+    const from = this.currentPage * PAGE_SIZE + 1;
+    const to = Math.min((this.currentPage + 1) * PAGE_SIZE, this.totalElements);
+    return `${from}–${to}`;
+  }
+
   playTrack(track: TrackResponse): void {
     this.playerService.setCurrentTrack(track);
   }
@@ -83,6 +115,11 @@ export class HistoryComponent implements OnInit {
   isTrackPlaying(track: TrackResponse): boolean {
     const current = this.playerService.getCurrentTrack();
     return current?.id === track.id && this.playerService.isPlaying();
+  }
+
+  /** Номер записи в общей истории (на 2-й странице — 21, 22, … 40). */
+  getHistoryNumber(indexOnPage: number): number {
+    return this.currentPage * PAGE_SIZE + indexOnPage + 1;
   }
 
   formatPlayedAt(playedAt: string): string {

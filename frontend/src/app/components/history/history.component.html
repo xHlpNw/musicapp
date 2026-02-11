@@ -23,7 +23,7 @@
               (click)="playTrack(item.playedTrack)"
             >
               <span class="history-item__time">{{ formatPlayedAt(item.playedAt) }}</span>
-              <span class="history-item__num">{{ i + 1 }}</span>
+              <span class="history-item__num">{{ getHistoryNumber(i) }}</span>
               <div class="history-item__cover-wrap">
                 <div
                   class="history-item__cover"
@@ -52,11 +52,47 @@
         </ul>
 
         @if (totalPages > 1) {
-          <div class="history-pagination">
-            <button type="button" class="btn btn-small" [disabled]="currentPage === 0" (click)="prevPage()">Назад</button>
-            <span class="history-pagination-info">Страница {{ currentPage + 1 }} из {{ totalPages }} (всего {{ totalElements }})</span>
-            <button type="button" class="btn btn-small" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">Вперёд</button>
-          </div>
+          <nav class="history-pagination" aria-label="Навигация по страницам">
+            <div class="history-pagination__range">{{ getPageRange() }} из {{ totalElements }}</div>
+            <div class="history-pagination__controls">
+              <button
+                type="button"
+                class="history-pagination__btn history-pagination__btn--arrow"
+                [disabled]="currentPage === 0"
+                (click)="prevPage()"
+                aria-label="Предыдущая страница"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div class="history-pagination__pages">
+                @for (item of getPaginationPages(); track $index) {
+                  @if (item.kind === 'ellipsis') {
+                    <span class="history-pagination__ellipsis" aria-hidden="true">…</span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="history-pagination__btn history-pagination__btn--num"
+                      [class.history-pagination__btn--active]="currentPage === item.num"
+                      (click)="goToPage(item.num)"
+                      [attr.aria-label]="'Страница ' + (item.num + 1)"
+                      [attr.aria-current]="currentPage === item.num ? 'page' : null"
+                    >
+                      {{ item.num + 1 }}
+                    </button>
+                  }
+                }
+              </div>
+              <button
+                type="button"
+                class="history-pagination__btn history-pagination__btn--arrow"
+                [disabled]="currentPage >= totalPages - 1"
+                (click)="nextPage()"
+                aria-label="Следующая страница"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </nav>
         }
       }
     </main>
