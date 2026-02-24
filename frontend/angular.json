@@ -70,6 +70,7 @@
           "defaultConfiguration": "development",
           "options": {
             "port": 4200,
+            "host": "0.0.0.0",
             "proxyConfig": "src/proxy.conf.json"
           }
         }
