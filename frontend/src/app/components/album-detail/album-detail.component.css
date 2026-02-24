@@ -15,24 +15,30 @@
 .page-content {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  outline: none;
 }
 
 .main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
+  max-width: var(--content-visible-max);
+  width: 100%;
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
+  outline: none;
 }
 
 .main--with-player {
-  padding-bottom: 7rem;
+  padding-bottom: clamp(6rem, 12vh, 8rem);
 }
 
 .ald-back {
   display: inline-block;
-  font-size: 0.9rem;
+  font-size: clamp(0.875rem, 0.7vw + 0.5rem, 0.9rem);
   color: #9A9A9A;
   text-decoration: none;
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 2vh, 1.5rem);
   transition: color 0.2s;
 }
 
@@ -42,15 +48,15 @@
 
 .ald-hero {
   display: flex;
-  gap: 2rem;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
   align-items: flex-start;
-  margin-bottom: 2.5rem;
+  margin-bottom: clamp(1.5rem, 3vh, 2.5rem);
 }
 
 .ald-hero__cover {
   flex-shrink: 0;
-  width: 240px;
-  height: 240px;
+  width: clamp(160px, 18vw, 240px);
+  height: clamp(160px, 18vw, 240px);
   border-radius: 8px;
   background-size: cover;
   background-position: center;
@@ -81,14 +87,14 @@
 }
 
 .ald-hero__title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 2vw + 0.5rem, 2rem);
   font-weight: 600;
   color: #EDEDED;
   margin: 0 0 0.25rem;
 }
 
 .ald-hero__artist {
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   color: #F09020;
   text-decoration: none;
   margin: 0 0 0.5rem;
@@ -101,18 +107,18 @@
 }
 
 .ald-hero__meta {
-  font-size: 0.9rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.9rem);
   color: #9A9A9A;
   margin: 0 0 1.25rem;
 }
 
 .ald-tracks {
-  margin-top: 2rem;
+  margin-top: clamp(1.5rem, 3vh, 2rem);
 }
 
 .ald-muted,
 .ald-empty {
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   color: #9A9A9A;
   margin: 0;
 }
@@ -139,8 +145,8 @@
 .ald-track-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 12px 18px;
+  gap: clamp(0.75rem, 1.2vw, 1rem);
+  padding: clamp(8px, 1vh, 12px) clamp(12px, 1.5vw, 18px);
   cursor: pointer;
   transition: background 0.15s;
   border-radius: 8px;
@@ -176,7 +182,7 @@
 }
 
 .ald-track-row__num {
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.7vw + 0.5rem, 0.95rem);
   color: #9A9A9A;
   transition: color 0.2s, opacity 0.2s;
 }
@@ -224,7 +230,7 @@
 .ald-track-row__title {
   flex: 1;
   min-width: 0;
-  font-size: 1rem;
+  font-size: clamp(0.9375rem, 0.7vw + 0.5rem, 1rem);
   font-weight: 500;
   color: #EDEDED;
   transition: color 0.2s;
@@ -232,11 +238,11 @@
 
 .ald-track-row__duration {
   flex-shrink: 0;
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.6vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
 }
 
 .ald-track-row__actions {
   flex-shrink: 0;
-  margin-left: 8px;
+  margin-left: clamp(4px, 1vw, 8px);
 }
