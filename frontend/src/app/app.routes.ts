@@ -18,11 +18,13 @@ import { AlbumDetailComponent } from './components/album-detail/album-detail.com
 import { ArtistDetailComponent } from './components/artist-detail/artist-detail.component';
 import { SearchComponent } from './components/search/search.component';
 import { HistoryComponent } from './components/history/history.component';
+import { RoomsComponent } from './components/rooms/rooms.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomepageComponent, pathMatch: 'full' },
   { path: 'search', component: SearchComponent },
+  { path: 'rooms', component: RoomsComponent },
   { path: 'register', component: RegisterRedirectComponent },
   { path: 'login', component: LoginRedirectComponent },
   { path: 'dashboard', component: DashboardComponent },
