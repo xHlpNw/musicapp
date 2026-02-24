@@ -14,20 +14,21 @@
       } @else if (items.length === 0) {
         <p class="history-empty">Вы ещё ничего не слушали.</p>
       } @else {
-        <ul class="history-list">
-          @for (item of items; track item.id; let i = $index) {
-            <li
-              class="history-item"
-              [class.history-item--current]="isCurrentTrack(item.playedTrack)"
-              [class.history-item--playing]="isTrackPlaying(item.playedTrack)"
-              (click)="playTrack(item.playedTrack)"
-            >
-              <span class="history-item__time">{{ formatPlayedAt(item.playedAt) }}</span>
-              <span class="history-item__num">{{ getHistoryNumber(i) }}</span>
-              <div class="history-item__cover-wrap">
+        @for (group of getItemsByDateGroups(); track group.dateKey) {
+          <h2 class="history-date-header">{{ group.dateLabel }}</h2>
+          <ul class="history-list">
+            @for (item of group.items; track item.id) {
+              <li
+                class="history-item"
+                [class.history-item--current]="isCurrentTrack(item.playedTrack)"
+                [class.history-item--playing]="isTrackPlaying(item.playedTrack)"
+                (click)="playTrack(item.playedTrack)"
+              >
+                <span class="history-item__time">{{ formatTimeOnly(item.playedAt) }}</span>
+                <div class="history-item__cover-wrap">
                 <div
                   class="history-item__cover"
-                  [ngClass]="item.playedTrack.coverImagePath ? '' : getTrackCoverClass(i)"
+                  [ngClass]="item.playedTrack.coverImagePath ? '' : getTrackCoverClass(item.id)"
                   [style.background-image]="getTrackCoverStyle(item.playedTrack)"
                 ></div>
                 <button
@@ -47,9 +48,10 @@
               </div>
               <span class="history-item__duration">{{ formatDuration(item.playedTrack.durationSeconds) }}</span>
               <app-track-actions [track]="item.playedTrack" class="history-item__actions" />
-            </li>
-          }
-        </ul>
+              </li>
+            }
+          </ul>
+        }
 
         @if (totalPages > 1) {
           <nav class="history-pagination" aria-label="Навигация по страницам">

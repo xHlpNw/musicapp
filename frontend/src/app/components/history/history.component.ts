@@ -117,26 +117,40 @@ export class HistoryComponent implements OnInit {
     return current?.id === track.id && this.playerService.isPlaying();
   }
 
-  /** Номер записи в общей истории (на 2-й странице — 21, 22, … 40). */
-  getHistoryNumber(indexOnPage: number): number {
-    return this.currentPage * PAGE_SIZE + indexOnPage + 1;
+  /** Группы записей по дате (для текущей страницы). */
+  getItemsByDateGroups(): { dateLabel: string; dateKey: string; items: ListenHistoryItem[] }[] {
+    const map = new Map<string, ListenHistoryItem[]>();
+    for (const item of this.items) {
+      if (!item.playedAt) continue;
+      const d = new Date(item.playedAt);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(item);
+    }
+    const sortedKeys = Array.from(map.keys()).sort((a, b) => b.localeCompare(a));
+    return sortedKeys.map(key => {
+      const groupItems = map.get(key)!;
+      const d = new Date(groupItems[0].playedAt);
+      const dateLabel = d.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      return { dateLabel, dateKey: key, items: groupItems };
+    });
+  }
+
+  /** Только время (слева от трека). */
+  formatTimeOnly(playedAt: string): string {
+    if (!playedAt) return '—';
+    const d = new Date(playedAt);
+    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   }
 
   formatPlayedAt(playedAt: string): string {
     if (!playedAt) return '—';
     const d = new Date(playedAt);
-    const now = new Date();
-    const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    if (isToday) {
-      return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    }
-    return d.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   }
 
   formatDuration(seconds: number): string {
@@ -150,8 +164,8 @@ export class HistoryComponent implements OnInit {
     return '/api/covers/' + path;
   }
 
-  getTrackCoverClass(index: number): string {
-    return 'cover--' + ((index % 6) + 1);
+  getTrackCoverClass(indexOrId: number): string {
+    return 'cover--' + ((indexOrId % 6) + 1);
   }
 
   getTrackCoverStyle(track: TrackResponse): SafeStyle | null {

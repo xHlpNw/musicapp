@@ -15,29 +15,46 @@
 .page-content {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  outline: none;
 }
 
 .main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
+  max-width: var(--content-visible-max);
+  width: 100%;
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
+  outline: none;
 }
 
 .main--with-player {
-  padding-bottom: 7rem;
+  padding-bottom: clamp(6rem, 12vh, 8rem);
 }
 
 .history-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 1.8vw + 0.5rem, 2rem);
   font-weight: 700;
   color: #EDEDED;
-  margin: 0 0 1.5rem;
+  margin: 0 0 clamp(1rem, 2vh, 1.5rem);
+}
+
+.history-date-header {
+  font-size: clamp(0.9375rem, 0.9vw + 0.5rem, 1rem);
+  font-weight: 600;
+  color: #9A9A9A;
+  margin: clamp(1.25rem, 2.5vh, 1.75rem) 0 clamp(0.5rem, 1vh, 0.75rem);
+}
+
+.history-date-header:first-of-type {
+  margin-top: 0;
 }
 
 .history-loading,
 .history-error,
 .history-empty {
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   color: #9A9A9A;
   margin: 0;
 }
@@ -55,8 +72,8 @@
 .history-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 10px 12px;
+  gap: clamp(0.75rem, 1.2vw, 1rem);
+  padding: clamp(8px, 1vh, 10px) clamp(10px, 1.2vw, 12px);
   border-radius: 8px;
   transition: background 0.15s;
   cursor: pointer;
@@ -72,16 +89,9 @@
 
 .history-item__time {
   flex-shrink: 0;
-  width: 140px;
-  font-size: 0.8125rem;
-  color: #9A9A9A;
-}
-
-.history-item__num {
-  flex-shrink: 0;
-  width: 28px;
-  text-align: right;
-  font-size: 0.875rem;
+  width: clamp(48px, 5vw, 56px);
+  text-align: left;
+  font-size: clamp(0.75rem, 0.65vw + 0.4rem, 0.8125rem);
   color: #9A9A9A;
 }
 
@@ -176,7 +186,7 @@
 }
 
 .history-item__title {
-  font-size: 0.9375rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.9375rem);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -184,7 +194,7 @@
 }
 
 .history-item__artist {
-  font-size: 0.8125rem;
+  font-size: clamp(0.75rem, 0.65vw + 0.4rem, 0.8125rem);
   color: #9A9A9A;
   white-space: nowrap;
   overflow: hidden;
@@ -193,7 +203,7 @@
 
 .history-item__duration {
   flex-shrink: 0;
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
 }
 
@@ -203,23 +213,23 @@
 
 /* Pagination */
 .history-pagination {
-  margin-top: 2rem;
-  padding: 1rem 1.25rem;
+  margin-top: clamp(1.25rem, 2.5vh, 2rem);
+  padding: clamp(0.75rem, 1.5vh, 1rem) clamp(1rem, 1.2vw, 1.25rem);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: clamp(0.75rem, 1.2vw, 1rem);
 }
 
 .history-pagination__range {
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
 }
 
 .history-pagination__controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: clamp(0.375rem, 0.5vw, 0.5rem);
 }
 
 .history-pagination__pages {
@@ -232,10 +242,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 10px;
-  font-size: 0.875rem;
+  min-width: clamp(32px, 3.5vw, 36px);
+  height: clamp(32px, 3.5vw, 36px);
+  padding: 0 clamp(8px, 1vw, 10px);
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   font-weight: 500;
   color: #EDEDED;
   background: #1C1F24;
@@ -256,7 +266,7 @@
 }
 
 .history-pagination__btn--arrow {
-  padding: 0 8px;
+  padding: 0 clamp(6px, 0.8vw, 8px);
 }
 
 .history-pagination__btn--arrow svg {
@@ -281,11 +291,11 @@
 }
 
 .history-pagination__ellipsis {
-  min-width: 36px;
-  height: 36px;
+  min-width: clamp(32px, 3.5vw, 36px);
+  height: clamp(32px, 3.5vw, 36px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
 }
