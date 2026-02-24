@@ -16,26 +16,46 @@ import com.example.musicapp.repository.RoomQueueItemRepository;
 import com.example.musicapp.repository.RoomRepository;
 import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RoomService {
 
+    @Value("${app.storage.path:./storage}")
+    private String storagePath;
+    private Path roomsCoversDir;
+
     private final RoomRepository roomRepository;
     private final RoomMemberRepository roomMemberRepository;
     private final RoomQueueItemRepository roomQueueItemRepository;
     private final TrackRepository trackRepository;
+
+    @PostConstruct
+    public void init() throws IOException {
+        roomsCoversDir = Paths.get(storagePath).resolve("covers").resolve("rooms").toAbsolutePath();
+        Files.createDirectories(roomsCoversDir);
+    }
 
     @Transactional(readOnly = true)
     public List<RoomResponse> findRoomsForUser(User currentUser) {
@@ -207,6 +227,56 @@ public class RoomService {
     }
 
     @Transactional
+    public RoomResponse uploadCover(Long roomId, MultipartFile file, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!room.getHost().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Only the host can change room cover");
+        }
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is required");
+        }
+        String ext = getImageExtension(file.getOriginalFilename()).orElse("jpg");
+        String fileName = roomId + "." + ext;
+        Path targetFile = roomsCoversDir.resolve(fileName);
+        try {
+            Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save room cover", e);
+        }
+        String relativePath = "rooms/" + fileName;
+        room.setCoverImagePath(relativePath);
+        room.setUpdatedAt(Instant.now());
+        room = roomRepository.save(room);
+        return toDetailResponse(room);
+    }
+
+    @Transactional
+    public RoomResponse deleteCover(Long roomId, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!room.getHost().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Only the host can remove room cover");
+        }
+        if (room.getCoverImagePath() != null && !room.getCoverImagePath().isBlank()) {
+            String path = room.getCoverImagePath();
+            if (path.startsWith("rooms/")) {
+                Path file = roomsCoversDir.resolve(path.substring("rooms/".length())).normalize();
+                if (file.startsWith(roomsCoversDir)) {
+                    try {
+                        Files.deleteIfExists(file);
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+            room.setCoverImagePath(null);
+            room.setUpdatedAt(Instant.now());
+            room = roomRepository.save(room);
+        }
+        return toDetailResponse(room);
+    }
+
+    @Transactional
     public void addToQueue(Long roomId, Long trackId, User currentUser) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
@@ -262,7 +332,7 @@ public class RoomService {
         List<RoomResponse.QueueItemInfo> queue = room.getQueue().stream()
                 .map(qi -> {
                     var t = qi.getTrack();
-                    return new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), t.getId(), t.getTitle(), t.getDurationSeconds(), t.getCoverImagePath());
+                    return new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), t.getId(), t.getTitle(), getFirstArtistName(t), t.getDurationSeconds(), t.getCoverImagePath());
                 })
                 .collect(Collectors.toList());
         var track = room.getCurrentTrack();
@@ -279,6 +349,7 @@ public class RoomService {
                 .playing(room.isPlaying())
                 .memberCount((int) memberCount)
                 .maxMembers(room.getMaxMembers())
+                .coverImagePath(room.getCoverImagePath())
                 .isMember(currentUser != null && isMember(room, currentUser))
                 .createdAt(room.getCreatedAt())
                 .updatedAt(room.getUpdatedAt())
@@ -297,7 +368,7 @@ public class RoomService {
         List<RoomResponse.QueueItemInfo> queue = room.getQueue().stream()
                 .map(qi -> {
                     var t = qi.getTrack();
-                    return new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), t.getId(), t.getTitle(), t.getDurationSeconds(), t.getCoverImagePath());
+                    return new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), t.getId(), t.getTitle(), getFirstArtistName(t), t.getDurationSeconds(), t.getCoverImagePath());
                 })
                 .collect(Collectors.toList());
         var track = room.getCurrentTrack();
@@ -314,11 +385,21 @@ public class RoomService {
                 .playing(room.isPlaying())
                 .memberCount(members.size())
                 .maxMembers(room.getMaxMembers())
+                .coverImagePath(room.getCoverImagePath())
                 .createdAt(room.getCreatedAt())
                 .updatedAt(room.getUpdatedAt())
                 .queue(queue)
                 .members(members)
                 .build();
+    }
+
+    private static Optional<String> getImageExtension(String filename) {
+        if (filename == null || filename.isBlank()) return Optional.empty();
+        String lower = filename.toLowerCase(Locale.ROOT);
+        if (lower.endsWith(".jpeg") || lower.endsWith(".jpg")) return Optional.of("jpg");
+        if (lower.endsWith(".png")) return Optional.of("png");
+        if (lower.endsWith(".webp")) return Optional.of("webp");
+        return Optional.empty();
     }
 
     private String getFirstArtistName(Track track) {

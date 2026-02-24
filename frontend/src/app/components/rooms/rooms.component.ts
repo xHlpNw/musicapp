@@ -144,7 +144,7 @@ export class RoomsComponent implements OnInit, OnDestroy {
   }
 
   getCoverUrl(room: RoomResponse): string | null {
-    const path = room.currentTrackCoverPath;
+    const path = room.coverImagePath ?? room.currentTrackCoverPath;
     if (!path) return null;
     return path.startsWith('http') ? path : '/api/covers/' + path;
   }

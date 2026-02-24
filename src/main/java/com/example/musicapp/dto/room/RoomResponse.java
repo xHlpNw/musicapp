@@ -26,6 +26,8 @@ public class RoomResponse {
     private Boolean playing;
     private Integer memberCount;
     private Integer maxMembers;
+    /** Обложка комнаты (путь относительно covers/). Если null — показывать обложку текущего трека. */
+    private String coverImagePath;
     /** Участник ли текущий пользователь (хост или в списке участников). */
     private Boolean isMember;
     private Instant createdAt;
@@ -49,6 +51,7 @@ public class RoomResponse {
         private int position;
         private Long trackId;
         private String trackTitle;
+        private String trackArtistName;
         private Integer durationSeconds;
         private String trackCoverPath;
     }

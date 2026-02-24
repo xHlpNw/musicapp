@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RoomResponse, RoomPageResponse, CreateRoomRequest, UpdateRoomRequest } from '../models/room.model';
+import { RoomResponse, RoomPageResponse, CreateRoomRequest, UpdateRoomRequest, RoomStateRequest } from '../models/room.model';
 
 @Injectable({
   providedIn: 'root'
@@ -47,11 +47,33 @@ export class RoomService {
     return this.http.patch<RoomResponse>(`${this.API_URL}/${id}`, request);
   }
 
+  uploadCover(id: number, file: File): Observable<RoomResponse> {
+    const formData = new FormData();
+    formData.set('file', file);
+    return this.http.post<RoomResponse>(`${this.API_URL}/${id}/cover`, formData);
+  }
+
+  deleteCover(id: number): Observable<RoomResponse> {
+    return this.http.delete<RoomResponse>(`${this.API_URL}/${id}/cover`);
+  }
+
   join(id: number): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/${id}/join`, null);
   }
 
   leave(id: number): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/${id}/leave`, null);
+  }
+
+  /** Добавить трек в очередь комнаты (только хост). */
+  addToQueue(roomId: number, trackId: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${roomId}/queue`, null, {
+      params: { trackId: trackId.toString() }
+    });
+  }
+
+  /** Удалить трек из очереди комнаты (только хост). */
+  removeFromQueue(roomId: number, queueItemId: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${roomId}/queue/${queueItemId}`);
   }
 }

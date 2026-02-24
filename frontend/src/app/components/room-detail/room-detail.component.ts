@@ -10,7 +10,10 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
 import { PlayerService } from '../../services/player.service';
 import { RoomService } from '../../services/room.service';
+import { TrackService } from '../../services/track.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
+import { TrackResponse } from '../../models/track.model';
 import { RoomSettingsOverlayComponent } from '../room-settings-overlay/room-settings-overlay.component';
 
 export interface ChatMessageData {
@@ -34,12 +37,24 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private playerService = inject(PlayerService);
   private roomService = inject(RoomService);
+  private trackService = inject(TrackService);
+  private favoritesService = inject(FavoritesService);
   private destroy$ = new Subject<void>();
 
   room: RoomResponse | null = null;
   /** Показать кнопку «Присоединиться» (пользователь не участник). */
   needJoin = false;
   showSettingsOverlay = false;
+  /** Оверлей «Добавить трек в очередь». */
+  showAddToQueueOverlay = false;
+  addToQueueSearchQuery = '';
+  /** Треки из избранного (показываются, когда поле поиска пустое). */
+  addToQueueFavoriteTracks: TrackResponse[] = [];
+  addToQueueFavoritesLoading = false;
+  /** Результаты поиска (показываются после ввода запроса). */
+  addToQueueTracks: TrackResponse[] = [];
+  addToQueueLoading = false;
+  addToQueueAddingId: number | null = null;
   chatMessages: ChatMessageData[] = [];
   chatInput = '';
   isLoading = true;
@@ -54,6 +69,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
 
   get isRoomPlaying(): boolean {
     return this.room?.playing ?? false;
+  }
+
+  /** Обложка для фона и карточки: своя обложка комнаты или обложка текущего трека. */
+  get effectiveCoverUrl(): string | null {
+    const path = this.room?.coverImagePath ?? this.room?.currentTrackCoverPath;
+    if (!path) return null;
+    return path.startsWith('http') ? path : '/api/covers/' + path;
   }
 
   get currentTrackCoverUrl(): string | null {
@@ -127,6 +149,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     return path.startsWith('http') ? path : '/api/covers/' + path;
   }
 
+  /** Стиль фона для блока обложки: своя обложка комнаты или текущего трека. */
+  getEffectiveCoverStyle(): string {
+    const path = this.room?.coverImagePath ?? this.room?.currentTrackCoverPath;
+    if (!path) return 'none';
+    return 'url(' + this.getCoverUrl(path) + ')';
+  }
+
   getCurrentTrackTitle(): string {
     return this.room?.currentTrackTitle ?? '—';
   }
@@ -189,6 +218,10 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  onCoverUpdated(updated: RoomResponse): void {
+    this.room = updated;
+  }
+
   invite(): void {
     // TODO: copy link or modal
   }
@@ -208,6 +241,77 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   }
 
   removeFromQueue(item: RoomQueueItemInfo): void {
-    // TODO: DELETE /api/rooms/:id/queue/:queueItemId
+    if (!this.room) return;
+    this.roomService.removeFromQueue(this.room.id, item.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => this.loadRoom(this.room!.id),
+      error: () => {}
+    });
+  }
+
+  openAddToQueueOverlay(): void {
+    this.showAddToQueueOverlay = true;
+    this.addToQueueSearchQuery = '';
+    this.addToQueueTracks = [];
+    this.addToQueueLoading = false;
+    this.addToQueueFavoriteTracks = [];
+    this.addToQueueFavoritesLoading = true;
+    this.favoritesService.getTracks()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (tracks) => {
+          this.addToQueueFavoriteTracks = tracks;
+          this.addToQueueFavoritesLoading = false;
+        },
+        error: () => {
+          this.addToQueueFavoritesLoading = false;
+        }
+      });
+  }
+
+  closeAddToQueueOverlay(): void {
+    this.showAddToQueueOverlay = false;
+  }
+
+  /** Треки для отображения: при пустом поле — избранное, иначе — результаты поиска. */
+  get addToQueueDisplayTracks(): TrackResponse[] {
+    return this.addToQueueSearchQuery.trim() ? this.addToQueueTracks : this.addToQueueFavoriteTracks;
+  }
+
+  get addToQueueDisplayLoading(): boolean {
+    return this.addToQueueSearchQuery.trim() ? this.addToQueueLoading : this.addToQueueFavoritesLoading;
+  }
+
+  searchTracksForQueue(): void {
+    const query = this.addToQueueSearchQuery.trim();
+    if (!query) {
+      this.addToQueueTracks = [];
+      return;
+    }
+    this.addToQueueLoading = true;
+    this.trackService.getPage(0, 20, query)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (page) => {
+          this.addToQueueTracks = page.content;
+          this.addToQueueLoading = false;
+        },
+        error: () => {
+          this.addToQueueLoading = false;
+        }
+      });
+  }
+
+  addTrackToQueue(track: TrackResponse): void {
+    if (!this.room) return;
+    this.addToQueueAddingId = track.id;
+    this.roomService.addToQueue(this.room.id, track.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.addToQueueAddingId = null;
+        this.loadRoom(this.room!.id);
+      },
+      error: () => {
+        this.addToQueueAddingId = null;
+      }
+    });
   }
 }

@@ -34,6 +34,9 @@ public class Room {
     @Column(name = "max_members")
     private Integer maxMembers;
 
+    @Column(name = "cover_image_path")
+    private String coverImagePath;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

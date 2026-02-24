@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -98,6 +99,23 @@ public class RoomsController {
             @AuthenticationPrincipal SecurityUser securityUser) {
         User user = securityUser.getUser();
         return ResponseEntity.ok(roomService.update(id, request, user));
+    }
+
+    @PostMapping("/{id}/cover")
+    public ResponseEntity<RoomResponse> uploadCover(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        return ResponseEntity.ok(roomService.uploadCover(id, file, user));
+    }
+
+    @DeleteMapping("/{id}/cover")
+    public ResponseEntity<RoomResponse> deleteCover(
+            @PathVariable Long id,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        return ResponseEntity.ok(roomService.deleteCover(id, user));
     }
 
     @PutMapping("/{id}/state")

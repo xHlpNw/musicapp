@@ -163,3 +163,56 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Cover block */
+.room-settings-overlay__field--cover {
+  margin-bottom: 4px;
+}
+
+.room-settings-overlay__cover-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.room-settings-overlay__cover-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.room-settings-overlay__cover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.room-settings-overlay__cover-input {
+  display: none;
+}
+
+.room-settings-overlay__btn--cover,
+.room-settings-overlay__btn--cover-remove {
+  height: 40px;
+  padding: 0 18px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #EDEDED;
+}
+
+.room-settings-overlay__btn--cover:hover:not(:disabled),
+.room-settings-overlay__btn--cover-remove:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.room-settings-overlay__btn--cover-remove {
+  color: #9A9A9A;
+}
+
+.room-settings-overlay__btn--cover-remove:hover:not(:disabled) {
+  color: #e57373;
+}

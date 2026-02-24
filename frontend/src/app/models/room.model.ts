@@ -11,6 +11,8 @@ export interface RoomResponse {
   playing: boolean;
   memberCount: number;
   maxMembers: number | null;
+  /** Обложка комнаты (путь). Если нет — показывать обложку текущего трека. */
+  coverImagePath?: string | null;
   isMember?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -23,6 +25,7 @@ export interface RoomQueueItemInfo {
   position: number;
   trackId: number;
   trackTitle?: string;
+  trackArtistName?: string | null;
   durationSeconds?: number;
   trackCoverPath?: string | null;
 }
@@ -50,4 +53,10 @@ export interface CreateRoomRequest {
 export interface UpdateRoomRequest {
   name?: string;
   maxMembers?: number | null;
+}
+
+export interface RoomStateRequest {
+  currentTrackId?: number | null;
+  positionSeconds?: number;
+  playing?: boolean;
 }

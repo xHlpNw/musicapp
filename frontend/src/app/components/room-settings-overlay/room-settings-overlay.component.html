@@ -18,6 +18,27 @@
     </header>
 
     <form (ngSubmit)="onSubmit()" class="room-settings-overlay__form">
+      <div class="room-settings-overlay__field room-settings-overlay__field--cover">
+        <label class="room-settings-overlay__label">Обложка комнаты</label>
+        <div class="room-settings-overlay__cover-row">
+          <div
+            class="room-settings-overlay__cover-preview"
+            [style.background-image]="(room?.coverImagePath || room?.currentTrackCoverPath) ? 'url(' + getCoverUrl(room?.coverImagePath || room?.currentTrackCoverPath) + ')' : 'none'"
+          ></div>
+          <div class="room-settings-overlay__cover-actions">
+            <input #coverInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onCoverFileSelected($event)" class="room-settings-overlay__cover-input" />
+            <button type="button" class="room-settings-overlay__btn room-settings-overlay__btn--cover" (click)="openCoverInput()" [disabled]="coverUploading">
+              {{ coverUploading ? 'Загрузка…' : 'Изменить обложку' }}
+            </button>
+            @if (room?.coverImagePath) {
+              <button type="button" class="room-settings-overlay__btn room-settings-overlay__btn--cover-remove" (click)="removeCover()" [disabled]="coverDeleting">
+                {{ coverDeleting ? 'Удаление…' : 'Удалить обложку' }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
       <div class="room-settings-overlay__field">
         <label for="room-settings-name" class="room-settings-overlay__label">Название комнаты</label>
         <input
