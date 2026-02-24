@@ -15,38 +15,44 @@
 .page-content {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  outline: none;
 }
 
-/* Main */
+/* Main — резиновый, центрирован по окну */
 .main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
+  max-width: var(--content-visible-max);
+  width: 100%;
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
+  outline: none;
 }
 
 .main--with-player {
-  padding-bottom: 7rem;
+  padding-bottom: clamp(6rem, 12vh, 8rem);
 }
 
 .favorites-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 1.8vw + 0.5rem, 2rem);
   font-weight: 700;
   color: #EDEDED;
-  margin: 0 0 1.5rem;
+  margin: 0 0 clamp(1rem, 2vh, 1.5rem);
 }
 
 /* Tabs */
 .favorites-tabs {
   display: flex;
-  gap: 0.5rem 2rem;
-  margin-bottom: 2rem;
+  gap: clamp(0.25rem, 0.5vw, 0.5rem) clamp(1.25rem, 2vw, 2rem);
+  margin-bottom: clamp(1.25rem, 2.5vh, 2rem);
   border-bottom: 1px solid #1C1F24;
   flex-wrap: wrap;
 }
 
 .favorites-tab {
-  padding: 12px 0;
-  font-size: 1rem;
+  padding: clamp(10px, 1vh, 12px) 0;
+  font-size: clamp(0.9375rem, 0.85vw + 0.5rem, 1rem);
   font-weight: 500;
   color: #9A9A9A;
   background: none;
@@ -76,13 +82,13 @@
 
 /* Content states */
 .favorites-content {
-  min-height: 120px;
+  min-height: clamp(80px, 12vh, 120px);
 }
 
 .favorites-loading,
 .favorites-error,
 .favorites-empty {
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   color: #9A9A9A;
   margin: 0;
 }
@@ -101,8 +107,8 @@
 .favorites-track-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 10px 12px;
+  gap: clamp(0.75rem, 1.2vw, 1rem);
+  padding: clamp(8px, 1vh, 10px) clamp(10px, 1.2vw, 12px);
   border-radius: 8px;
   transition: background 0.15s;
 }
@@ -215,13 +221,13 @@
 }
 
 .favorites-track-item__title {
-  font-size: 1rem;
+  font-size: clamp(0.9375rem, 0.85vw + 0.5rem, 1rem);
   color: #EDEDED;
   font-weight: 500;
 }
 
 .favorites-track-item__artist {
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
 }
 
@@ -233,13 +239,13 @@
 
 .favorites-track-item__actions {
   flex-shrink: 0;
-  margin-left: 8px;
+  margin-left: clamp(6px, 0.8vw, 8px);
 }
 
 /* Grid: playlists, albums, artists */
 .favorites-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: clamp(1rem, 1.5vw, 1.5rem);
 }
 
 .favorites-grid--playlists,
@@ -263,7 +269,7 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: clamp(6px, 0.8vh, 10px);
   background-size: cover;
   background-position: center;
 }
@@ -289,7 +295,7 @@
 
 .favorites-playlist-card__title {
   display: block;
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   font-weight: 500;
   color: #EDEDED;
   margin-bottom: 2px;
@@ -299,7 +305,7 @@
 }
 
 .favorites-playlist-card__count {
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
 }
 
@@ -319,7 +325,7 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: clamp(6px, 0.8vh, 10px);
   background-size: cover;
   background-position: center;
 }
@@ -345,7 +351,7 @@
 
 .favorites-album-card__title {
   display: block;
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   font-weight: 500;
   color: #EDEDED;
   margin-bottom: 2px;
@@ -355,7 +361,7 @@
 }
 
 .favorites-album-card__artist {
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
   color: #9A9A9A;
   white-space: nowrap;
   overflow: hidden;
@@ -378,10 +384,10 @@
 }
 
 .favorites-artist-card__avatar {
-  width: 160px;
-  height: 160px;
+  width: clamp(140px, 12vw, 160px);
+  height: clamp(140px, 12vw, 160px);
   border-radius: 50%;
-  margin-bottom: 12px;
+  margin-bottom: clamp(8px, 1vh, 12px);
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
@@ -407,7 +413,7 @@
 }
 
 .favorites-artist-card__name {
-  font-size: 1rem;
+  font-size: clamp(0.9375rem, 0.85vw + 0.5rem, 1rem);
   font-weight: 500;
   color: #EDEDED;
   word-break: break-word;
