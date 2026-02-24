@@ -186,6 +186,7 @@
   border-radius: 12px;
   color: #9A9A9A;
   transition: color 0.2s, background 0.2s;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .room-detail__icon-btn:hover {
@@ -266,19 +267,24 @@
   transition: background 0.2s, color 0.2s;
 }
 
-.room-detail__control-btn:hover {
+.room-detail__control-btn:hover:not(:disabled) {
   background: rgba(240, 144, 32, 0.2);
   color: #F09020;
 }
 
-.room-detail__control-btn:first-child {
+.room-detail__control-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.room-detail__control-btn:nth-child(2) {
   width: 56px;
   height: 56px;
   color: #F09020;
   background: rgba(240, 144, 32, 0.15);
 }
 
-.room-detail__control-btn:first-child:hover {
+.room-detail__control-btn:nth-child(2):hover:not(:disabled) {
   background: rgba(240, 144, 32, 0.25);
 }
 
@@ -334,6 +340,18 @@
 
 .room-detail__queue-row:hover {
   background: #1A1A1D;
+}
+
+.room-detail__queue-row--current {
+  background: rgba(240, 144, 32, 0.12);
+}
+
+.room-detail__queue-row--current:hover {
+  background: rgba(240, 144, 32, 0.16);
+}
+
+.room-detail__queue-row--current .room-detail__queue-track-name {
+  color: #F09020;
 }
 
 .room-detail__queue-row:hover .room-detail__queue-remove {

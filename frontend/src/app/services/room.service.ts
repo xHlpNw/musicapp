@@ -76,4 +76,9 @@ export class RoomService {
   removeFromQueue(roomId: number, queueItemId: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${roomId}/queue/${queueItemId}`);
   }
+
+  /** Обновить состояние воспроизведения комнаты (только хост). */
+  updateState(roomId: number, state: RoomStateRequest): Observable<RoomResponse> {
+    return this.http.put<RoomResponse>(`${this.API_URL}/${roomId}/state`, state);
+  }
 }

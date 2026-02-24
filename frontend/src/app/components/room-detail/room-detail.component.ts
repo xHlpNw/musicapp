@@ -10,6 +10,7 @@ import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
 import { PlayerService } from '../../services/player.service';
 import { RoomService } from '../../services/room.service';
+import { RoomControlService } from '../../services/room-control.service';
 import { TrackService } from '../../services/track.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
@@ -37,6 +38,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private playerService = inject(PlayerService);
   private roomService = inject(RoomService);
+  private roomControlService = inject(RoomControlService);
   private trackService = inject(TrackService);
   private favoritesService = inject(FavoritesService);
   private destroy$ = new Subject<void>();
@@ -96,6 +98,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.roomControlService.unregister();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -123,8 +126,38 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
         this.room = data;
         if (this.needJoin) {
           this.chatMessages = [];
+          this.roomControlService.unregister();
+        } else {
+          this.syncPlayerToRoom(data);
+          if (this.isCurrentUserHost) {
+            this.roomControlService.register({
+              previous: () => this.roomPrevious(),
+              next: () => this.roomSkip(),
+              playPause: () => this.roomPlayPause()
+            });
+          } else {
+            this.roomControlService.unregister();
+          }
         }
       }
+    });
+  }
+
+  /** Синхронизировать плеер с состоянием комнаты (текущий трек и воспроизведение). */
+  syncPlayerToRoom(room: RoomResponse): void {
+    if (!room.currentTrackId) {
+      this.playerService.setCurrentTrack(null);
+      return;
+    }
+    if (!room.playing) {
+      this.playerService.requestPause();
+      return;
+    }
+    this.trackService.getById(room.currentTrackId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (track) => {
+        this.playerService.setCurrentTrack(track);
+      },
+      error: () => {}
     });
   }
 
@@ -174,20 +207,154 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   }
 
-  getQueueItems(): RoomQueueItemInfo[] {
-    return this.room?.queue ?? [];
+  /** Полный список очереди (все треки по порядку). Текущий трек может быть в начале, если его нет в queue. */
+  getQueueItems(): (RoomQueueItemInfo & { isCurrent?: boolean })[] {
+    const queue = this.room?.queue ?? [];
+    const currentId = this.room?.currentTrackId;
+    if (currentId == null) {
+      return queue.map(item => ({ ...item, isCurrent: false }));
+    }
+    const idx = queue.findIndex(item => item.trackId === currentId);
+    if (idx >= 0) {
+      return queue.map((item, i) => ({ ...item, isCurrent: i === idx }));
+    }
+    const virtualCurrent: RoomQueueItemInfo & { isCurrent?: boolean } = {
+      id: 0,
+      position: -1,
+      trackId: currentId,
+      trackTitle: this.room?.currentTrackTitle ?? undefined,
+      trackArtistName: this.room?.currentTrackArtistName ?? undefined,
+      durationSeconds: undefined,
+      trackCoverPath: this.room?.currentTrackCoverPath ?? undefined,
+      isCurrent: true
+    };
+    return [virtualCurrent, ...queue.map(item => ({ ...item, isCurrent: false }))];
+  }
+
+  /** Индекс текущего трека в полном списке (-1 если нет текущего). */
+  getCurrentQueueIndex(): number {
+    const list = this.getQueueItems();
+    return list.findIndex(item => item.isCurrent);
+  }
+
+  canGoPrevious(): boolean {
+    return this.getCurrentQueueIndex() > 0;
+  }
+
+  canGoNext(): boolean {
+    const list = this.getQueueItems();
+    const idx = this.getCurrentQueueIndex();
+    return idx >= 0 && idx < list.length - 1;
   }
 
   roomPlayPause(): void {
-    // TODO: PUT /api/rooms/:id/state
+    if (!this.room || !this.isCurrentUserHost) return;
+    const queue = this.getQueueItems();
+    const newPlaying = !this.room.playing;
+
+    if (!this.room.currentTrackId && queue.length > 0) {
+      const first = queue[0];
+      this.roomService.updateState(this.room.id, {
+        currentTrackId: first.trackId,
+        positionSeconds: 0,
+        playing: true
+      }).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (updated) => {
+          this.room = updated;
+          this.syncPlayerToRoom(updated);
+        },
+        error: () => {}
+      });
+      return;
+    }
+
+    if (this.room.currentTrackId) {
+      this.roomService.updateState(this.room.id, {
+        currentTrackId: this.room.currentTrackId,
+        positionSeconds: this.room.positionSeconds ?? 0,
+        playing: newPlaying
+      }).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (updated) => {
+          this.room = updated;
+          if (newPlaying) {
+            this.syncPlayerToRoom(updated);
+          } else {
+            this.playerService.requestPause();
+          }
+        },
+        error: () => {}
+      });
+    } else {
+      this.roomService.updateState(this.room.id, { playing: false }).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (updated) => {
+          this.room = updated;
+          this.playerService.setCurrentTrack(null);
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  roomPrevious(): void {
+    if (!this.room || !this.isCurrentUserHost || !this.canGoPrevious()) return;
+    const queue = this.getQueueItems();
+    const prev = queue[this.getCurrentQueueIndex() - 1];
+    this.roomService.updateState(this.room.id, {
+      currentTrackId: prev.trackId,
+      positionSeconds: 0,
+      playing: true
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (updated) => {
+        this.room = updated;
+        this.syncPlayerToRoom(updated);
+      },
+      error: () => {}
+    });
   }
 
   roomSkip(): void {
-    // TODO: next track
-  }
+    if (!this.room || !this.isCurrentUserHost) return;
+    const queue = this.getQueueItems();
+    const idx = this.getCurrentQueueIndex();
 
-  roomShuffle(): void {
-    // TODO: shuffle queue
+    if (idx >= 0 && idx < queue.length - 1) {
+      const next = queue[idx + 1];
+      this.roomService.updateState(this.room.id, {
+        currentTrackId: next.trackId,
+        positionSeconds: 0,
+        playing: true
+      }).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (updated) => {
+          this.room = updated;
+          this.syncPlayerToRoom(updated);
+        },
+        error: () => {}
+      });
+    } else if (idx >= 0 && idx === queue.length - 1) {
+      this.roomService.updateState(this.room.id, {
+        currentTrackId: null,
+        positionSeconds: 0,
+        playing: false
+      }).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (updated) => {
+          this.room = updated;
+          this.playerService.setCurrentTrack(null);
+        },
+        error: () => {}
+      });
+    } else {
+      this.roomService.updateState(this.room.id, {
+        currentTrackId: null,
+        positionSeconds: 0,
+        playing: false
+      }).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (updated) => {
+          this.room = updated;
+          this.playerService.setCurrentTrack(null);
+        },
+        error: () => {}
+      });
+    }
   }
 
   leaveRoom(): void {

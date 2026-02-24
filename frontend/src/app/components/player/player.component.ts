@@ -8,6 +8,7 @@ import { takeUntil, map } from 'rxjs/operators';
 import { PlayerService } from '../../services/player.service';
 import { AuthService } from '../../services/auth.service';
 import { FavoritesService } from '../../services/favorites.service';
+import { RoomControlService } from '../../services/room-control.service';
 import { TrackResponse } from '../../models/track.model';
 import { LoginResponse } from '../../models/auth.model';
 
@@ -45,6 +46,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private playerService: PlayerService,
     private authService: AuthService,
     private favoritesService: FavoritesService,
+    private roomControlService: RoomControlService,
     private sanitizer: DomSanitizer,
     private router: Router
   ) {}
@@ -187,6 +189,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onPrev(): void {
+    if (this.roomControlService.hasControl()) {
+      this.roomControlService.previous();
+      return;
+    }
     if (this.playerService.goToPrevious()) return;
     const audio = this.audioRef?.nativeElement;
     if (audio && this.currentTime > 2) {
@@ -196,10 +202,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onNext(): void {
+    if (this.roomControlService.hasControl()) {
+      this.roomControlService.next();
+      return;
+    }
     this.playerService.goToNext();
   }
 
   onPlayPause(): void {
+    if (this.roomControlService.hasControl()) {
+      this.roomControlService.playPause();
+      return;
+    }
     const audio = this.audioRef?.nativeElement;
     if (!audio) return;
     if (this.isPlaying) {
@@ -241,6 +255,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.isPlaying = false;
     this.currentTime = 0;
     this.playerService.setPlaying(false);
+    if (this.roomControlService.hasControl()) {
+      this.roomControlService.next();
+      return;
+    }
     this.playerService.onCurrentTrackEnded();
   }
 
