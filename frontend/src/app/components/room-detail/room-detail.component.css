@@ -15,12 +15,15 @@
 .room-detail {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   position: relative;
   isolation: isolate;
+  outline: none;
 }
 
 .room-detail--with-player .room-detail__inner {
-  padding-bottom: 7rem;
+  padding-bottom: clamp(6rem, 12vh, 8rem);
 }
 
 /* ----- Atmospheric glow (обложка текущего трека) ----- */
@@ -40,13 +43,15 @@
   opacity: 0.08;
 }
 
-/* ----- Content wrapper ----- */
+/* ----- Content wrapper (резиновый, центрирован по окну) ----- */
 .room-detail__inner {
   position: relative;
   z-index: 1;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 48px 1.5rem 3rem;
+  max-width: var(--content-visible-max);
+  width: 100%;
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
   outline: none;
 }
 
@@ -64,13 +69,13 @@
 .room-detail__join-banner {
   background: rgba(240, 144, 32, 0.1);
   border-radius: 14px;
-  padding: 20px 24px;
-  margin-bottom: 24px;
+  padding: clamp(16px, 1.5vw, 20px) clamp(18px, 1.8vw, 24px);
+  margin-bottom: clamp(1.25rem, 2vh, 24px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: clamp(10px, 1vw, 12px);
 }
 
 .room-detail__join-banner p {
@@ -94,8 +99,8 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 40px;
+  gap: clamp(12px, 1.2vw, 16px);
+  margin-bottom: clamp(1.75rem, 4vh, 40px);
 }
 
 .room-detail__header-left {
@@ -104,10 +109,10 @@
 }
 
 .room-detail__title {
-  font-size: 32px;
+  font-size: clamp(1.5rem, 2vw + 0.5rem, 32px);
   font-weight: 500;
   color: #EDEDED;
-  margin: 0 0 8px 0;
+  margin: 0 0 clamp(6px, 0.6vh, 8px) 0;
 }
 
 .room-detail__meta {
@@ -115,7 +120,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   color: #9A9A9A;
 }
 
@@ -140,17 +145,17 @@
 .room-detail__header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: clamp(10px, 1vw, 12px);
 }
 
 .room-detail__link-btn {
   background: none;
   border: none;
   color: #F09020;
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   font-weight: 500;
   cursor: pointer;
-  padding: 8px 0;
+  padding: clamp(6px, 0.6vh, 8px) 0;
   transition: color 0.2s;
 }
 
@@ -159,9 +164,9 @@
 }
 
 .room-detail__btn {
-  padding: 10px 18px;
+  padding: clamp(8px, 0.8vh, 10px) clamp(14px, 1.2vw, 18px);
   border-radius: 12px;
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -181,8 +186,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: clamp(40px, 4vw, 44px);
+  height: clamp(40px, 4vw, 44px);
   border-radius: 12px;
   color: #9A9A9A;
   transition: color 0.2s, background 0.2s;
@@ -194,11 +199,11 @@
   background: rgba(240, 144, 32, 0.1);
 }
 
-/* ----- Two columns ----- */
+/* ----- Two columns (резиновый зазор) ----- */
 .room-detail__columns {
   display: grid;
-  grid-template-columns: 65% 1fr;
-  gap: 64px;
+  grid-template-columns: minmax(0, 65%) 1fr;
+  gap: clamp(2rem, 4vw, 64px);
   align-items: start;
 }
 
@@ -210,32 +215,26 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  min-height: 420px;
-}
-
-@media (max-width: 1024px) {
-  .room-detail__columns {
-    grid-template-columns: 1fr;
-  }
+  min-height: clamp(320px, 40vh, 420px);
 }
 
 /* ----- Left: current track ----- */
 .room-detail__track {
-  margin-bottom: 48px;
+  margin-bottom: clamp(2rem, 4vh, 48px);
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: clamp(1.25rem, 2vw, 24px);
 }
 
 .room-detail__cover {
-  width: 120px;
-  height: 120px;
+  width: clamp(100px, 10vw, 120px);
+  height: clamp(100px, 10vw, 120px);
   border-radius: 14px;
   flex-shrink: 0;
   background-color: #1A1A1D;
   background-size: cover;
   background-position: center;
-  margin-bottom: 20px;
+  margin-bottom: clamp(12px, 1.5vh, 20px);
 }
 
 .room-detail__player-block {
@@ -244,30 +243,30 @@
 }
 
 .room-detail__track-title {
-  font-size: 20px;
+  font-size: clamp(1.125rem, 1.2vw + 0.5rem, 20px);
   font-weight: 600;
   color: #EDEDED;
   margin: 0 0 4px 0;
 }
 
 .room-detail__track-artists {
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   color: #9A9A9A;
-  margin: 0 0 14px 0;
+  margin: 0 0 clamp(10px, 1.2vh, 14px) 0;
 }
 
 .room-detail__controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: clamp(10px, 1vw, 12px);
 }
 
 .room-detail__control-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: clamp(44px, 4vw, 48px);
+  height: clamp(44px, 4vw, 48px);
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
@@ -287,8 +286,8 @@
 }
 
 .room-detail__control-btn:nth-child(2) {
-  width: 56px;
-  height: 56px;
+  width: clamp(50px, 5vw, 56px);
+  height: clamp(50px, 5vw, 56px);
   color: #F09020;
   background: rgba(240, 144, 32, 0.15);
 }
@@ -302,12 +301,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: clamp(10px, 1vw, 12px);
+  margin-bottom: clamp(12px, 1.5vh, 16px);
 }
 
 .room-detail__queue-title {
-  font-size: 18px;
+  font-size: clamp(1rem, 1vw + 0.25rem, 18px);
   font-weight: 500;
   color: #EDEDED;
   margin: 0;
@@ -315,11 +314,11 @@
 
 .room-detail__queue-add-btn {
   flex-shrink: 0;
-  height: 36px;
-  padding: 0 16px;
+  height: clamp(32px, 3.5vh, 36px);
+  padding: 0 clamp(12px, 1.2vw, 16px);
   border: none;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: clamp(0.75rem, 0.7vw + 0.35rem, 13px);
   font-weight: 500;
   color: #F09020;
   background: rgba(240, 144, 32, 0.15);
@@ -374,9 +373,9 @@
 .room-detail__queue-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  height: 64px;
-  padding: 0 12px;
+  gap: clamp(10px, 1vw, 14px);
+  height: clamp(56px, 6vh, 64px);
+  padding: 0 clamp(10px, 1vw, 12px);
   border-radius: 10px;
   transition: background 0.2s;
 }
@@ -520,21 +519,21 @@
 .room-detail__chat-input-wrap {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 0 0 0;
+  gap: clamp(10px, 1vw, 12px);
+  padding: clamp(12px, 1.5vh, 16px) 0 0 0;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin-top: auto;
 }
 
 .room-detail__chat-input {
   flex: 1;
-  height: 44px;
-  padding: 0 18px;
+  height: clamp(40px, 4vh, 44px);
+  padding: 0 clamp(14px, 1.2vw, 18px);
   border: none;
   border-radius: 14px;
   background: rgba(26, 26, 29, 0.8);
   color: #EDEDED;
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   outline: none;
   transition: box-shadow 0.2s;
 }
@@ -549,8 +548,8 @@
 
 .room-detail__chat-send {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: clamp(40px, 4vw, 44px);
+  height: clamp(40px, 4vw, 44px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -574,16 +573,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: clamp(1rem, 2vw, 24px);
   z-index: 2000;
 }
 
 .room-detail__add-panel {
   width: 100%;
-  max-width: 480px;
-  height: 420px;
+  max-width: min(480px, 90vw);
+  height: min(420px, 85vh);
   border-radius: 20px;
-  padding: 24px;
+  padding: clamp(1.25rem, 2vw, 24px);
   background: rgba(26, 26, 29, 0.95);
   backdrop-filter: blur(20px);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
@@ -596,11 +595,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: clamp(1rem, 2vh, 20px);
 }
 
 .room-detail__add-title {
-  font-size: 20px;
+  font-size: clamp(1.125rem, 1.1vw + 0.5rem, 20px);
   font-weight: 500;
   color: #EDEDED;
   margin: 0;
@@ -627,19 +626,19 @@
 
 .room-detail__add-search {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: clamp(8px, 1vw, 10px);
+  margin-bottom: clamp(12px, 1.5vh, 16px);
 }
 
 .room-detail__add-input {
   flex: 1;
-  height: 44px;
-  padding: 0 16px;
+  height: clamp(40px, 4vh, 44px);
+  padding: 0 clamp(12px, 1.2vw, 16px);
   border: none;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.25);
   color: #EDEDED;
-  font-size: 15px;
+  font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   outline: none;
 }
 
@@ -648,11 +647,11 @@
 }
 
 .room-detail__add-search-btn {
-  height: 44px;
-  padding: 0 20px;
+  height: clamp(40px, 4vh, 44px);
+  padding: 0 clamp(16px, 1.5vw, 20px);
   border: none;
   border-radius: 12px;
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   font-weight: 500;
   color: #EDEDED;
   background: rgba(240, 144, 32, 0.25);
@@ -788,28 +787,3 @@
   cursor: not-allowed;
 }
 
-/* Responsive ----- */
-@media (max-width: 600px) {
-  .room-detail__inner {
-    padding: 32px 1rem 2rem;
-  }
-
-  .room-detail__title {
-    font-size: 26px;
-  }
-
-  .room-detail__header {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 28px;
-  }
-
-  .room-detail__cover {
-    width: 220px;
-    height: 220px;
-  }
-
-  .room-detail__columns {
-    gap: 40px;
-  }
-}

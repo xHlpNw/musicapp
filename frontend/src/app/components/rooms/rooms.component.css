@@ -15,17 +15,22 @@
 .rooms-content {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  outline: none;
 }
 
 .rooms-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
+  max-width: var(--content-visible-max);
+  width: 100%;
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
   outline: none;
 }
 
 .rooms-content--with-player .rooms-inner {
-  padding-bottom: 7rem;
+  padding-bottom: clamp(6rem, 12vh, 8rem);
 }
 
 /* ----- Header ----- */
@@ -34,22 +39,22 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: clamp(12px, 1.2vw, 16px);
 }
 
 .rooms-title {
-  font-size: 34px;
+  font-size: clamp(1.75rem, 2vw + 0.5rem, 34px);
   font-weight: 500;
   color: #EDEDED;
   margin: 0;
 }
 
 .rooms-create-btn {
-  height: 44px;
-  padding: 0 24px;
+  height: clamp(40px, 4vh, 44px);
+  padding: 0 clamp(18px, 1.8vw, 24px);
   border: none;
   border-radius: 14px;
-  font-size: 15px;
+  font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   font-weight: 500;
   color: #0E0F11;
   background: rgba(240, 144, 32, 0.25);
@@ -74,19 +79,20 @@
 .rooms-toolbar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 32px;
+  gap: clamp(12px, 1.2vw, 16px);
+  margin-top: clamp(1.5rem, 3vh, 32px);
 }
 
 .rooms-search-wrap {
   position: relative;
-  width: 480px;
-  max-width: 100%;
+  width: 100%;
+  max-width: min(480px, 38vw);
+  min-width: 160px;
 }
 
 .rooms-search-icon {
   position: absolute;
-  left: 16px;
+  left: clamp(12px, 1.2vw, 16px);
   top: 50%;
   transform: translateY(-50%);
   width: 20px;
@@ -97,13 +103,13 @@
 
 .rooms-search-input {
   width: 100%;
-  height: 44px;
-  padding: 0 18px 0 48px;
+  height: clamp(40px, 4vh, 44px);
+  padding: 0 clamp(14px, 1.2vw, 18px) 0 48px;
   background: #1A1A1D;
   border: none;
   border-radius: 12px;
   color: #EDEDED;
-  font-size: 15px;
+  font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   outline: none;
   transition: box-shadow 0.2s;
 }
@@ -121,13 +127,13 @@
 }
 
 .rooms-filter {
-  height: 44px;
-  padding: 0 36px 0 16px;
+  height: clamp(40px, 4vh, 44px);
+  padding: 0 36px 0 clamp(12px, 1vw, 16px);
   background: #1A1A1D;
   border: none;
   border-radius: 12px;
   color: #EDEDED;
-  font-size: 14px;
+  font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   cursor: pointer;
   outline: none;
   appearance: none;
@@ -143,18 +149,18 @@
 
 /* ----- Section: Popular ----- */
 .rooms-section {
-  margin-top: 56px;
+  margin-top: clamp(2rem, 4vh, 56px);
 }
 
 .rooms-section--all {
-  margin-top: 72px;
+  margin-top: clamp(2.5rem, 5vh, 72px);
 }
 
 .rooms-section-title {
-  font-size: 21px;
+  font-size: clamp(1.125rem, 1.2vw + 0.5rem, 21px);
   font-weight: 500;
   color: #EDEDED;
-  margin: 0 0 20px 0;
+  margin: 0 0 clamp(1rem, 2vh, 20px) 0;
 }
 
 .section__error {
@@ -172,7 +178,7 @@
 .rooms-popular-scroll {
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 8px;
+  padding-bottom: clamp(6px, 0.8vh, 8px);
   margin: 0 -4px;
 }
 
@@ -196,7 +202,7 @@
 
 .rooms-popular-track {
   display: flex;
-  gap: 24px;
+  gap: clamp(1.25rem, 1.8vw, 24px);
   width: max-content;
 }
 
@@ -208,9 +214,9 @@ a.room-card--popular {
 }
 
 .room-card--popular {
-  flex: 0 0 320px;
-  width: 320px;
-  padding: 20px;
+  flex: 0 0 clamp(280px, 22vw, 320px);
+  width: clamp(280px, 22vw, 320px);
+  padding: clamp(16px, 1.5vw, 20px);
   background: #1A1A1D;
   border-radius: 22px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -258,9 +264,9 @@ a.room-card--popular {
 }
 
 .room-card__cover--large {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 12px auto;
+  width: clamp(100px, 10vw, 120px);
+  height: clamp(100px, 10vw, 120px);
+  margin: 0 auto clamp(10px, 1vh, 12px) auto;
 }
 
 .room-card__track {
@@ -273,23 +279,11 @@ a.room-card--popular {
   text-overflow: ellipsis;
 }
 
-/* ----- Section: All rooms grid ----- */
+/* ----- Section: All rooms grid (резиновая сетка под ПК/ноут) ----- */
 .rooms-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-
-@media (max-width: 1100px) {
-  .rooms-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 700px) {
-  .rooms-grid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: clamp(1.25rem, 2vw, 32px);
 }
 
 /* Card — list (вся карточка — ссылка на страницу комнаты) */
@@ -300,7 +294,7 @@ a.room-card--list {
 }
 
 .room-card--list {
-  padding: 24px;
+  padding: clamp(18px, 1.8vw, 24px);
   background: #18181B;
   border-radius: 20px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -350,38 +344,6 @@ a.room-card--list {
 
 .rooms-empty {
   color: #6B6B6B;
-  font-size: 15px;
-  margin: 24px 0 0 0;
-}
-
-@media (max-width: 900px) {
-  .rooms-inner {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .rooms-inner {
-    padding: 1.5rem 1.25rem 3rem;
-  }
-
-  .rooms-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .rooms-title {
-    font-size: 28px;
-  }
-
-  .rooms-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    margin-top: 24px;
-  }
-
-  .rooms-search-wrap {
-    width: 100%;
-  }
+  font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
+  margin: clamp(1rem, 2vh, 24px) 0 0 0;
 }
