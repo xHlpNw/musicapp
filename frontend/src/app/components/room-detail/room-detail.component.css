@@ -61,6 +61,33 @@
   color: #e57373;
 }
 
+.room-detail__join-banner {
+  background: rgba(240, 144, 32, 0.1);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.room-detail__join-banner p {
+  margin: 0;
+  color: #EDEDED;
+  font-size: 15px;
+}
+
+.room-detail__btn--primary {
+  background: rgba(240, 144, 32, 0.25);
+  color: #F09020;
+}
+
+.room-detail__btn--primary:hover:not(:disabled) {
+  background: rgba(240, 144, 32, 0.35);
+}
+
 /* ----- Header ----- */
 .room-detail__header {
   display: flex;

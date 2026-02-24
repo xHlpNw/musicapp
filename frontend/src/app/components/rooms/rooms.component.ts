@@ -1,27 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { CreateRoomOverlayComponent, CreateRoomPayload } from '../create-room-overlay/create-room-overlay.component';
 import { PlayerService } from '../../services/player.service';
+import { RoomService } from '../../services/room.service';
+import { RoomResponse, RoomPageResponse } from '../../models/room.model';
 
 export type RoomFilter = 'all' | 'open' | 'mine';
-
-export interface RoomSummary {
-  id: string;
-  name: string;
-  hostName: string;
-  hostId: number;
-  participantCount: number;
-  currentTrackTitle: string;
-  currentTrackCoverUrl: string | null;
-  isOpen: boolean;
-  isMine: boolean;
-}
 
 @Component({
   selector: 'app-rooms',
@@ -37,87 +27,43 @@ export class RoomsComponent implements OnInit, OnDestroy {
   showCreateRoomOverlay = false;
   private destroy$ = new Subject<void>();
 
-  /** Mock: популярные комнаты (горизонтальный скролл) */
-  popularRooms: RoomSummary[] = [
-    {
-      id: '1',
-      name: 'Вечерний чилл',
-      hostName: 'Алексей',
-      hostId: 1,
-      participantCount: 12,
-      currentTrackTitle: 'KPSS — Больно',
-      currentTrackCoverUrl: '/api/covers/albums/chudovishe.jpeg',
-      isOpen: true,
-      isMine: false
-    },
-    {
-      id: '2',
-      name: 'Русский рок',
-      hostName: 'Мария',
-      hostId: 2,
-      participantCount: 8,
-      currentTrackTitle: 'Кино — Группа крови',
-      currentTrackCoverUrl: null,
-      isOpen: true,
-      isMine: false
-    },
-    {
-      id: '3',
-      name: 'Фон для работы',
-      hostName: 'Дмитрий',
-      hostId: 3,
-      participantCount: 24,
-      currentTrackTitle: 'Twenty One Pilots — Stressed Out',
-      currentTrackCoverUrl: '/api/covers/albums/blade.jpeg',
-      isOpen: true,
-      isMine: false
-    },
-    {
-      id: '4',
-      name: 'Инди и альтернатива',
-      hostName: 'Ольга',
-      hostId: 4,
-      participantCount: 5,
-      currentTrackTitle: 'Песни — Время',
-      currentTrackCoverUrl: '/api/covers/albums/peski.jpeg',
-      isOpen: true,
-      isMine: false
-    }
-  ];
+  popularRooms: RoomResponse[] = [];
+  roomsPage: RoomPageResponse | null = null;
+  currentPage = 0;
+  readonly pageSize = 24;
+  isLoadingPopular = false;
+  isLoadingRooms = false;
+  errorPopular = '';
+  errorRooms = '';
 
-  /** Mock: все комнаты (сетка) */
-  allRooms: RoomSummary[] = [
-    ...this.popularRooms,
-    {
-      id: '5',
-      name: 'Только для друзей',
-      hostName: 'Алексей',
-      hostId: 1,
-      participantCount: 3,
-      currentTrackTitle: 'KPSS — Ни надежды, ни страха',
-      currentTrackCoverUrl: null,
-      isOpen: false,
-      isMine: true
-    },
-    {
-      id: '6',
-      name: 'Джаз и блюз',
-      hostName: 'Иван',
-      hostId: 5,
-      participantCount: 6,
-      currentTrackTitle: '—',
-      currentTrackCoverUrl: null,
-      isOpen: true,
-      isMine: false
-    }
-  ];
+  constructor(
+    private playerService: PlayerService,
+    private roomService: RoomService,
+    private router: Router
+  ) {}
 
-  constructor(private playerService: PlayerService) {}
+  get filteredRooms(): RoomResponse[] {
+    return this.roomsPage?.content ?? [];
+  }
+
+  get totalPages(): number {
+    return this.roomsPage?.totalPages ?? 0;
+  }
+
+  get isFirstPage(): boolean {
+    return this.roomsPage?.first ?? true;
+  }
+
+  get isLastPage(): boolean {
+    return this.roomsPage?.last ?? true;
+  }
 
   ngOnInit(): void {
     this.playerService.currentTrack$.pipe(takeUntil(this.destroy$)).subscribe(track => {
       this.hasActiveTrack = !!track;
     });
+    this.loadPopular();
+    this.loadRooms();
   }
 
   ngOnDestroy(): void {
@@ -125,23 +71,51 @@ export class RoomsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get filteredRooms(): RoomSummary[] {
-    let list = this.allRooms;
-    if (this.searchQuery.trim()) {
-      const q = this.searchQuery.trim().toLowerCase();
-      list = list.filter(
-        r =>
-          r.name.toLowerCase().includes(q) ||
-          r.hostName.toLowerCase().includes(q) ||
-          r.currentTrackTitle.toLowerCase().includes(q)
-      );
-    }
-    if (this.roomFilter === 'open') {
-      list = list.filter(r => r.isOpen);
-    } else if (this.roomFilter === 'mine') {
-      list = list.filter(r => r.isMine);
-    }
-    return list;
+  loadPopular(): void {
+    this.isLoadingPopular = true;
+    this.errorPopular = '';
+    this.roomService.getPopular(10).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (list) => {
+        this.popularRooms = list;
+        this.isLoadingPopular = false;
+      },
+      error: () => {
+        this.errorPopular = 'Не удалось загрузить популярные комнаты';
+        this.isLoadingPopular = false;
+      }
+    });
+  }
+
+  loadRooms(): void {
+    this.isLoadingRooms = true;
+    this.errorRooms = '';
+    this.roomService.getRooms(this.roomFilter, this.searchQuery.trim() || undefined, this.currentPage, this.pageSize)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (page) => {
+          this.roomsPage = page;
+          this.isLoadingRooms = false;
+        },
+        error: () => {
+          this.errorRooms = 'Не удалось загрузить список комнат';
+          this.isLoadingRooms = false;
+        }
+      });
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 0;
+    this.loadRooms();
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 0;
+    this.loadRooms();
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.loadRooms();
   }
 
   createRoom(): void {
@@ -154,15 +128,28 @@ export class RoomsComponent implements OnInit, OnDestroy {
 
   onRoomCreated(payload: CreateRoomPayload): void {
     this.showCreateRoomOverlay = false;
-    // TODO: вызов API создания комнаты, затем переход в комнату или обновление списка
+    this.roomService.create({
+      name: payload.name,
+      maxMembers: payload.isPrivate ? 10 : undefined
+    }).subscribe({
+      next: (room) => {
+        this.loadPopular();
+        this.loadRooms();
+        this.router.navigate(['/rooms', room.id]);
+      },
+      error: () => {
+        // ошибка показывается глобально или можно добавить toast
+      }
+    });
   }
 
-  joinRoom(room: RoomSummary): void {
-    // Заглушка: переход в комнату
+  getCoverUrl(room: RoomResponse): string | null {
+    const path = room.currentTrackCoverPath;
+    if (!path) return null;
+    return path.startsWith('http') ? path : '/api/covers/' + path;
   }
 
-  getCoverStyle(url: string | null): Record<string, string> {
-    if (!url) return {};
-    return { backgroundImage: `url(${url})` };
+  isRoomOpen(room: RoomResponse): boolean {
+    return room.maxMembers == null || room.memberCount < room.maxMembers;
   }
 }

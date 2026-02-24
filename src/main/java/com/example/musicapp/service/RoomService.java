@@ -3,6 +3,7 @@ package com.example.musicapp.service;
 import com.example.musicapp.dto.room.CreateRoomRequest;
 import com.example.musicapp.dto.room.RoomResponse;
 import com.example.musicapp.dto.room.RoomStateRequest;
+import com.example.musicapp.dto.room.UpdateRoomRequest;
 import com.example.musicapp.entity.Room;
 import com.example.musicapp.entity.RoomMember;
 import com.example.musicapp.entity.RoomQueueItem;
@@ -15,6 +16,10 @@ import com.example.musicapp.repository.RoomQueueItemRepository;
 import com.example.musicapp.repository.RoomRepository;
 import com.example.musicapp.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +47,7 @@ public class RoomService {
                 combined.add(r);
             }
         }
-        return combined.stream().map(this::toResponse).collect(Collectors.toList());
+        return combined.stream().map(room -> toResponse(room, currentUser)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -53,6 +58,47 @@ public class RoomService {
             throw new ForbiddenException("You are not a member of this room");
         }
         return toDetailResponse(room);
+    }
+
+    /** Краткая информация о комнате для не-участников (карточка, страница до присоединения). */
+    @Transactional(readOnly = true)
+    public RoomResponse findByIdPublic(Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + id));
+        return toResponse(room);
+    }
+
+    /** Список комнат с фильтром и пагинацией. */
+    @Transactional(readOnly = true)
+    public Page<RoomResponse> findRooms(String filter, String q, Pageable pageable, User currentUser) {
+        String trimmedQ = (q != null && !q.isBlank()) ? q.trim() : null;
+        if ("mine".equals(filter)) {
+            List<RoomResponse> list = findRoomsForUser(currentUser);
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), list.size());
+            List<RoomResponse> pageContent = start < list.size() ? list.subList(start, end) : new ArrayList<>();
+            return new org.springframework.data.domain.PageImpl<>(pageContent, pageable, list.size());
+        }
+        if ("open".equals(filter)) {
+            Page<Room> page = trimmedQ != null
+                    ? roomRepository.findOpenRoomsWithSearch(trimmedQ, pageable)
+                    : roomRepository.findOpenRooms(pageable);
+            return page.map(room -> toResponse(room, currentUser));
+        }
+        // all
+        Page<Room> page = trimmedQ != null
+                ? roomRepository.findByNameContainingIgnoreCaseOrHost_UsernameContainingIgnoreCase(trimmedQ, trimmedQ, pageable)
+                : roomRepository.findAll(pageable);
+        return page.map(room -> toResponse(room, currentUser));
+    }
+
+    /** Популярные комнаты (по количеству участников). */
+    @Transactional(readOnly = true)
+    public List<RoomResponse> findPopular(int limit, User currentUser) {
+        Pageable pageable = PageRequest.of(0, Math.min(limit, 20), Sort.unsorted());
+        return roomRepository.findPopularRooms(pageable).getContent().stream()
+                .map(room -> toResponse(room, currentUser))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -117,6 +163,24 @@ public class RoomService {
                 roomRepository.save(room);
             }
         }
+    }
+
+    @Transactional
+    public RoomResponse update(Long roomId, UpdateRoomRequest request, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!room.getHost().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("Only the host can update room settings");
+        }
+        if (request.getName() != null && !request.getName().isBlank()) {
+            room.setName(request.getName().trim());
+        }
+        if (request.getMaxMembers() != null) {
+            room.setMaxMembers(request.getMaxMembers());
+        }
+        room.setUpdatedAt(Instant.now());
+        room = roomRepository.save(room);
+        return toDetailResponse(room);
     }
 
     @Transactional
@@ -190,20 +254,32 @@ public class RoomService {
     }
 
     private RoomResponse toResponse(Room room) {
+        return toResponse(room, null);
+    }
+
+    private RoomResponse toResponse(Room room, User currentUser) {
         long memberCount = roomMemberRepository.countByRoom(room);
         List<RoomResponse.QueueItemInfo> queue = room.getQueue().stream()
-                .map(qi -> new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), qi.getTrack().getId()))
+                .map(qi -> {
+                    var t = qi.getTrack();
+                    return new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), t.getId(), t.getTitle(), t.getDurationSeconds(), t.getCoverImagePath());
+                })
                 .collect(Collectors.toList());
+        var track = room.getCurrentTrack();
         return RoomResponse.builder()
                 .id(room.getId())
                 .name(room.getName())
                 .hostId(room.getHost().getId())
                 .hostUsername(room.getHost().getUsername())
-                .currentTrackId(room.getCurrentTrack() != null ? room.getCurrentTrack().getId() : null)
+                .currentTrackId(track != null ? track.getId() : null)
+                .currentTrackTitle(track != null ? track.getTitle() : null)
+                .currentTrackCoverPath(track != null ? track.getCoverImagePath() : null)
+                .currentTrackArtistName(track != null ? getFirstArtistName(track) : null)
                 .positionSeconds(room.getPositionSeconds())
                 .playing(room.isPlaying())
                 .memberCount((int) memberCount)
                 .maxMembers(room.getMaxMembers())
+                .isMember(currentUser != null && isMember(room, currentUser))
                 .createdAt(room.getCreatedAt())
                 .updatedAt(room.getUpdatedAt())
                 .queue(queue)
@@ -219,14 +295,21 @@ public class RoomService {
             members.add(0, new RoomResponse.MemberInfo(room.getHost().getId(), room.getHost().getUsername()));
         }
         List<RoomResponse.QueueItemInfo> queue = room.getQueue().stream()
-                .map(qi -> new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), qi.getTrack().getId()))
+                .map(qi -> {
+                    var t = qi.getTrack();
+                    return new RoomResponse.QueueItemInfo(qi.getId(), qi.getPosition(), t.getId(), t.getTitle(), t.getDurationSeconds(), t.getCoverImagePath());
+                })
                 .collect(Collectors.toList());
+        var track = room.getCurrentTrack();
         return RoomResponse.builder()
                 .id(room.getId())
                 .name(room.getName())
                 .hostId(room.getHost().getId())
                 .hostUsername(room.getHost().getUsername())
-                .currentTrackId(room.getCurrentTrack() != null ? room.getCurrentTrack().getId() : null)
+                .currentTrackId(track != null ? track.getId() : null)
+                .currentTrackTitle(track != null ? track.getTitle() : null)
+                .currentTrackCoverPath(track != null ? track.getCoverImagePath() : null)
+                .currentTrackArtistName(track != null ? getFirstArtistName(track) : null)
                 .positionSeconds(room.getPositionSeconds())
                 .playing(room.isPlaying())
                 .memberCount(members.size())
@@ -236,5 +319,12 @@ public class RoomService {
                 .queue(queue)
                 .members(members)
                 .build();
+    }
+
+    private String getFirstArtistName(Track track) {
+        if (track.getArtists() == null || track.getArtists().isEmpty()) {
+            return null;
+        }
+        return track.getArtists().get(0).getArtist().getName();
     }
 }

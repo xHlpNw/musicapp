@@ -1,0 +1,60 @@
+<div
+  class="room-settings-overlay"
+  [class.room-settings-overlay--open]="isAnimated"
+  (click)="onBackdropClick($event)"
+  role="dialog"
+  aria-labelledby="room-settings-title"
+  aria-modal="true"
+  tabindex="-1"
+>
+  <div class="room-settings-overlay__panel" (click)="onPanelClick($event)">
+    <header class="room-settings-overlay__header">
+      <h2 id="room-settings-title" class="room-settings-overlay__title">Настройки комнаты</h2>
+      <button type="button" class="room-settings-overlay__close" aria-label="Закрыть" (click)="doClose()">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </header>
+
+    <form (ngSubmit)="onSubmit()" class="room-settings-overlay__form">
+      <div class="room-settings-overlay__field">
+        <label for="room-settings-name" class="room-settings-overlay__label">Название комнаты</label>
+        <input
+          type="text"
+          id="room-settings-name"
+          class="room-settings-overlay__input"
+          [(ngModel)]="name"
+          name="name"
+          placeholder="Введите название комнаты"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="room-settings-overlay__field">
+        <label for="room-settings-max" class="room-settings-overlay__label">Макс. участников</label>
+        <input
+          type="number"
+          id="room-settings-max"
+          class="room-settings-overlay__input"
+          [(ngModel)]="maxMembersInput"
+          name="maxMembers"
+          placeholder="Без ограничений"
+          min="1"
+          max="999"
+          autocomplete="off"
+        />
+        <span class="room-settings-overlay__hint">Оставьте пустым для неограниченного числа участников</span>
+      </div>
+
+      <div class="room-settings-overlay__actions">
+        <button type="button" class="room-settings-overlay__btn room-settings-overlay__btn--cancel" (click)="doClose()">
+          Отмена
+        </button>
+        <button type="submit" class="room-settings-overlay__btn room-settings-overlay__btn--submit" [class.room-settings-overlay__btn--disabled]="!canSave" [disabled]="!canSave">
+          Сохранить
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

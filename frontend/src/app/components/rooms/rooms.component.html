@@ -21,12 +21,13 @@
           type="search"
           class="rooms-search-input"
           placeholder="Поиск комнат..."
-          [(ngModel)]="searchQuery"
+          [ngModel]="searchQuery"
+          (ngModelChange)="searchQuery = $event; onSearchChange()"
           autocomplete="off"
         />
       </div>
       <div class="rooms-filter-wrap">
-        <select class="rooms-filter" [(ngModel)]="roomFilter">
+        <select class="rooms-filter" [ngModel]="roomFilter" (ngModelChange)="roomFilter = $event; onFilterChange()">
           <option value="all">Все</option>
           <option value="open">Открытые</option>
           <option value="mine">Мои</option>
@@ -36,50 +37,61 @@
 
     <section class="rooms-section rooms-section--popular">
       <h2 class="rooms-section-title">Популярные сейчас</h2>
-      <div class="rooms-popular-scroll" role="region" aria-label="Популярные комнаты">
-        <div class="rooms-popular-track">
-          @for (room of popularRooms; track room.id) {
-            <article class="room-card room-card--popular">
-              <h3 class="room-card__name">{{ room.name }}</h3>
-              <p class="room-card__host">{{ room.hostName }}</p>
-              <p class="room-card__meta">
-                <span class="room-card__count">{{ room.participantCount }}</span>
-                <span class="room-card__count-label">участников</span>
-              </p>
-              <div
-                class="room-card__cover room-card__cover--large"
-                [style.background-image]="room.currentTrackCoverUrl ? 'url(' + room.currentTrackCoverUrl + ')' : 'none'"
-              ></div>
-              <p class="room-card__track">{{ room.currentTrackTitle }}</p>
-            </article>
-          }
+      @if (errorPopular) {
+        <p class="section__error">{{ errorPopular }}</p>
+      } @else if (isLoadingPopular) {
+        <p class="section__loading">Загрузка…</p>
+      } @else {
+        <div class="rooms-popular-scroll" role="region" aria-label="Популярные комнаты">
+          <div class="rooms-popular-track">
+            @for (room of popularRooms; track room.id) {
+              <a [routerLink]="['/rooms', room.id]" class="room-card room-card--popular">
+                <h3 class="room-card__name">{{ room.name }}</h3>
+                <p class="room-card__host">{{ room.hostUsername }}</p>
+                <p class="room-card__meta">
+                  <span class="room-card__count">{{ room.memberCount }}</span>
+                  <span class="room-card__count-label">участников</span>
+                </p>
+                <div
+                  class="room-card__cover room-card__cover--large"
+                  [style.background-image]="getCoverUrl(room) ? 'url(' + getCoverUrl(room) + ')' : 'none'"
+                ></div>
+                <p class="room-card__track">{{ room.currentTrackTitle || '—' }}</p>
+              </a>
+            }
+          </div>
         </div>
-      </div>
+      }
     </section>
 
     <section class="rooms-section rooms-section--all">
       <h2 class="rooms-section-title">Все комнаты</h2>
-      <div class="rooms-grid">
-        @for (room of filteredRooms; track room.id) {
-          <article class="room-card room-card--list">
-            <h3 class="room-card__name"><a [routerLink]="['/rooms', room.id]" class="room-card__name-link">{{ room.name }}</a></h3>
-            <p class="room-card__host-line">
-              {{ room.hostName }}
-              <span class="room-card__participants">👥 {{ room.participantCount }}</span>
-            </p>
-            <div class="room-card__row">
-              <div
-                class="room-card__cover room-card__cover--mini"
-                [style.background-image]="room.currentTrackCoverUrl ? 'url(' + room.currentTrackCoverUrl + ')' : 'none'"
-              ></div>
-              <span class="room-card__track-name">{{ room.currentTrackTitle || '—' }}</span>
-            </div>
-            <a [routerLink]="['/rooms', room.id]" class="room-card__join">Присоединиться</a>
-          </article>
+      @if (errorRooms) {
+        <p class="section__error">{{ errorRooms }}</p>
+      } @else if (isLoadingRooms && !roomsPage) {
+        <p class="section__loading">Загрузка…</p>
+      } @else {
+        <div class="rooms-grid">
+          @for (room of filteredRooms; track room.id) {
+            <a [routerLink]="['/rooms', room.id]" class="room-card room-card--list">
+              <h3 class="room-card__name">{{ room.name }}</h3>
+              <p class="room-card__host-line">
+                {{ room.hostUsername }}
+                <span class="room-card__participants">👥 {{ room.memberCount }}</span>
+              </p>
+              <div class="room-card__row">
+                <div
+                  class="room-card__cover room-card__cover--mini"
+                  [style.background-image]="getCoverUrl(room) ? 'url(' + getCoverUrl(room) + ')' : 'none'"
+                ></div>
+                <span class="room-card__track-name">{{ room.currentTrackTitle || '—' }}</span>
+              </div>
+            </a>
+          }
+        </div>
+        @if (filteredRooms.length === 0 && !isLoadingRooms) {
+          <p class="rooms-empty">Комнат не найдено</p>
         }
-      </div>
-      @if (filteredRooms.length === 0) {
-        <p class="rooms-empty">Комнат не найдено</p>
       }
     </section>
     </div>

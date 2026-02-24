@@ -3,34 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AuthService } from '../../services/auth.service';
 import { PlayerService } from '../../services/player.service';
-import { TrackResponse } from '../../models/track.model';
-
-export interface RoomDetailData {
-  id: number;
-  name: string;
-  hostId: number;
-  hostUsername: string;
-  memberCount: number;
-  maxMembers: number | null;
-  isOpen: boolean;
-  currentTrack: TrackResponse | null;
-  positionSeconds: number;
-  playing: boolean;
-  queue: QueueItemData[];
-  isCurrentUserHost: boolean;
-}
-
-export interface QueueItemData {
-  id: number;
-  position: number;
-  track: TrackResponse;
-  addedByUsername: string;
-}
+import { RoomService } from '../../services/room.service';
+import { RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
+import { RoomSettingsOverlayComponent } from '../room-settings-overlay/room-settings-overlay.component';
 
 export interface ChatMessageData {
   userId: number;
@@ -43,7 +24,7 @@ export interface ChatMessageData {
 @Component({
   selector: 'app-room-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SideNavComponent, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SideNavComponent, AppHeaderComponent, RoomSettingsOverlayComponent],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.css']
 })
@@ -52,27 +33,33 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private authService = inject(AuthService);
   private playerService = inject(PlayerService);
+  private roomService = inject(RoomService);
   private destroy$ = new Subject<void>();
 
-  room: RoomDetailData | null = null;
+  room: RoomResponse | null = null;
+  /** Показать кнопку «Присоединиться» (пользователь не участник). */
+  needJoin = false;
+  showSettingsOverlay = false;
   chatMessages: ChatMessageData[] = [];
   chatInput = '';
   isLoading = true;
+  isJoining = false;
   error = '';
   hasActiveTrack = false;
 
-  /** Для атмосферной подсветки: играет ли трек в комнате (влияет на opacity glow). */
+  get isCurrentUserHost(): boolean {
+    const user = this.authService.getCurrentUser();
+    return !!this.room && user != null && this.room.hostId === user.userId;
+  }
+
   get isRoomPlaying(): boolean {
     return this.room?.playing ?? false;
   }
 
-  /** URL обложки текущего трека для glow (или null). */
   get currentTrackCoverUrl(): string | null {
-    const track = this.room?.currentTrack;
-    if (!track?.coverImagePath) return null;
-    return track.coverImagePath.startsWith('http')
-      ? track.coverImagePath
-      : '/api/covers/' + track.coverImagePath;
+    const path = this.room?.currentTrackCoverPath;
+    if (!path) return null;
+    return path.startsWith('http') ? path : '/api/covers/' + path;
   }
 
   ngOnInit(): void {
@@ -91,84 +78,61 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadRoom(id: number): void {
+  loadRoom(id: number): void {
     this.isLoading = true;
     this.error = '';
-    // Mock: когда будет API — вызывать roomService.getById(id)
-    const currentUserId = this.authService.getCurrentUser()?.userId ?? 1;
-    this.room = this.getMockRoom(id, currentUserId);
-    this.chatMessages = this.getMockChat();
-    this.isLoading = false;
-  }
+    this.needJoin = false;
+    this.room = null;
 
-  private getMockRoom(id: number, currentUserId: number): RoomDetailData {
-    const hostId = 1;
-    const isHost = currentUserId === hostId;
-    return {
-      id,
-      name: 'Вечерний чилл',
-      hostId,
-      hostUsername: 'Алексей',
-      memberCount: 5,
-      maxMembers: 20,
-      isOpen: true,
-      positionSeconds: 42,
-      playing: true,
-      currentTrack: {
-        id: 2,
-        title: 'Больно',
-        durationSeconds: 180,
-        artistName: 'Слава КПСС',
-        artists: [{ artistId: 1, artistName: 'Слава КПСС' }],
-        coverImagePath: 'albums/chudovishe.jpeg'
-      },
-      queue: [
-        {
-          id: 1,
-          position: 0,
-          addedByUsername: 'Мария',
-          track: {
-            id: 3,
-            title: 'Чучело',
-            durationSeconds: 206,
-            artistName: 'Слава КПСС',
-            coverImagePath: 'albums/chudovishe.jpeg'
-          }
-        },
-        {
-          id: 2,
-          position: 1,
-          addedByUsername: 'Алексей',
-          track: {
-            id: 5,
-            title: 'Пески времени',
-            durationSeconds: 142,
-            artistName: 'Песни',
-            coverImagePath: 'albums/peski.jpeg'
-          }
+    this.roomService.getById(id).pipe(
+      takeUntil(this.destroy$),
+      catchError((err: { status?: number }) => {
+        if (err?.status === 403) {
+          this.needJoin = true;
+          return this.roomService.getSummary(id);
         }
-      ],
-      isCurrentUserHost: isHost
-    };
+        this.error = err?.status === 404 ? 'Комната не найдена' : 'Не удалось загрузить комнату';
+        this.isLoading = false;
+        return of(null);
+      })
+    ).subscribe((data: RoomResponse | null) => {
+      this.isLoading = false;
+      if (data) {
+        this.room = data;
+        if (this.needJoin) {
+          this.chatMessages = [];
+        }
+      }
+    });
   }
 
-  private getMockChat(): ChatMessageData[] {
-    return [
-      { userId: 1, username: 'Алексей', isHost: true, text: 'Добро пожаловать в комнату!', time: new Date(Date.now() - 3600000) },
-      { userId: 2, username: 'Мария', isHost: false, text: 'Отличный трек', time: new Date(Date.now() - 1800000) },
-      { userId: 1, username: 'Алексей', isHost: true, text: 'Спасибо, добавляй в очередь что хочешь', time: new Date(Date.now() - 900000) }
-    ];
+  joinRoom(): void {
+    if (!this.room || this.isJoining) return;
+    this.isJoining = true;
+    this.roomService.join(this.room.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.needJoin = false;
+        this.isJoining = false;
+        this.loadRoom(this.room!.id);
+      },
+      error: () => {
+        this.isJoining = false;
+        this.error = 'Не удалось присоединиться';
+      }
+    });
   }
 
-  getCoverUrl(path: string | undefined): string {
+  getCoverUrl(path: string | undefined | null): string {
     if (!path) return '';
     return path.startsWith('http') ? path : '/api/covers/' + path;
   }
 
-  getTrackArtistNames(track: TrackResponse): string {
-    if (track.artists?.length) return track.artists.map(a => a.artistName).join(', ');
-    if (track.artistName) return track.artistName;
-    return '—';
+  getCurrentTrackTitle(): string {
+    return this.room?.currentTrackTitle ?? '—';
+  }
+
+  getCurrentTrackArtist(): string {
+    return this.room?.currentTrackArtistName ?? '—';
   }
 
   formatDuration(seconds: number): string {
@@ -181,43 +145,69 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   }
 
+  getQueueItems(): RoomQueueItemInfo[] {
+    return this.room?.queue ?? [];
+  }
+
   roomPlayPause(): void {
-    if (!this.room) return;
-    this.room.playing = !this.room.playing;
+    // TODO: PUT /api/rooms/:id/state
   }
 
   roomSkip(): void {
-    // Mock: переключить на следующий в очереди
+    // TODO: next track
   }
 
   roomShuffle(): void {
-    // Mock: перемешать очередь
+    // TODO: shuffle queue
   }
 
   leaveRoom(): void {
-    this.router.navigate(['/rooms']);
+    if (!this.room) return;
+    this.roomService.leave(this.room.id).subscribe({
+      next: () => this.router.navigate(['/rooms'])
+    });
+  }
+
+  openSettings(): void {
+    this.showSettingsOverlay = true;
+  }
+
+  closeSettingsOverlay(): void {
+    this.showSettingsOverlay = false;
+  }
+
+  onSettingsSaved(payload: { name: string; maxMembers: number | null }): void {
+    if (!this.room) return;
+    this.roomService.update(this.room.id, { name: payload.name, maxMembers: payload.maxMembers })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updated) => {
+          this.room = updated;
+          this.showSettingsOverlay = false;
+        },
+        error: () => {}
+      });
   }
 
   invite(): void {
-    // Mock: копировать ссылку или открыть модалку приглашения
+    // TODO: copy link or modal
   }
 
   sendMessage(): void {
     const text = this.chatInput.trim();
-    if (!text || !this.room) return;
+    if (!text) return;
     const user = this.authService.getCurrentUser();
     this.chatMessages.push({
       userId: user?.userId ?? 0,
       username: user?.username ?? 'Гость',
-      isHost: this.room.isCurrentUserHost,
+      isHost: this.isCurrentUserHost,
       text,
       time: new Date()
     });
     this.chatInput = '';
   }
 
-  removeFromQueue(item: QueueItemData): void {
-    if (!this.room?.isCurrentUserHost) return;
-    this.room.queue = this.room.queue.filter(q => q.id !== item.id);
+  removeFromQueue(item: RoomQueueItemInfo): void {
+    // TODO: DELETE /api/rooms/:id/queue/:queueItemId
   }
 }

@@ -19,10 +19,15 @@ public class RoomResponse {
     private Long hostId;
     private String hostUsername;
     private Long currentTrackId;
+    private String currentTrackTitle;
+    private String currentTrackCoverPath;
+    private String currentTrackArtistName;
     private Double positionSeconds;
     private Boolean playing;
     private Integer memberCount;
     private Integer maxMembers;
+    /** Участник ли текущий пользователь (хост или в списке участников). */
+    private Boolean isMember;
     private Instant createdAt;
     private Instant updatedAt;
     private List<QueueItemInfo> queue;
@@ -43,5 +48,8 @@ public class RoomResponse {
         private Long id;
         private int position;
         private Long trackId;
+        private String trackTitle;
+        private Integer durationSeconds;
+        private String trackCoverPath;
     }
 }

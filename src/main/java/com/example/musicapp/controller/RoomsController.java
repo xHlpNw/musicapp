@@ -3,11 +3,16 @@ package com.example.musicapp.controller;
 import com.example.musicapp.dto.room.CreateRoomRequest;
 import com.example.musicapp.dto.room.RoomResponse;
 import com.example.musicapp.dto.room.RoomStateRequest;
+import com.example.musicapp.dto.room.UpdateRoomRequest;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.security.SecurityUser;
 import com.example.musicapp.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +27,33 @@ public class RoomsController {
 
     private final RoomService roomService;
 
+    /** Список комнат: filter=all|open|mine, q=поиск, page, size. */
     @GetMapping
-    public ResponseEntity<List<RoomResponse>> findMyRooms(
+    public ResponseEntity<Page<RoomResponse>> findRooms(
+            @RequestParam(defaultValue = "all") String filter,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
             @AuthenticationPrincipal SecurityUser securityUser) {
         User user = securityUser.getUser();
-        return ResponseEntity.ok(roomService.findRoomsForUser(user));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        return ResponseEntity.ok(roomService.findRooms(filter, q, pageable, user));
+    }
+
+    /** Популярные комнаты (по числу участников). */
+    @GetMapping("/popular")
+    public ResponseEntity<List<RoomResponse>> findPopular(
+            @RequestParam(defaultValue = "10") int limit,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        return ResponseEntity.ok(roomService.findPopular(limit, user));
+    }
+
+    /** Краткая информация о комнате (для не-участников). */
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<RoomResponse> findSummary(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(roomService.findByIdPublic(id));
     }
 
     @GetMapping("/{id}")
@@ -62,6 +89,15 @@ public class RoomsController {
         User user = securityUser.getUser();
         roomService.leave(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<RoomResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateRoomRequest request,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        return ResponseEntity.ok(roomService.update(id, request, user));
     }
 
     @PutMapping("/{id}/state")
