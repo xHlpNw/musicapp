@@ -1,0 +1,89 @@
+<app-header [(searchValue)]="searchQuery" [searchReadonly]="false" />
+
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="rooms-content page-content" [class.rooms-content--with-player]="hasActiveTrack">
+    <div class="rooms-inner">
+    <header class="rooms-header">
+      <h1 class="rooms-title">Комнаты</h1>
+      <button type="button" class="rooms-create-btn" (click)="createRoom()">
+        Создать комнату
+      </button>
+    </header>
+
+    <div class="rooms-toolbar">
+      <div class="rooms-search-wrap">
+        <svg class="rooms-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="search"
+          class="rooms-search-input"
+          placeholder="Поиск комнат..."
+          [(ngModel)]="searchQuery"
+          autocomplete="off"
+        />
+      </div>
+      <div class="rooms-filter-wrap">
+        <select class="rooms-filter" [(ngModel)]="roomFilter">
+          <option value="all">Все</option>
+          <option value="open">Открытые</option>
+          <option value="mine">Мои</option>
+        </select>
+      </div>
+    </div>
+
+    <section class="rooms-section rooms-section--popular">
+      <h2 class="rooms-section-title">Популярные сейчас</h2>
+      <div class="rooms-popular-scroll" role="region" aria-label="Популярные комнаты">
+        <div class="rooms-popular-track">
+          @for (room of popularRooms; track room.id) {
+            <article class="room-card room-card--popular">
+              <h3 class="room-card__name">{{ room.name }}</h3>
+              <p class="room-card__host">{{ room.hostName }}</p>
+              <p class="room-card__meta">
+                <span class="room-card__count">{{ room.participantCount }}</span>
+                <span class="room-card__count-label">участников</span>
+              </p>
+              <div
+                class="room-card__cover room-card__cover--large"
+                [style.background-image]="room.currentTrackCoverUrl ? 'url(' + room.currentTrackCoverUrl + ')' : 'none'"
+              ></div>
+              <p class="room-card__track">{{ room.currentTrackTitle }}</p>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="rooms-section rooms-section--all">
+      <h2 class="rooms-section-title">Все комнаты</h2>
+      <div class="rooms-grid">
+        @for (room of filteredRooms; track room.id) {
+          <article class="room-card room-card--list">
+            <h3 class="room-card__name">{{ room.name }}</h3>
+            <p class="room-card__host-line">
+              {{ room.hostName }}
+              <span class="room-card__participants">👥 {{ room.participantCount }}</span>
+            </p>
+            <div class="room-card__row">
+              <div
+                class="room-card__cover room-card__cover--mini"
+                [style.background-image]="room.currentTrackCoverUrl ? 'url(' + room.currentTrackCoverUrl + ')' : 'none'"
+              ></div>
+              <span class="room-card__track-name">{{ room.currentTrackTitle || '—' }}</span>
+            </div>
+            <button type="button" class="room-card__join" (click)="joinRoom(room)">
+              Присоединиться
+            </button>
+          </article>
+        }
+      </div>
+      @if (filteredRooms.length === 0) {
+        <p class="rooms-empty">Комнат не найдено</p>
+      }
+    </section>
+    </div>
+  </div>
+</div>
