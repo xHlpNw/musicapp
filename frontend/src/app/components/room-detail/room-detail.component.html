@@ -54,7 +54,8 @@
                 class="room-detail__cover"
                 [style.background-image]="getEffectiveCoverStyle()"
               ></div>
-              @if (room.currentTrackTitle || (isCurrentUserHost && getQueueItems().length > 0)) {
+              <div class="room-detail__player-block">
+                @if (room.currentTrackTitle || (isCurrentUserHost && getQueueItems().length > 0)) {
                 <h2 class="room-detail__track-title">{{ getCurrentTrackTitle() }}</h2>
                 <p class="room-detail__track-artists">{{ getCurrentTrackArtist() }}</p>
                 @if (isCurrentUserHost) {
@@ -75,6 +76,7 @@
                   </div>
                 }
               }
+              </div>
             </section>
 
             <section class="room-detail__queue">
