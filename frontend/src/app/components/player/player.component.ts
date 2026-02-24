@@ -98,6 +98,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
         audio.pause();
       }
     });
+    this.playerService.seekRequest$.pipe(takeUntil(this.destroy$)).subscribe(seconds => {
+      const audio = this.audioRef?.nativeElement;
+      if (audio?.src) {
+        audio.currentTime = seconds;
+        this.currentTime = seconds;
+      }
+    });
   }
 
   ngOnDestroy(): void {

@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class RoomStateRequest {
 
     private Long currentTrackId;
+    /** Id элемента очереди (при переключении по очереди — однозначно задаёт текущий трек при дубликатах). */
+    private Long queueItemId;
     private Double positionSeconds;
     private Boolean playing;
 }

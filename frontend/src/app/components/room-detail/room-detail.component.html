@@ -88,9 +88,10 @@
                   </button>
                 }
               </div>
-              <ul class="room-detail__queue-list">
-                @for (item of getQueueItems(); track item.trackId + ':' + item.id) {
-                  <li class="room-detail__queue-row" [class.room-detail__queue-row--current]="item.isCurrent">
+              <div class="room-detail__queue-list-wrap" #queueScrollRef>
+                <ul class="room-detail__queue-list">
+                  @for (item of getQueueItems(); track item.trackId + ':' + item.id) {
+                    <li class="room-detail__queue-row" [class.room-detail__queue-row--current]="item.isCurrent" [class.room-detail__queue-row--clickable]="isCurrentUserHost" [attr.data-current]="item.isCurrent || null" (click)="onQueueItemClick(item, $event)">
                     <div class="room-detail__queue-cover" [style.background-image]="item.trackCoverPath ? 'url(' + getCoverUrl(item.trackCoverPath) + ')' : 'none'"></div>
                     <div class="room-detail__queue-info">
                       <span class="room-detail__queue-track-name">{{ item.trackTitle || '—' }}</span>
@@ -104,7 +105,8 @@
                     }
                   </li>
                 }
-              </ul>
+                </ul>
+              </div>
               @if (getQueueItems().length === 0) {
                 <p class="room-detail__queue-empty">Очередь пуста</p>
               }

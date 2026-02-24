@@ -51,6 +51,10 @@ public class Room {
     @JoinColumn(name = "current_track_id")
     private Track currentTrack;
 
+    /** Элемент очереди, который сейчас играет (однозначно при нескольких копиях одного трека). */
+    @Column(name = "current_queue_item_id")
+    private Long currentQueueItemId;
+
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
     @Builder.Default

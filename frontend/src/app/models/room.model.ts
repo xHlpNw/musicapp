@@ -4,6 +4,8 @@ export interface RoomResponse {
   hostId: number;
   hostUsername: string;
   currentTrackId: number | null;
+  /** Id элемента очереди, который играет (однозначно при нескольких копиях одного трека). */
+  currentQueueItemId?: number | null;
   currentTrackTitle: string | null;
   currentTrackCoverPath: string | null;
   currentTrackArtistName?: string | null;
@@ -57,6 +59,8 @@ export interface UpdateRoomRequest {
 
 export interface RoomStateRequest {
   currentTrackId?: number | null;
+  /** Id элемента очереди (при переключении — однозначно при дубликатах трека). */
+  queueItemId?: number | null;
   positionSeconds?: number;
   playing?: boolean;
 }

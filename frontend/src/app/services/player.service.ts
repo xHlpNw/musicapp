@@ -17,6 +17,7 @@ export class PlayerService {
   private isPlayingSubject = new BehaviorSubject<boolean>(false);
   private playRequestSubject = new Subject<void>();
   private pauseRequestSubject = new Subject<void>();
+  private seekRequestSubject = new Subject<number>();
 
   public currentTrack$ = this.currentTrackSubject.asObservable();
   public streamUrl$ = this.streamUrlSubject.asObservable();
@@ -25,6 +26,8 @@ export class PlayerService {
   public isPlaying$ = this.isPlayingSubject.asObservable();
   public playRequest$ = this.playRequestSubject.asObservable();
   public pauseRequest$ = this.pauseRequestSubject.asObservable();
+  /** Запрос перемотки к позиции (секунды). Используется комнатой при переключении на тот же трек с начала. */
+  public seekRequest$ = this.seekRequestSubject.asObservable();
 
   /** Единый список воспроизведения: альбом + треки из «Добавить в очередь» / «Играть следующим». */
   private playlist: TrackResponse[] = [];
@@ -154,6 +157,11 @@ export class PlayerService {
 
   requestPause(): void {
     this.pauseRequestSubject.next();
+  }
+
+  /** Перемотать текущий трек к позиции (секунды). Вызывать из комнаты при синхронизации с positionSeconds. */
+  requestSeek(positionSeconds: number): void {
+    this.seekRequestSubject.next(Math.max(0, positionSeconds));
   }
 
   /** Добавить трек в конец списка воспроизведения. */

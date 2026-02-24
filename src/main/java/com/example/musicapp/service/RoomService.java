@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -210,10 +211,25 @@ public class RoomService {
         if (!room.getHost().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("Only the host can update room state");
         }
-        if (request.getCurrentTrackId() != null) {
+        if (request.getQueueItemId() != null) {
+            RoomQueueItem item = roomQueueItemRepository.findById(request.getQueueItemId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Queue item not found: " + request.getQueueItemId()));
+            if (!item.getRoom().getId().equals(roomId)) {
+                throw new ForbiddenException("Queue item does not belong to this room");
+            }
+            room.setCurrentQueueItemId(item.getId());
+            room.setCurrentTrack(item.getTrack());
+        } else if (request.getCurrentTrackId() != null) {
             Track track = trackRepository.findById(request.getCurrentTrackId())
                     .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + request.getCurrentTrackId()));
+            Long previousTrackId = room.getCurrentTrack() != null ? room.getCurrentTrack().getId() : null;
             room.setCurrentTrack(track);
+            if (!Objects.equals(previousTrackId, track.getId())) {
+                room.setCurrentQueueItemId(resolveCurrentQueueItemId(room, track.getId()));
+            }
+        } else {
+            room.setCurrentTrack(null);
+            room.setCurrentQueueItemId(null);
         }
         if (request.getPositionSeconds() != null) {
             room.setPositionSeconds(request.getPositionSeconds());
@@ -224,6 +240,15 @@ public class RoomService {
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
         return toDetailResponse(room);
+    }
+
+    /** Первый по position элемент очереди с данным trackId, или null. */
+    private Long resolveCurrentQueueItemId(Room room, Long trackId) {
+        return room.getQueue().stream()
+                .filter(qi -> qi.getTrack().getId().equals(trackId))
+                .findFirst()
+                .map(RoomQueueItem::getId)
+                .orElse(null);
     }
 
     @Transactional
@@ -312,6 +337,10 @@ public class RoomService {
         if (!item.getRoom().getId().equals(roomId)) {
             throw new ForbiddenException("Queue item does not belong to this room");
         }
+        if (item.getId().equals(room.getCurrentQueueItemId())) {
+            room.setCurrentTrack(null);
+            room.setCurrentQueueItemId(null);
+        }
         room.getQueue().remove(item);
         roomQueueItemRepository.delete(item);
         room.setUpdatedAt(Instant.now());
@@ -342,6 +371,7 @@ public class RoomService {
                 .hostId(room.getHost().getId())
                 .hostUsername(room.getHost().getUsername())
                 .currentTrackId(track != null ? track.getId() : null)
+                .currentQueueItemId(room.getCurrentQueueItemId())
                 .currentTrackTitle(track != null ? track.getTitle() : null)
                 .currentTrackCoverPath(track != null ? track.getCoverImagePath() : null)
                 .currentTrackArtistName(track != null ? getFirstArtistName(track) : null)
@@ -378,6 +408,7 @@ public class RoomService {
                 .hostId(room.getHost().getId())
                 .hostUsername(room.getHost().getUsername())
                 .currentTrackId(track != null ? track.getId() : null)
+                .currentQueueItemId(room.getCurrentQueueItemId())
                 .currentTrackTitle(track != null ? track.getTitle() : null)
                 .currentTrackCoverPath(track != null ? track.getCoverImagePath() : null)
                 .currentTrackArtistName(track != null ? getFirstArtistName(track) : null)

@@ -331,6 +331,40 @@
   background: rgba(240, 144, 32, 0.25);
 }
 
+.room-detail__queue-list-wrap {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: min(320px, 40vh);
+  border-radius: 10px;
+  margin: 0 -4px;
+  padding: 0 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(240, 144, 32, 0.35) rgba(255, 255, 255, 0.04);
+}
+
+.room-detail__queue-list-wrap::-webkit-scrollbar {
+  width: 8px;
+}
+
+.room-detail__queue-list-wrap::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.room-detail__queue-list-wrap::-webkit-scrollbar-thumb {
+  background: rgba(240, 144, 32, 0.25);
+  border-radius: 4px;
+}
+
+.room-detail__queue-list-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(240, 144, 32, 0.4);
+}
+
+.room-detail__queue-list-wrap::-webkit-scrollbar-thumb:active {
+  background: rgba(240, 144, 32, 0.5);
+}
+
 .room-detail__queue-list {
   list-style: none;
   padding: 0;
@@ -345,6 +379,10 @@
   padding: 0 12px;
   border-radius: 10px;
   transition: background 0.2s;
+}
+
+.room-detail__queue-row--clickable {
+  cursor: pointer;
 }
 
 .room-detail__queue-row:hover {

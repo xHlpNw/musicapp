@@ -19,6 +19,8 @@ public class RoomResponse {
     private Long hostId;
     private String hostUsername;
     private Long currentTrackId;
+    /** Id элемента очереди, который сейчас играет (если есть — однозначно при дубликатах трека). */
+    private Long currentQueueItemId;
     private String currentTrackTitle;
     private String currentTrackCoverPath;
     private String currentTrackArtistName;

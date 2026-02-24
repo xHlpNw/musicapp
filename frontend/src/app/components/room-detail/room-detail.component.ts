@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -32,7 +32,9 @@ export interface ChatMessageData {
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.css']
 })
-export class RoomDetailComponent implements OnInit, OnDestroy {
+export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('queueScrollRef') queueScrollRef?: ElementRef<HTMLElement>;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -42,6 +44,9 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   private trackService = inject(TrackService);
   private favoritesService = inject(FavoritesService);
   private destroy$ = new Subject<void>();
+
+  /** После обновления очереди/комнаты — прокрутить список так, чтобы текущий трек был первым (сверху). */
+  private needScrollQueueToCurrent = false;
 
   room: RoomResponse | null = null;
   /** Показать кнопку «Присоединиться» (пользователь не участник). */
@@ -103,6 +108,15 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  ngAfterViewChecked(): void {
+    if (!this.needScrollQueueToCurrent || !this.queueScrollRef?.nativeElement) return;
+    const el = this.queueScrollRef.nativeElement.querySelector('[data-current="true"]');
+    if (el) {
+      el.scrollIntoView({ block: 'start', behavior: 'auto' });
+    }
+    this.needScrollQueueToCurrent = false;
+  }
+
   loadRoom(id: number): void {
     this.isLoading = true;
     this.error = '';
@@ -124,6 +138,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       if (data) {
         this.room = data;
+        this.needScrollQueueToCurrent = true;
         if (this.needJoin) {
           this.chatMessages = [];
           this.roomControlService.unregister();
@@ -153,9 +168,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       this.playerService.requestPause();
       return;
     }
+    const wasSameTrack = this.playerService.getCurrentTrack()?.id === room.currentTrackId;
+    const positionSeconds = room.positionSeconds ?? 0;
     this.trackService.getById(room.currentTrackId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (track) => {
         this.playerService.setCurrentTrack(track);
+        if (wasSameTrack) {
+          this.playerService.requestSeek(positionSeconds);
+        }
       },
       error: () => {}
     });
@@ -211,10 +231,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   getQueueItems(): (RoomQueueItemInfo & { isCurrent?: boolean })[] {
     const queue = this.room?.queue ?? [];
     const currentId = this.room?.currentTrackId;
+    const currentItemId = this.room?.currentQueueItemId ?? undefined;
     if (currentId == null) {
       return queue.map(item => ({ ...item, isCurrent: false }));
     }
-    const idx = queue.findIndex(item => item.trackId === currentId);
+    const idx = currentItemId != null
+      ? queue.findIndex(item => item.id === currentItemId)
+      : queue.findIndex(item => item.trackId === currentId);
     if (idx >= 0) {
       return queue.map((item, i) => ({ ...item, isCurrent: i === idx }));
     }
@@ -255,12 +278,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     if (!this.room.currentTrackId && queue.length > 0) {
       const first = queue[0];
       this.roomService.updateState(this.room.id, {
+        queueItemId: first.id !== 0 ? first.id : undefined,
         currentTrackId: first.trackId,
         positionSeconds: 0,
         playing: true
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           this.syncPlayerToRoom(updated);
         },
         error: () => {}
@@ -270,12 +295,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
 
     if (this.room.currentTrackId) {
       this.roomService.updateState(this.room.id, {
+        queueItemId: this.room.currentQueueItemId ?? undefined,
         currentTrackId: this.room.currentTrackId,
         positionSeconds: this.room.positionSeconds ?? 0,
         playing: newPlaying
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           if (newPlaying) {
             this.syncPlayerToRoom(updated);
           } else {
@@ -288,6 +315,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       this.roomService.updateState(this.room.id, { playing: false }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           this.playerService.setCurrentTrack(null);
         },
         error: () => {}
@@ -300,12 +328,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     const queue = this.getQueueItems();
     const prev = queue[this.getCurrentQueueIndex() - 1];
     this.roomService.updateState(this.room.id, {
+      queueItemId: prev.id !== 0 ? prev.id : undefined,
       currentTrackId: prev.trackId,
       positionSeconds: 0,
       playing: true
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (updated) => {
         this.room = updated;
+        this.needScrollQueueToCurrent = true;
         this.syncPlayerToRoom(updated);
       },
       error: () => {}
@@ -320,12 +350,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     if (idx >= 0 && idx < queue.length - 1) {
       const next = queue[idx + 1];
       this.roomService.updateState(this.room.id, {
+        queueItemId: next.id !== 0 ? next.id : undefined,
         currentTrackId: next.trackId,
         positionSeconds: 0,
         playing: true
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           this.syncPlayerToRoom(updated);
         },
         error: () => {}
@@ -338,6 +370,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           this.playerService.setCurrentTrack(null);
         },
         error: () => {}
@@ -350,6 +383,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           this.playerService.setCurrentTrack(null);
         },
         error: () => {}
@@ -379,6 +413,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (updated) => {
           this.room = updated;
+          this.needScrollQueueToCurrent = true;
           this.showSettingsOverlay = false;
         },
         error: () => {}
@@ -387,6 +422,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
 
   onCoverUpdated(updated: RoomResponse): void {
     this.room = updated;
+    this.needScrollQueueToCurrent = true;
   }
 
   invite(): void {
@@ -405,6 +441,29 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       time: new Date()
     });
     this.chatInput = '';
+  }
+
+  /** Клик по строке очереди: хост может включить трек или переключиться на другой. */
+  onQueueItemClick(item: RoomQueueItemInfo & { isCurrent?: boolean }, event: MouseEvent): void {
+    if (!this.room || !this.isCurrentUserHost) return;
+    if ((event.target as HTMLElement).closest('button')) return;
+    if (item.isCurrent) {
+      this.roomPlayPause();
+      return;
+    }
+    this.roomService.updateState(this.room.id, {
+      queueItemId: item.id !== 0 ? item.id : undefined,
+      currentTrackId: item.trackId,
+      positionSeconds: 0,
+      playing: true
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (updated) => {
+        this.room = updated;
+        this.needScrollQueueToCurrent = true;
+        this.syncPlayerToRoom(updated);
+      },
+      error: () => {}
+    });
   }
 
   removeFromQueue(item: RoomQueueItemInfo): void {
