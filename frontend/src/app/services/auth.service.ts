@@ -62,6 +62,11 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
+  /** Текущий пользователь (синхронно). */
+  getCurrentUser(): LoginResponse | null {
+    return this.currentUserSubject.getValue();
+  }
+
   isAuthenticated(): boolean {
     const token = this.getToken();
     return !!token && !this.isTokenExpired(token);

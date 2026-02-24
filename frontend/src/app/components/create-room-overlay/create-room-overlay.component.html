@@ -1,0 +1,84 @@
+<div
+  class="create-room-overlay"
+  [class.create-room-overlay--open]="isAnimated"
+  (click)="onBackdropClick($event)"
+  role="dialog"
+  aria-labelledby="create-room-title"
+  aria-modal="true"
+  tabindex="-1"
+>
+  <div class="create-room-overlay__panel" (click)="onPanelClick($event)">
+    <header class="create-room-overlay__header">
+      <h2 id="create-room-title" class="create-room-overlay__title">Создание комнаты</h2>
+      <button type="button" class="create-room-overlay__close" aria-label="Закрыть" (click)="doClose()">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </header>
+
+    <form (ngSubmit)="onSubmit()" class="create-room-overlay__form">
+      <div class="create-room-overlay__field">
+        <label for="create-room-name" class="create-room-overlay__label">Название комнаты</label>
+        <input
+          type="text"
+          id="create-room-name"
+          class="create-room-overlay__input"
+          [(ngModel)]="name"
+          name="name"
+          placeholder="Введите название комнаты"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="create-room-overlay__field">
+        <span class="create-room-overlay__label">Тип комнаты</span>
+        <div class="create-room-overlay__toggle">
+          <button type="button" class="create-room-overlay__toggle-btn" [class.create-room-overlay__toggle-btn--active]="!isPrivate" (click)="isPrivate = false">
+            Открытая
+          </button>
+          <button type="button" class="create-room-overlay__toggle-btn" [class.create-room-overlay__toggle-btn--active]="isPrivate" (click)="isPrivate = true">
+            Приватная
+          </button>
+        </div>
+      </div>
+
+      @if (isPrivate) {
+        <div class="create-room-overlay__field">
+          <label for="create-room-password" class="create-room-overlay__label">Пароль комнаты</label>
+          <input
+            type="password"
+            id="create-room-password"
+            class="create-room-overlay__input"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Введите пароль"
+            autocomplete="off"
+          />
+        </div>
+      }
+
+      <div class="create-room-overlay__options">
+        <label class="create-room-overlay__checkbox">
+          <input type="checkbox" class="create-room-overlay__checkbox-input" [(ngModel)]="allowAddTracks" name="allowAddTracks" />
+          <span class="create-room-overlay__checkbox-box"></span>
+          <span class="create-room-overlay__checkbox-label">Разрешить участникам добавлять треки</span>
+        </label>
+        <label class="create-room-overlay__checkbox">
+          <input type="checkbox" class="create-room-overlay__checkbox-input" [(ngModel)]="allowSkip" name="allowSkip" />
+          <span class="create-room-overlay__checkbox-box"></span>
+          <span class="create-room-overlay__checkbox-label">Разрешить участникам пропускать треки</span>
+        </label>
+      </div>
+
+      <div class="create-room-overlay__actions">
+        <button type="button" class="create-room-overlay__btn create-room-overlay__btn--cancel" (click)="doClose()">
+          Отмена
+        </button>
+        <button type="submit" class="create-room-overlay__btn create-room-overlay__btn--submit" [class.create-room-overlay__btn--disabled]="!canCreate" [disabled]="!canCreate">
+          Создать
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

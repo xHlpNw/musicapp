@@ -19,12 +19,14 @@ import { ArtistDetailComponent } from './components/artist-detail/artist-detail.
 import { SearchComponent } from './components/search/search.component';
 import { HistoryComponent } from './components/history/history.component';
 import { RoomsComponent } from './components/rooms/rooms.component';
+import { RoomDetailComponent } from './components/room-detail/room-detail.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomepageComponent, pathMatch: 'full' },
   { path: 'search', component: SearchComponent },
   { path: 'rooms', component: RoomsComponent },
+  { path: 'rooms/:id', component: RoomDetailComponent },
   { path: 'register', component: RegisterRedirectComponent },
   { path: 'login', component: LoginRedirectComponent },
   { path: 'dashboard', component: DashboardComponent },

@@ -62,7 +62,7 @@
       <div class="rooms-grid">
         @for (room of filteredRooms; track room.id) {
           <article class="room-card room-card--list">
-            <h3 class="room-card__name">{{ room.name }}</h3>
+            <h3 class="room-card__name"><a [routerLink]="['/rooms', room.id]" class="room-card__name-link">{{ room.name }}</a></h3>
             <p class="room-card__host-line">
               {{ room.hostName }}
               <span class="room-card__participants">👥 {{ room.participantCount }}</span>
@@ -74,9 +74,7 @@
               ></div>
               <span class="room-card__track-name">{{ room.currentTrackTitle || '—' }}</span>
             </div>
-            <button type="button" class="room-card__join" (click)="joinRoom(room)">
-              Присоединиться
-            </button>
+            <a [routerLink]="['/rooms', room.id]" class="room-card__join">Присоединиться</a>
           </article>
         }
       </div>
@@ -87,3 +85,11 @@
     </div>
   </div>
 </div>
+
+@if (showCreateRoomOverlay) {
+  <app-create-room-overlay
+    [isOpen]="showCreateRoomOverlay"
+    (closeOverlay)="onCloseCreateRoomOverlay()"
+    (create)="onRoomCreated($event)"
+  />
+}

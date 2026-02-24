@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
+import { CreateRoomOverlayComponent, CreateRoomPayload } from '../create-room-overlay/create-room-overlay.component';
 import { PlayerService } from '../../services/player.service';
 
 export type RoomFilter = 'all' | 'open' | 'mine';
@@ -25,7 +26,7 @@ export interface RoomSummary {
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SideNavComponent, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SideNavComponent, AppHeaderComponent, CreateRoomOverlayComponent],
   templateUrl: './rooms.component.html',
   styleUrls: ['./rooms.component.css']
 })
@@ -33,6 +34,7 @@ export class RoomsComponent implements OnInit, OnDestroy {
   searchQuery = '';
   roomFilter: RoomFilter = 'all';
   hasActiveTrack = false;
+  showCreateRoomOverlay = false;
   private destroy$ = new Subject<void>();
 
   /** Mock: популярные комнаты (горизонтальный скролл) */
@@ -143,7 +145,16 @@ export class RoomsComponent implements OnInit, OnDestroy {
   }
 
   createRoom(): void {
-    // Заглушка: в реальности открыть модалку или переход на создание комнаты
+    this.showCreateRoomOverlay = true;
+  }
+
+  onCloseCreateRoomOverlay(): void {
+    this.showCreateRoomOverlay = false;
+  }
+
+  onRoomCreated(payload: CreateRoomPayload): void {
+    this.showCreateRoomOverlay = false;
+    // TODO: вызов API создания комнаты, затем переход в комнату или обновление списка
   }
 
   joinRoom(room: RoomSummary): void {
