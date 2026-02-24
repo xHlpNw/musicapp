@@ -4,6 +4,17 @@
   box-sizing: border-box;
 }
 
+/* Резиновый layout для ПК/ноутов: переменные для хедера и сайдбара */
+:root {
+  --header-height: 52px;
+  --sidebar-width: 180px;
+  --content-max-width: 1400px;
+  /* На ноутах контент не растягивается на всю ширину — остаётся место справа и по центру */
+  --content-visible-max: min(var(--content-max-width), calc(100vw - 2 * var(--sidebar-width)));
+  --content-padding-x: clamp(1rem, 2.5vw, 1.5rem);
+  --content-padding-y: clamp(1.5rem, 3vh, 2rem);
+}
+
 html {
   /* Резервируем место под скроллбар, чтобы при переходе между страницами хедер и контент не смещались влево-вправо */
   scrollbar-gutter: stable;

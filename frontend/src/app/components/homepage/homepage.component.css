@@ -6,7 +6,7 @@
   color: #EDEDED;
 }
 
-/* Layout: header сверху, под ним sidebar + content */
+/* Layout: header сверху, под ним sidebar (fixed) + content с отступом */
 .page-layout {
   display: flex;
   flex: 1;
@@ -16,29 +16,35 @@
 .page-content {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   outline: none;
 }
 
-/* Main */
+/* Main — на ноутах уже (не на всю ширину), центрирован по середине окна (50vw) */
 .main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
+  /* На узком экране: не шире 100vw - 2*sidebar, чтобы был отступ справа и можно было центрировать */
+  max-width: var(--content-visible-max);
+  width: 100%;
+  /* Центр блока = 50vw; на ноутах формула даёт 0 — блок уже и визуально по центру */
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
   outline: none;
 }
 
 .main--with-player {
-  padding-bottom: 7rem;
+  padding-bottom: clamp(6rem, 12vh, 8rem);
 }
 
 .section {
-  margin-bottom: 2.5rem;
+  margin-bottom: clamp(1.5rem, 3vh, 2.5rem);
 }
 
 .section__title {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 1.5vw + 0.5rem, 1.5rem);
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: clamp(0.75rem, 1.5vh, 1rem);
   color: #EDEDED;
 }
 
@@ -62,8 +68,8 @@
 .track-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 10px 12px;
+  gap: clamp(0.75rem, 1.2vw, 1rem);
+  padding: clamp(8px, 1vw, 12px) clamp(10px, 1.2vw, 14px);
   border-radius: 8px;
   transition: background 0.15s;
   isolation: isolate;
@@ -226,12 +232,12 @@
   color: #9A9A9A;
 }
 
-/* Album row */
+/* Album row — резиновый отступ и зазор между карточками */
 .album-row {
   display: flex;
-  gap: 1.25rem;
+  gap: clamp(1rem, 1.5vw, 1.25rem);
   overflow-x: auto;
-  padding: 16px 8px; /* отступы: сверху/снизу — чтобы scale(1.02) не обрезался по вертикали */
+  padding: clamp(12px, 1.5vh, 16px) clamp(6px, 0.8vw, 8px);
   scrollbar-width: thin;
   scrollbar-color: #1C1F24 #15171A;
 }
@@ -252,7 +258,7 @@
 
 .album-card {
   flex-shrink: 0;
-  width: 160px;
+  width: clamp(140px, 10vw, 160px);
   cursor: pointer;
   transition: transform 0.2s;
   text-decoration: none;
@@ -265,10 +271,10 @@
 }
 
 .album-card__cover {
-  width: 160px;
-  height: 160px;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: clamp(6px, 0.8vh, 10px);
   background-size: cover;
   background-position: center;
 }
@@ -349,11 +355,11 @@
   }
 }
 
-/* Artist grid */
+/* Artist grid — колонки подстраиваются под ширину (ПК/ноут) */
 .artist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  gap: clamp(0.75rem, 1.2vw, 1rem);
 }
 
 .artist-card {
