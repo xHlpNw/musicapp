@@ -157,7 +157,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
             this.roomControlService.register({
               previous: () => this.roomPrevious(),
               next: () => this.roomSkip(),
-              playPause: () => this.roomPlayPause()
+              playPause: () => this.roomPlayPause(),
+              seekTo: (positionSeconds: number) => this.roomSeekTo(positionSeconds)
             });
           } else {
             this.roomControlService.unregister();
@@ -425,6 +426,24 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         error: () => {}
       });
     }
+  }
+
+  /** Перемотка в комнате: устанавливает positionSeconds и playing=true для текущего трека. */
+  roomSeekTo(positionSeconds: number): void {
+    if (!this.room || !this.isCurrentUserHost || !this.room.currentTrackId) return;
+    this.roomService.updateState(this.room.id, {
+      queueItemId: this.room.currentQueueItemId ?? undefined,
+      currentTrackId: this.room.currentTrackId,
+      positionSeconds,
+      playing: true
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (updated) => {
+        this.room = updated;
+        this.needScrollQueueToCurrent = true;
+        this.syncPlayerToRoom(updated);
+      },
+      error: () => {}
+    });
   }
 
   leaveRoom(): void {

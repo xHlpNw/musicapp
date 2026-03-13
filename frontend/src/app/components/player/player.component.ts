@@ -317,7 +317,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     const rect = bar.getBoundingClientRect();
     const percent = (event.clientX - rect.left) / rect.width;
     const time = Math.max(0, Math.min(percent * this.duration, this.duration));
-    audio.currentTime = time;
-    this.currentTime = time;
+    if (this.roomControlService.hasControl()) {
+      // Хост управляет комнатой — перематываем через комнату, чтобы синхронизировать всех
+      this.roomControlService.seekTo(time);
+    } else {
+      audio.currentTime = time;
+      this.currentTime = time;
+    }
   }
 }

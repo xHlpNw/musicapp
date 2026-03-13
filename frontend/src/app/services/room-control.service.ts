@@ -4,6 +4,7 @@ export interface RoomControlCallbacks {
   previous: () => void;
   next: () => void;
   playPause: () => void;
+  seekTo?: (positionSeconds: number) => void;
 }
 
 /**
@@ -38,5 +39,9 @@ export class RoomControlService {
 
   playPause(): void {
     this.callbacks?.playPause();
+  }
+
+  seekTo(positionSeconds: number): void {
+    this.callbacks?.seekTo?.(positionSeconds);
   }
 }
