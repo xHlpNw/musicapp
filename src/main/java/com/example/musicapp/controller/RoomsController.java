@@ -1,6 +1,8 @@
 package com.example.musicapp.controller;
 
+import com.example.musicapp.dto.room.CreateRoomChatMessageRequest;
 import com.example.musicapp.dto.room.CreateRoomRequest;
+import com.example.musicapp.dto.room.RoomChatMessageResponse;
 import com.example.musicapp.dto.room.RoomResponse;
 import com.example.musicapp.dto.room.RoomStateRequest;
 import com.example.musicapp.dto.room.UpdateRoomRequest;
@@ -145,5 +147,24 @@ public class RoomsController {
         User user = securityUser.getUser();
         roomService.removeFromQueue(id, queueItemId, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/chat")
+    public ResponseEntity<List<RoomChatMessageResponse>> getChat(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "50") int limit,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        return ResponseEntity.ok(roomService.getRecentChatMessages(id, limit, user));
+    }
+
+    @PostMapping("/{id}/chat")
+    public ResponseEntity<RoomChatMessageResponse> postChat(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateRoomChatMessageRequest request,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        User user = securityUser.getUser();
+        RoomChatMessageResponse response = roomService.addChatMessage(id, request, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

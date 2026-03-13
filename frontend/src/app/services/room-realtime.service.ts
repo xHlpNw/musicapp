@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { RoomResponse } from '../models/room.model';
+import { RoomChatMessage, RoomResponse } from '../models/room.model';
 
 /**
  * WebSocket‑сервис для получения обновлений состояния комнаты в реальном времени.
@@ -15,6 +15,7 @@ export class RoomRealtimeService implements OnDestroy {
   private socket: WebSocket | null = null;
   private roomId: number | null = null;
   private state$ = new Subject<RoomResponse>();
+  private chat$ = new Subject<RoomChatMessage>();
 
   connect(roomId: number): Observable<RoomResponse> {
     if (this.roomId === roomId && this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -39,8 +40,15 @@ export class RoomRealtimeService implements OnDestroy {
     this.socket.onmessage = (event: MessageEvent<string>) => {
       console.log('[RoomRealtimeService] message received:', event.data);
       try {
-        const data = JSON.parse(event.data) as RoomResponse;
-        this.state$.next(data);
+        const data = JSON.parse(event.data) as any;
+        if (data && data.type === 'chat' && data.message) {
+          this.chat$.next(data.message as RoomChatMessage);
+        } else {
+          // Обратная совместимость: состояние комнаты может приходить как чистый RoomResponse
+          // (без поля type) или в будущем как { type: 'state', state: RoomResponse }.
+          const state: RoomResponse = data.state ?? data;
+          this.state$.next(state);
+        }
       } catch (e) {
         console.error('[RoomRealtimeService] failed to parse message', e);
       }
@@ -69,6 +77,10 @@ export class RoomRealtimeService implements OnDestroy {
     }
     this.socket = null;
     this.roomId = null;
+  }
+
+  onChat(): Observable<RoomChatMessage> {
+    return this.chat$.asObservable();
   }
 
   ngOnDestroy(): void {

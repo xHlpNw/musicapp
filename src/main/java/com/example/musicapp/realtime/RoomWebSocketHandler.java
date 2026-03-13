@@ -1,5 +1,6 @@
 package com.example.musicapp.realtime;
 
+import com.example.musicapp.dto.room.RoomChatMessageResponse;
 import com.example.musicapp.dto.room.RoomResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,9 +86,10 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
         String payload;
         try {
+            // Оставляем обратную совместимость: состояние комнаты отправляем "как есть"
+            // (без обёртки type/state), чтобы существующий клиент продолжал работать.
             payload = objectMapper.writeValueAsString(state);
         } catch (JsonProcessingException e) {
-            // Если не удалось сериализовать — просто пропускаем отправку.
             System.out.println("[RoomWebSocketHandler] failed to serialize RoomResponse: " + e.getMessage());
             return;
         }
@@ -98,6 +100,41 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                     session.sendMessage(message);
                 } catch (IOException ignored) {
                     System.out.println("[RoomWebSocketHandler] failed to send message to session: " + ignored.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * Отправить новое чат‑сообщение всем участникам комнаты.
+     * Сообщение идёт в отдельном формате:
+     * { "type": "chat", "message": { ...RoomChatMessageResponse } }
+     */
+    public void broadcastChatMessage(Long roomId, RoomChatMessageResponse messageDto) {
+        System.out.println("[RoomWebSocketHandler] broadcastChatMessage roomId=" + roomId);
+        Set<WebSocketSession> sessions = roomSessions.get(roomId);
+        if (sessions == null || sessions.isEmpty()) {
+            System.out.println("[RoomWebSocketHandler] no sessions for roomId=" + roomId);
+            return;
+        }
+        String payload;
+        try {
+            Map<String, Object> envelope = Map.of(
+                    "type", "chat",
+                    "message", messageDto
+            );
+            payload = objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException e) {
+            System.out.println("[RoomWebSocketHandler] failed to serialize RoomChatMessageResponse: " + e.getMessage());
+            return;
+        }
+        TextMessage textMessage = new TextMessage(payload);
+        for (WebSocketSession session : sessions) {
+            if (session.isOpen()) {
+                try {
+                    session.sendMessage(textMessage);
+                } catch (IOException ignored) {
+                    System.out.println("[RoomWebSocketHandler] failed to send chat message to session: " + ignored.getMessage());
                 }
             }
         }

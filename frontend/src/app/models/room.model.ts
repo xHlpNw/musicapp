@@ -37,6 +37,16 @@ export interface RoomMemberInfo {
   username: string;
 }
 
+export interface RoomChatMessage {
+  id: number;
+  roomId: number;
+  userId: number;
+  username: string;
+  host: boolean;
+  text: string;
+  createdAt: string;
+}
+
 export interface RoomPageResponse {
   content: RoomResponse[];
   totalElements: number;

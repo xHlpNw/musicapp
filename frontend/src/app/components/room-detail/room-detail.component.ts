@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewChecked, inject, ViewChild, Elem
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, merge } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { SideNavComponent } from '../side-nav/side-nav.component';
@@ -14,7 +14,7 @@ import { RoomControlService } from '../../services/room-control.service';
 import { TrackService } from '../../services/track.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { RoomRealtimeService } from '../../services/room-realtime.service';
-import { RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
+import { RoomChatMessage, RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
 import { TrackResponse } from '../../models/track.model';
 import { RoomSettingsOverlayComponent } from '../room-settings-overlay/room-settings-overlay.component';
 
@@ -35,6 +35,7 @@ export interface ChatMessageData {
 })
 export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('queueScrollRef') queueScrollRef?: ElementRef<HTMLElement>;
+  @ViewChild('chatScroll') chatScrollRef?: ElementRef<HTMLElement>;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -46,9 +47,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   private trackService = inject(TrackService);
   private favoritesService = inject(FavoritesService);
   private destroy$ = new Subject<void>();
+  /** Отмена предыдущих подписок на realtime при повторном вызове subscribeToRealtime (например при повторном loadRoom). */
+  private realtimeUnsubscribe$ = new Subject<void>();
 
   /** После обновления очереди/комнаты — прокрутить список так, чтобы текущий трек был первым (сверху). */
   private needScrollQueueToCurrent = false;
+  /** Прокрутить чат к последнему сообщению после следующего цикла отрисовки. */
+  private needScrollChatToBottom = false;
 
   room: RoomResponse | null = null;
   /** Показать кнопку «Присоединиться» (пользователь не участник). */
@@ -70,6 +75,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   isJoining = false;
   error = '';
   hasActiveTrack = false;
+  currentUserId: number | null = null;
 
   get isCurrentUserHost(): boolean {
     const user = this.authService.getCurrentUser();
@@ -94,6 +100,9 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    this.currentUserId = user?.userId ?? null;
+
     this.playerService.currentTrack$
       .pipe(takeUntil(this.destroy$))
       .subscribe((t: unknown) => {
@@ -114,12 +123,18 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngAfterViewChecked(): void {
-    if (!this.needScrollQueueToCurrent || !this.queueScrollRef?.nativeElement) return;
-    const el = this.queueScrollRef.nativeElement.querySelector('[data-current="true"]');
-    if (el) {
-      el.scrollIntoView({ block: 'start', behavior: 'auto' });
+    if (this.needScrollQueueToCurrent && this.queueScrollRef?.nativeElement) {
+      const el = this.queueScrollRef.nativeElement.querySelector('[data-current="true"]');
+      if (el) {
+        el.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
+      this.needScrollQueueToCurrent = false;
     }
-    this.needScrollQueueToCurrent = false;
+    if (this.needScrollChatToBottom && this.chatScrollRef?.nativeElement) {
+      const el = this.chatScrollRef.nativeElement;
+      el.scrollTop = el.scrollHeight;
+      this.needScrollChatToBottom = false;
+    }
   }
 
   loadRoom(id: number): void {
@@ -153,6 +168,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
           console.log('[RoomDetailComponent] joined room, subscribing to realtime for room', data.id);
           this.syncPlayerToRoom(data);
           this.subscribeToRealtime(data.id);
+          this.loadChatHistory(data.id);
           if (this.isCurrentUserHost) {
             this.roomControlService.register({
               previous: () => this.roomPrevious(),
@@ -169,17 +185,32 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   private subscribeToRealtime(roomId: number): void {
+    // Отменить предыдущие подписки, чтобы при повторном loadRoom не копились дубликаты сообщений и обновлений.
+    this.realtimeUnsubscribe$.next();
+
+    const stop$ = merge(this.destroy$, this.realtimeUnsubscribe$);
+
     this.roomRealtimeService.connect(roomId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(stop$))
       .subscribe((state: RoomResponse) => {
         console.log('[RoomDetailComponent] realtime update for room', roomId, state);
-        // Хост уже получил обновлённое состояние по REST, а остальные участники — через WebSocket.
-        // В обоих случаях выравниваем локальное состояние.
         this.room = state;
         this.needScrollQueueToCurrent = true;
         if (!this.needJoin) {
           this.syncPlayerToRoom(state);
         }
+      });
+    this.roomRealtimeService.onChat()
+      .pipe(takeUntil(stop$))
+      .subscribe((msg: RoomChatMessage) => {
+        this.chatMessages.push({
+          userId: msg.userId,
+          username: msg.username,
+          isHost: msg.host,
+          text: msg.text,
+          time: new Date(msg.createdAt)
+        });
+        this.needScrollChatToBottom = true;
       });
   }
 
@@ -261,6 +292,26 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   formatTime(d: Date): string {
     return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private loadChatHistory(roomId: number): void {
+    this.roomService.getChat(roomId, 50)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (messages: RoomChatMessage[]) => {
+          this.chatMessages = messages.map(msg => ({
+            userId: msg.userId,
+            username: msg.username,
+            isHost: msg.host,
+            text: msg.text,
+            time: new Date(msg.createdAt)
+          }));
+          this.needScrollChatToBottom = true;
+        },
+        error: () => {
+          // ignore chat history errors
+        }
+      });
   }
 
   /** Полный список очереди (все треки по порядку). Текущий трек может быть в начале, если его нет в queue. */
@@ -491,15 +542,17 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   sendMessage(): void {
     const text = this.chatInput.trim();
     if (!text) return;
-    const user = this.authService.getCurrentUser();
-    this.chatMessages.push({
-      userId: user?.userId ?? 0,
-      username: user?.username ?? 'Гость',
-      isHost: this.isCurrentUserHost,
-      text,
-      time: new Date()
-    });
-    this.chatInput = '';
+    if (!this.room) return;
+    this.roomService.postChatMessage(this.room.id, text)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.chatInput = '';
+        },
+        error: () => {
+          // ignore for now
+        }
+      });
   }
 
   /** Клик по строке очереди: хост может включить трек или переключиться на другой. */

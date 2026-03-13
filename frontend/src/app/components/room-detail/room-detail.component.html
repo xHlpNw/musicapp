@@ -116,7 +116,9 @@
           <aside class="room-detail__right">
             <div class="room-detail__chat-messages" #chatScroll>
               @for (msg of chatMessages; track $index) {
-                <div class="room-detail__chat-msg">
+                <div
+                  class="room-detail__chat-msg"
+                  [class.room-detail__chat-msg--self]="currentUserId != null && msg.userId === currentUserId">
                   <span class="room-detail__chat-name" [class.room-detail__chat-name--host]="msg.isHost">{{ msg.username }}</span>
                   <p class="room-detail__chat-text">{{ msg.text }}</p>
                   <span class="room-detail__chat-time">{{ formatTime(msg.time) }}</span>

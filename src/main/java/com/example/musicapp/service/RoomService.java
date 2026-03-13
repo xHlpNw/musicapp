@@ -1,10 +1,13 @@
 package com.example.musicapp.service;
 
+import com.example.musicapp.dto.room.CreateRoomChatMessageRequest;
 import com.example.musicapp.dto.room.CreateRoomRequest;
+import com.example.musicapp.dto.room.RoomChatMessageResponse;
 import com.example.musicapp.dto.room.RoomResponse;
 import com.example.musicapp.dto.room.RoomStateRequest;
 import com.example.musicapp.dto.room.UpdateRoomRequest;
 import com.example.musicapp.entity.Room;
+import com.example.musicapp.entity.RoomChatMessage;
 import com.example.musicapp.entity.RoomMember;
 import com.example.musicapp.entity.RoomQueueItem;
 import com.example.musicapp.entity.Track;
@@ -12,6 +15,7 @@ import com.example.musicapp.entity.User;
 import com.example.musicapp.exception.ForbiddenException;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.realtime.RoomWebSocketHandler;
+import com.example.musicapp.repository.RoomChatMessageRepository;
 import com.example.musicapp.repository.RoomMemberRepository;
 import com.example.musicapp.repository.RoomQueueItemRepository;
 import com.example.musicapp.repository.RoomRepository;
@@ -34,6 +38,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -52,6 +57,7 @@ public class RoomService {
     private final RoomMemberRepository roomMemberRepository;
     private final RoomQueueItemRepository roomQueueItemRepository;
     private final TrackRepository trackRepository;
+    private final RoomChatMessageRepository roomChatMessageRepository;
     private final RoomWebSocketHandler roomWebSocketHandler;
 
     @PostConstruct
@@ -309,6 +315,48 @@ public class RoomService {
         return toDetailResponse(room);
     }
 
+    @Transactional(readOnly = true)
+    public List<RoomChatMessageResponse> getRecentChatMessages(Long roomId, int limit, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!isMember(room, currentUser)) {
+            throw new ForbiddenException("You are not a member of this room");
+        }
+        int pageSize = Math.min(Math.max(limit, 1), 200);
+        var messagesDesc = roomChatMessageRepository.findRecentByRoom(room, PageRequest.of(0, pageSize));
+        var messagesAsc = new ArrayList<>(messagesDesc);
+        messagesAsc.sort(Comparator.comparing(RoomChatMessage::getCreatedAt));
+        return messagesAsc.stream()
+                .map(this::toChatMessageResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public RoomChatMessageResponse addChatMessage(Long roomId, CreateRoomChatMessageRequest request, User currentUser) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
+        if (!isMember(room, currentUser)) {
+            throw new ForbiddenException("You are not a member of this room");
+        }
+        String text = Optional.ofNullable(request.getText())
+                .map(String::trim)
+                .orElse("");
+        if (text.isEmpty()) {
+            throw new IllegalArgumentException("Message text must not be empty");
+        }
+        Instant now = Instant.now();
+        RoomChatMessage message = RoomChatMessage.builder()
+                .room(room)
+                .user(currentUser)
+                .text(text)
+                .createdAt(now)
+                .build();
+        message = roomChatMessageRepository.save(message);
+        RoomChatMessageResponse dto = toChatMessageResponse(message);
+        roomWebSocketHandler.broadcastChatMessage(roomId, dto);
+        return dto;
+    }
+
     @Transactional
     public void addToQueue(Long roomId, Long trackId, User currentUser) {
         Room room = roomRepository.findById(roomId)
@@ -358,6 +406,21 @@ public class RoomService {
     private boolean isMember(Room room, User user) {
         return room.getHost().getId().equals(user.getId())
                 || roomMemberRepository.existsByRoomAndUser(room, user);
+    }
+
+    private RoomChatMessageResponse toChatMessageResponse(RoomChatMessage message) {
+        User user = message.getUser();
+        Room room = message.getRoom();
+        boolean isHost = room.getHost() != null && room.getHost().getId().equals(user.getId());
+        return RoomChatMessageResponse.builder()
+                .id(message.getId())
+                .roomId(room.getId())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .host(isHost)
+                .text(message.getText())
+                .createdAt(message.getCreatedAt())
+                .build();
     }
 
     private RoomResponse toResponse(Room room) {

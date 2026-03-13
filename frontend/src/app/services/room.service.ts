@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RoomResponse, RoomPageResponse, CreateRoomRequest, UpdateRoomRequest, RoomStateRequest } from '../models/room.model';
+import { RoomResponse, RoomPageResponse, CreateRoomRequest, UpdateRoomRequest, RoomStateRequest, RoomChatMessage } from '../models/room.model';
 
 @Injectable({
   providedIn: 'root'
@@ -80,5 +80,14 @@ export class RoomService {
   /** Обновить состояние воспроизведения комнаты (только хост). */
   updateState(roomId: number, state: RoomStateRequest): Observable<RoomResponse> {
     return this.http.put<RoomResponse>(`${this.API_URL}/${roomId}/state`, state);
+  }
+
+  getChat(roomId: number, limit = 50): Observable<RoomChatMessage[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<RoomChatMessage[]>(`${this.API_URL}/${roomId}/chat`, { params });
+  }
+
+  postChatMessage(roomId: number, text: string): Observable<RoomChatMessage> {
+    return this.http.post<RoomChatMessage>(`${this.API_URL}/${roomId}/chat`, { text });
   }
 }
