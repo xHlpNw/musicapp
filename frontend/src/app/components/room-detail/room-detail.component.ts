@@ -13,6 +13,7 @@ import { RoomService } from '../../services/room.service';
 import { RoomControlService } from '../../services/room-control.service';
 import { TrackService } from '../../services/track.service';
 import { FavoritesService } from '../../services/favorites.service';
+import { RoomRealtimeService } from '../../services/room-realtime.service';
 import { RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
 import { TrackResponse } from '../../models/track.model';
 import { RoomSettingsOverlayComponent } from '../room-settings-overlay/room-settings-overlay.component';
@@ -38,9 +39,10 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
-  private playerService = inject(PlayerService);
+  private playerService = inject<PlayerService>(PlayerService);
   private roomService = inject(RoomService);
   private roomControlService = inject(RoomControlService);
+  private roomRealtimeService = inject(RoomRealtimeService);
   private trackService = inject(TrackService);
   private favoritesService = inject(FavoritesService);
   private destroy$ = new Subject<void>();
@@ -92,9 +94,11 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngOnInit(): void {
-    this.playerService.currentTrack$.pipe(takeUntil(this.destroy$)).subscribe(t => {
-      this.hasActiveTrack = !!t;
-    });
+    this.playerService.currentTrack$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((t: unknown) => {
+        this.hasActiveTrack = !!t;
+      });
 
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(paramMap => {
       const id = paramMap.get('id');
@@ -104,6 +108,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   ngOnDestroy(): void {
     this.roomControlService.unregister();
+    this.roomRealtimeService.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -122,6 +127,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.error = '';
     this.needJoin = false;
     this.room = null;
+
+    console.log('[RoomDetailComponent] loadRoom', id);
 
     this.roomService.getById(id).pipe(
       takeUntil(this.destroy$),
@@ -143,7 +150,9 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
           this.chatMessages = [];
           this.roomControlService.unregister();
         } else {
+          console.log('[RoomDetailComponent] joined room, subscribing to realtime for room', data.id);
           this.syncPlayerToRoom(data);
+          this.subscribeToRealtime(data.id);
           if (this.isCurrentUserHost) {
             this.roomControlService.register({
               previous: () => this.roomPrevious(),
@@ -156,6 +165,21 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         }
       }
     });
+  }
+
+  private subscribeToRealtime(roomId: number): void {
+    this.roomRealtimeService.connect(roomId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((state: RoomResponse) => {
+        console.log('[RoomDetailComponent] realtime update for room', roomId, state);
+        // Хост уже получил обновлённое состояние по REST, а остальные участники — через WebSocket.
+        // В обоих случаях выравниваем локальное состояние.
+        this.room = state;
+        this.needScrollQueueToCurrent = true;
+        if (!this.needJoin) {
+          this.syncPlayerToRoom(state);
+        }
+      });
   }
 
   /** Синхронизировать плеер с состоянием комнаты (текущий трек и воспроизведение). */

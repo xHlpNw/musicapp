@@ -11,6 +11,7 @@ import com.example.musicapp.entity.Track;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.exception.ForbiddenException;
 import com.example.musicapp.exception.ResourceNotFoundException;
+import com.example.musicapp.realtime.RoomWebSocketHandler;
 import com.example.musicapp.repository.RoomMemberRepository;
 import com.example.musicapp.repository.RoomQueueItemRepository;
 import com.example.musicapp.repository.RoomRepository;
@@ -51,6 +52,7 @@ public class RoomService {
     private final RoomMemberRepository roomMemberRepository;
     private final RoomQueueItemRepository roomQueueItemRepository;
     private final TrackRepository trackRepository;
+    private final RoomWebSocketHandler roomWebSocketHandler;
 
     @PostConstruct
     public void init() throws IOException {
@@ -201,11 +203,14 @@ public class RoomService {
         }
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
-        return toDetailResponse(room);
+        RoomResponse response = toDetailResponse(room);
+        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        return response;
     }
 
     @Transactional
     public RoomResponse updateState(Long roomId, RoomStateRequest request, User currentUser) {
+        System.out.println("[RoomService] updateState called for roomId=" + roomId + ", userId=" + currentUser.getId());
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
         if (!room.getHost().getId().equals(currentUser.getId())) {
@@ -239,7 +244,10 @@ public class RoomService {
         }
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
-        return toDetailResponse(room);
+        RoomResponse response = toDetailResponse(room);
+        System.out.println("[RoomService] broadcasting new state for roomId=" + roomId);
+        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        return response;
     }
 
     /** Первый по position элемент очереди с данным trackId, или null. */
