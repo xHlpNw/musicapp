@@ -207,9 +207,11 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (track) => {
+          // Для нового трека сначала устанавливаем трек, затем запоминаем позицию
+          // и включаем воспроизведение, чтобы onCanPlay смог корректно автозапустить плеер.
           this.playerService.setCurrentTrack(track);
+          this.playerService.setPendingSeek?.(positionSeconds);
           this.playerService.setPlaying(true);
-          this.playerService.requestSeek(positionSeconds);
         },
         error: () => {}
       });
@@ -435,7 +437,9 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       queueItemId: this.room.currentQueueItemId ?? undefined,
       currentTrackId: this.room.currentTrackId,
       positionSeconds,
-      playing: true
+      // сохраняем текущее состояние play/pause комнаты:
+      // если была пауза — остаётся пауза, если играло — продолжаем играть.
+      playing: this.room.playing
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (updated) => {
         this.room = updated;

@@ -35,6 +35,9 @@ export class PlayerService {
   private playlist: TrackResponse[] = [];
   private playlistIndex = -1;
 
+  /** Позиция, к которой нужно перемотать после загрузки нового трека (если аудио ещё не готово). */
+  private pendingSeekSeconds: number | null = null;
+
   private playlistSubject = new BehaviorSubject<{ list: TrackResponse[]; index: number }>({ list: [], index: -1 });
   public playlist$ = this.playlistSubject.asObservable();
 
@@ -151,6 +154,16 @@ export class PlayerService {
 
   getCurrentTime(): number {
     return this.currentTimeSubject.value;
+  }
+
+  setPendingSeek(positionSeconds: number | null): void {
+    this.pendingSeekSeconds = positionSeconds != null ? Math.max(0, positionSeconds) : null;
+  }
+
+  consumePendingSeek(): number | null {
+    const value = this.pendingSeekSeconds;
+    this.pendingSeekSeconds = null;
+    return value;
   }
 
   setPlaying(playing: boolean): void {

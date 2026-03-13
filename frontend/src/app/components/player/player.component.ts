@@ -272,7 +272,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   onCanPlay(): void {
     const audio = this.audioRef?.nativeElement;
-    if (audio && this.playerService.getCurrentTrack() && this.playerService.isPlaying()) {
+    if (!audio || !this.playerService.getCurrentTrack()) return;
+
+    // Если после загрузки нужно перемотать — делаем это перед возможным стартом воспроизведения.
+    const pendingSeek = this.playerService.consumePendingSeek?.();
+    if (pendingSeek != null && isFinite(pendingSeek)) {
+      audio.currentTime = pendingSeek;
+      this.currentTime = pendingSeek;
+    }
+
+    if (this.playerService.isPlaying()) {
       audio.play().catch(() => {});
     }
   }
