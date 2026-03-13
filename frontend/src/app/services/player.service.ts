@@ -15,6 +15,7 @@ export class PlayerService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private errorSubject = new BehaviorSubject<string | null>(null);
   private isPlayingSubject = new BehaviorSubject<boolean>(false);
+  private currentTimeSubject = new BehaviorSubject<number>(0);
   private playRequestSubject = new Subject<void>();
   private pauseRequestSubject = new Subject<void>();
   private seekRequestSubject = new Subject<number>();
@@ -24,6 +25,7 @@ export class PlayerService {
   public loading$ = this.loadingSubject.asObservable();
   public error$ = this.errorSubject.asObservable();
   public isPlaying$ = this.isPlayingSubject.asObservable();
+  public currentTime$ = this.currentTimeSubject.asObservable();
   public playRequest$ = this.playRequestSubject.asObservable();
   public pauseRequest$ = this.pauseRequestSubject.asObservable();
   /** Запрос перемотки к позиции (секунды). Используется комнатой при переключении на тот же трек с начала. */
@@ -141,6 +143,14 @@ export class PlayerService {
 
   getPlaylistIndex(): number {
     return this.playlistIndex;
+  }
+
+  setCurrentTime(seconds: number): void {
+    this.currentTimeSubject.next(Math.max(0, seconds));
+  }
+
+  getCurrentTime(): number {
+    return this.currentTimeSubject.value;
   }
 
   setPlaying(playing: boolean): void {

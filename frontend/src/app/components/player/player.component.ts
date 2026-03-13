@@ -235,6 +235,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     const audio = this.audioRef?.nativeElement;
     if (audio) {
       this.currentTime = audio.currentTime;
+      this.playerService.setCurrentTime(this.currentTime);
       if (this.duration === 0 && audio.duration && isFinite(audio.duration)) {
         this.duration = audio.duration;
       }
@@ -271,7 +272,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   onCanPlay(): void {
     const audio = this.audioRef?.nativeElement;
-    if (audio && this.playerService.getCurrentTrack()) {
+    if (audio && this.playerService.getCurrentTrack() && this.playerService.isPlaying()) {
       audio.play().catch(() => {});
     }
   }

@@ -188,21 +188,30 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.playerService.setCurrentTrack(null);
       return;
     }
+    const positionSeconds = room.positionSeconds ?? 0;
     if (!room.playing) {
+      this.playerService.setPlaying(false);
       this.playerService.requestPause();
+      this.playerService.requestSeek(positionSeconds);
       return;
     }
-    const wasSameTrack = this.playerService.getCurrentTrack()?.id === room.currentTrackId;
-    const positionSeconds = room.positionSeconds ?? 0;
-    this.trackService.getById(room.currentTrackId).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (track) => {
-        this.playerService.setCurrentTrack(track);
-        if (wasSameTrack) {
+    const current = this.playerService.getCurrentTrack();
+    if (current && current.id === room.currentTrackId) {
+      this.playerService.setPlaying(true);
+      this.playerService.requestSeek(positionSeconds);
+      this.playerService.playCurrent();
+      return;
+    }
+    this.trackService.getById(room.currentTrackId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (track) => {
+          this.playerService.setCurrentTrack(track);
+          this.playerService.setPlaying(true);
           this.playerService.requestSeek(positionSeconds);
-        }
-      },
-      error: () => {}
-    });
+        },
+        error: () => {}
+      });
   }
 
   joinRoom(): void {
@@ -318,10 +327,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     }
 
     if (this.room.currentTrackId) {
+      const currentPosition = this.playerService.getCurrentTime
+        ? this.playerService.getCurrentTime()
+        : (this.room.positionSeconds ?? 0);
       this.roomService.updateState(this.room.id, {
         queueItemId: this.room.currentQueueItemId ?? undefined,
         currentTrackId: this.room.currentTrackId,
-        positionSeconds: this.room.positionSeconds ?? 0,
+        positionSeconds: currentPosition,
         playing: newPlaying
       }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updated) => {
