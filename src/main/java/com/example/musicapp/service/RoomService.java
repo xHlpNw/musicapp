@@ -378,7 +378,9 @@ public class RoomService {
         roomQueueItemRepository.save(item);
         room.getQueue().add(item);
         room.setUpdatedAt(Instant.now());
-        roomRepository.save(room);
+        room = roomRepository.save(room);
+        RoomResponse response = toDetailResponse(room);
+        roomWebSocketHandler.broadcastRoomState(roomId, response);
     }
 
     @Transactional
@@ -400,7 +402,9 @@ public class RoomService {
         room.getQueue().remove(item);
         roomQueueItemRepository.delete(item);
         room.setUpdatedAt(Instant.now());
-        roomRepository.save(room);
+        room = roomRepository.save(room);
+        RoomResponse response = toDetailResponse(room);
+        roomWebSocketHandler.broadcastRoomState(roomId, response);
     }
 
     private boolean isMember(Room room, User user) {

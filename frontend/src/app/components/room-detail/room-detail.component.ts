@@ -194,9 +194,10 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       .pipe(takeUntil(stop$))
       .subscribe((state: RoomResponse) => {
         console.log('[RoomDetailComponent] realtime update for room', roomId, state);
+        const playbackChanged = this.hasPlaybackStateChanged(this.room, state);
         this.room = state;
         this.needScrollQueueToCurrent = true;
-        if (!this.needJoin) {
+        if (!this.needJoin && playbackChanged) {
           this.syncPlayerToRoom(state);
         }
       });
@@ -212,6 +213,21 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         });
         this.needScrollChatToBottom = true;
       });
+  }
+
+  /**
+   * Изменилось ли состояние воспроизведения (трек, пауза/play, позиция).
+   * Если изменилась только очередь/участники — не трогаем плеер, чтобы не сбрасывать позицию.
+   */
+  private hasPlaybackStateChanged(prev: RoomResponse | null, next: RoomResponse): boolean {
+    if (!prev) return true;
+    if (prev.currentTrackId !== next.currentTrackId) return true;
+    if ((prev.currentQueueItemId ?? null) !== (next.currentQueueItemId ?? null)) return true;
+    if (prev.playing !== next.playing) return true;
+    const prevPos = prev.positionSeconds ?? 0;
+    const nextPos = next.positionSeconds ?? 0;
+    if (Math.abs(prevPos - nextPos) > 0.5) return true;
+    return false;
   }
 
   /** Синхронизировать плеер с состоянием комнаты (текущий трек и воспроизведение). */
@@ -578,10 +594,11 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     });
   }
 
+  /** Удаление из очереди: обновление списка придёт по WebSocket, loadRoom не вызываем, чтобы не сбрасывать позицию плеера. */
   removeFromQueue(item: RoomQueueItemInfo): void {
     if (!this.room) return;
     this.roomService.removeFromQueue(this.room.id, item.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => this.loadRoom(this.room!.id),
+      next: () => {},
       error: () => {}
     });
   }
@@ -645,7 +662,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.roomService.addToQueue(this.room.id, track.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.addToQueueAddingId = null;
-        this.loadRoom(this.room!.id);
+        // Очередь обновится по WebSocket, loadRoom не вызываем.
       },
       error: () => {
         this.addToQueueAddingId = null;
