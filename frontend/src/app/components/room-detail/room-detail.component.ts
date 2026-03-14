@@ -195,9 +195,10 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       .subscribe((state: RoomResponse) => {
         console.log('[RoomDetailComponent] realtime update for room', roomId, state);
         const playbackChanged = this.hasPlaybackStateChanged(this.room, state);
+        const roomPlayingButPlayerPaused = state.playing && !this.playerService.isPlaying();
         this.room = state;
         this.needScrollQueueToCurrent = true;
-        if (!this.needJoin && playbackChanged) {
+        if (!this.needJoin && (playbackChanged || roomPlayingButPlayerPaused)) {
           this.syncPlayerToRoom(state);
         }
       });

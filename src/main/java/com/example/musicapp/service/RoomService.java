@@ -189,7 +189,9 @@ public class RoomService {
                 roomRepository.delete(room);
             } else {
                 room.setHost(remaining.get(0).getUser());
-                roomRepository.save(room);
+                room = roomRepository.save(room);
+                RoomResponse response = toDetailResponse(room);
+                roomWebSocketHandler.broadcastRoomState(roomId, response);
             }
         }
     }
@@ -287,7 +289,9 @@ public class RoomService {
         room.setCoverImagePath(relativePath);
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
-        return toDetailResponse(room);
+        RoomResponse response = toDetailResponse(room);
+        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        return response;
     }
 
     @Transactional
@@ -311,6 +315,9 @@ public class RoomService {
             room.setCoverImagePath(null);
             room.setUpdatedAt(Instant.now());
             room = roomRepository.save(room);
+            RoomResponse response = toDetailResponse(room);
+            roomWebSocketHandler.broadcastRoomState(roomId, response);
+            return response;
         }
         return toDetailResponse(room);
     }
