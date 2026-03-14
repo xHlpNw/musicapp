@@ -173,6 +173,8 @@ public class RoomService {
                 .joinedAt(Instant.now())
                 .build();
         roomMemberRepository.save(member);
+        RoomResponse response = toDetailResponse(room);
+        roomWebSocketHandler.broadcastRoomState(roomId, response);
     }
 
     @Transactional
@@ -186,6 +188,7 @@ public class RoomService {
         if (room.getHost().getId().equals(currentUser.getId())) {
             List<RoomMember> remaining = roomMemberRepository.findByRoomOrderByJoinedAtAsc(room);
             if (remaining.isEmpty()) {
+                roomWebSocketHandler.broadcastRoomClosed(roomId);
                 roomRepository.delete(room);
             } else {
                 room.setHost(remaining.get(0).getUser());
@@ -193,6 +196,9 @@ public class RoomService {
                 RoomResponse response = toDetailResponse(room);
                 roomWebSocketHandler.broadcastRoomState(roomId, response);
             }
+        } else {
+            RoomResponse response = toDetailResponse(room);
+            roomWebSocketHandler.broadcastRoomState(roomId, response);
         }
     }
 

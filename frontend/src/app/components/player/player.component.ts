@@ -89,7 +89,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.playerService.playRequest$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       const audio = this.audioRef?.nativeElement;
       if (audio?.src && this.playerService.getCurrentTrack()) {
-        audio.play().catch(() => {});
+        audio.play().catch(() => {
+          this.playerService.setPlaying(false);
+        });
       }
     });
     this.playerService.pauseRequest$.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -282,7 +284,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
 
     if (this.playerService.isPlaying()) {
-      audio.play().catch(() => {});
+      audio.play().catch(() => {
+        this.playerService.setPlaying(false);
+      });
     }
   }
 

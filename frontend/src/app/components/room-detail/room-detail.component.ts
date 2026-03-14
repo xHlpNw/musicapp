@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, AfterViewChecked, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, inject, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge } from 'rxjs';
-import { takeUntil, catchError } from 'rxjs/operators';
+import { takeUntil, catchError, timeout } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
@@ -13,7 +13,7 @@ import { RoomService } from '../../services/room.service';
 import { RoomControlService } from '../../services/room-control.service';
 import { TrackService } from '../../services/track.service';
 import { FavoritesService } from '../../services/favorites.service';
-import { RoomRealtimeService } from '../../services/room-realtime.service';
+import { RoomRealtimeService, HostPositionResponse } from '../../services/room-realtime.service';
 import { RoomChatMessage, RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
 import { TrackResponse } from '../../models/track.model';
 import { RoomSettingsOverlayComponent } from '../room-settings-overlay/room-settings-overlay.component';
@@ -46,6 +46,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   private roomRealtimeService = inject(RoomRealtimeService);
   private trackService = inject(TrackService);
   private favoritesService = inject(FavoritesService);
+  private ngZone = inject(NgZone);
   private destroy$ = new Subject<void>();
   /** Отмена предыдущих подписок на realtime при повторном вызове subscribeToRealtime (например при повторном loadRoom). */
   private realtimeUnsubscribe$ = new Subject<void>();
@@ -54,6 +55,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   private needScrollQueueToCurrent = false;
   /** Прокрутить чат к последнему сообщению после следующего цикла отрисовки. */
   private needScrollChatToBottom = false;
+  /** Таймер повторной попытки запуска воспроизведения после загрузки (обход гонки с потоком/автовоспроизведением). */
+  private playRetryTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   room: RoomResponse | null = null;
   /** Показать кнопку «Присоединиться» (пользователь не участник). */
@@ -76,6 +79,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   error = '';
   hasActiveTrack = false;
   currentUserId: number | null = null;
+  /** Состояние воспроизведения плеера (для отображения кнопки «Воспроизвести» при блокировке автовоспроизведения). */
+  isPlayerPlaying = false;
 
   get isCurrentUserHost(): boolean {
     const user = this.authService.getCurrentUser();
@@ -84,6 +89,51 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   get isRoomPlaying(): boolean {
     return this.room?.playing ?? false;
+  }
+
+  /** Показать кнопку «Воспроизвести»: комната играет, но у участника плеер на паузе (часто из‑за блокировки автовоспроизведения браузером). */
+  get showResumePrompt(): boolean {
+    return (
+      !this.needJoin &&
+      !this.isCurrentUserHost &&
+      (this.room?.playing ?? false) &&
+      !this.isPlayerPlaying &&
+      this.room?.currentTrackId != null
+    );
+  }
+
+  /** Запуск воспроизведения по клику пользователя (обходит блокировку автовоспроизведения). Сначала запрашиваем позицию у хоста. */
+  startPlaybackWithUserGesture(): void {
+    if (!this.room) return;
+    this.roomRealtimeService.requestPositionFromHost()
+      .pipe(
+        takeUntil(this.destroy$),
+        timeout(5000),
+        catchError(() => this.roomService.getById(this.room!.id))
+      )
+      .subscribe({
+        next: (data: HostPositionResponse | RoomResponse) => {
+          const isHostResponse = 'requestId' in data;
+          if (isHostResponse) {
+            const res = data as HostPositionResponse;
+            const state: RoomResponse = {
+              ...this.room!,
+              positionSeconds: res.positionSeconds,
+              playing: res.playing,
+              currentTrackId: res.currentTrackId,
+              currentQueueItemId: res.currentQueueItemId ?? undefined
+            };
+            this.room = state;
+            this.needScrollQueueToCurrent = true;
+            this.syncPlayerToRoom(state);
+          } else {
+            this.room = data as RoomResponse;
+            this.needScrollQueueToCurrent = true;
+            this.syncPlayerToRoom(this.room);
+          }
+        },
+        error: () => {}
+      });
   }
 
   /** Обложка для фона и карточки: своя обложка комнаты или обложка текущего трека. */
@@ -108,6 +158,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       .subscribe((t: unknown) => {
         this.hasActiveTrack = !!t;
       });
+    this.playerService.isPlaying$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(playing => {
+        this.ngZone.run(() => {
+          this.isPlayerPlaying = playing;
+        });
+      });
 
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(paramMap => {
       const id = paramMap.get('id');
@@ -116,10 +173,37 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngOnDestroy(): void {
+    this.clearPlayRetryTimeout();
     this.roomControlService.unregister();
     this.roomRealtimeService.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private clearPlayRetryTimeout(): void {
+    if (this.playRetryTimeoutId != null) {
+      clearTimeout(this.playRetryTimeoutId);
+      this.playRetryTimeoutId = null;
+    }
+  }
+
+  /** Запланировать повторную попытку запуска воспроизведения через 1.5 с (после загрузки страницы поток может быть ещё не готов). */
+  private schedulePlayRetryIfNeeded(room: RoomResponse): void {
+    this.clearPlayRetryTimeout();
+    if (!room.playing || !room.currentTrackId || this.needJoin) return;
+    this.playRetryTimeoutId = setTimeout(() => {
+      this.playRetryTimeoutId = null;
+      if (this.destroy$.closed) return;
+      if (!this.room?.playing || this.needJoin) return;
+      if (this.playerService.isPlaying()) return;
+      const current = this.playerService.getCurrentTrack();
+      if (current?.id === this.room.currentTrackId) {
+        this.playerService.setPlaying(true);
+        this.playerService.playCurrent();
+      } else {
+        this.syncPlayerToRoom(this.room);
+      }
+    }, 1500);
   }
 
   ngAfterViewChecked(): void {
@@ -167,6 +251,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         } else {
           console.log('[RoomDetailComponent] joined room, subscribing to realtime for room', data.id);
           this.syncPlayerToRoom(data);
+          this.schedulePlayRetryIfNeeded(data);
           this.subscribeToRealtime(data.id);
           this.loadChatHistory(data.id);
           if (this.isCurrentUserHost) {
@@ -193,26 +278,53 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.roomRealtimeService.connect(roomId)
       .pipe(takeUntil(stop$))
       .subscribe((state: RoomResponse) => {
-        console.log('[RoomDetailComponent] realtime update for room', roomId, state);
-        const playbackChanged = this.hasPlaybackStateChanged(this.room, state);
-        const roomPlayingButPlayerPaused = state.playing && !this.playerService.isPlaying();
-        this.room = state;
-        this.needScrollQueueToCurrent = true;
-        if (!this.needJoin && (playbackChanged || roomPlayingButPlayerPaused)) {
-          this.syncPlayerToRoom(state);
-        }
+        this.ngZone.run(() => {
+          console.log('[RoomDetailComponent] realtime update for room', roomId, state);
+          const playbackChanged = this.hasPlaybackStateChanged(this.room, state);
+          const roomPlayingButPlayerPaused = state.playing && !this.playerService.isPlaying();
+          this.room = state;
+          this.needScrollQueueToCurrent = true;
+          if (!this.needJoin && (playbackChanged || roomPlayingButPlayerPaused)) {
+            this.syncPlayerToRoom(state);
+            if (roomPlayingButPlayerPaused) this.schedulePlayRetryIfNeeded(state);
+          }
+        });
       });
     this.roomRealtimeService.onChat()
       .pipe(takeUntil(stop$))
       .subscribe((msg: RoomChatMessage) => {
-        this.chatMessages.push({
-          userId: msg.userId,
-          username: msg.username,
-          isHost: msg.host,
-          text: msg.text,
-          time: new Date(msg.createdAt)
+        this.ngZone.run(() => {
+          this.chatMessages.push({
+            userId: msg.userId,
+            username: msg.username,
+            isHost: msg.host,
+            text: msg.text,
+            time: new Date(msg.createdAt)
+          });
+          this.needScrollChatToBottom = true;
         });
-        this.needScrollChatToBottom = true;
+      });
+    this.roomRealtimeService.onRoomClosed()
+      .pipe(takeUntil(stop$))
+      .subscribe(() => {
+        this.ngZone.run(() => {
+          this.error = 'Комната закрыта';
+          this.router.navigate(['/rooms']);
+        });
+      });
+    this.roomRealtimeService.onGetPositionRequest()
+      .pipe(takeUntil(stop$))
+      .subscribe(req => {
+        this.ngZone.run(() => {
+          if (!this.isCurrentUserHost || !this.room) return;
+          const positionSeconds = this.playerService.getCurrentTime?.() ?? this.room.positionSeconds ?? 0;
+          this.roomRealtimeService.sendPositionResponse(req.requestId, {
+            positionSeconds,
+            playing: this.room.playing ?? false,
+            currentTrackId: this.room.currentTrackId ?? null,
+            currentQueueItemId: this.room.currentQueueItemId ?? null
+          });
+        });
       });
   }
 
@@ -238,28 +350,47 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       return;
     }
     const positionSeconds = room.positionSeconds ?? 0;
+    const current = this.playerService.getCurrentTrack();
+    const sameTrack = current?.id === room.currentTrackId;
+
     if (!room.playing) {
       this.playerService.setPlaying(false);
       this.playerService.requestPause();
-      this.playerService.requestSeek(positionSeconds);
+      if (sameTrack) {
+        this.playerService.requestSeek(positionSeconds);
+        return;
+      }
+      // Комната на паузе, но трек другой или ещё не загружен — ставим трек и оставляем на паузе
+      this.trackService.getById(room.currentTrackId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (track) => {
+            this.playerService.setCurrentTrack(track);
+            this.playerService.setPendingSeek?.(positionSeconds);
+            this.playerService.setPlaying(false);
+            this.playerService.requestSeek(positionSeconds);
+            this.playerService.requestPause();
+          },
+          error: () => {}
+        });
       return;
     }
-    const current = this.playerService.getCurrentTrack();
-    if (current && current.id === room.currentTrackId) {
+
+    if (sameTrack) {
       this.playerService.setPlaying(true);
       this.playerService.requestSeek(positionSeconds);
       this.playerService.playCurrent();
       return;
     }
+    // Комната играет, загружаем трек и запускаем воспроизведение
     this.trackService.getById(room.currentTrackId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (track) => {
-          // Для нового трека сначала устанавливаем трек, затем запоминаем позицию
-          // и включаем воспроизведение, чтобы onCanPlay смог корректно автозапустить плеер.
           this.playerService.setCurrentTrack(track);
           this.playerService.setPendingSeek?.(positionSeconds);
           this.playerService.setPlaying(true);
+          this.playerService.playCurrent();
         },
         error: () => {}
       });

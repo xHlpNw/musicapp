@@ -75,6 +75,14 @@
                     </button>
                   </div>
                 }
+                @if (showResumePrompt) {
+                  <p class="room-detail__resume-hint">
+                    <button type="button" class="room-detail__btn room-detail__btn--primary" (click)="startPlaybackWithUserGesture()">
+                      Воспроизвести
+                    </button>
+                    <span class="room-detail__resume-hint-text">Браузер блокирует автовоспроизведение — нажмите для запуска</span>
+                  </p>
+                }
               }
               </div>
             </section>

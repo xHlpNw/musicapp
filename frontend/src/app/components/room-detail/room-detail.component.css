@@ -297,6 +297,23 @@
   background: rgba(240, 144, 32, 0.25);
 }
 
+.room-detail__resume-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0 0;
+}
+
+.room-detail__resume-hint .room-detail__btn {
+  flex-shrink: 0;
+}
+
+.room-detail__resume-hint-text {
+  font-size: 0.8125rem;
+  color: #9A9A9A;
+}
+
 /* ----- Queue ----- */
 .room-detail__queue-head {
   display: flex;
