@@ -202,6 +202,22 @@ public class RoomService {
         }
     }
 
+    /**
+     * Если отключившийся пользователь — хост комнаты (например, перезагрузил страницу),
+     * ставим комнату на паузу и возвращаем новое состояние для рассылки остальным.
+     */
+    @Transactional
+    public Optional<RoomResponse> pauseRoomIfHostDisconnected(Long roomId, Long disconnectedUserId) {
+        Room room = roomRepository.findById(roomId).orElse(null);
+        if (room == null || !room.getHost().getId().equals(disconnectedUserId)) {
+            return Optional.empty();
+        }
+        room.setPlaying(false);
+        room.setUpdatedAt(Instant.now());
+        room = roomRepository.save(room);
+        return Optional.of(toDetailResponse(room));
+    }
+
     @Transactional
     public RoomResponse update(Long roomId, UpdateRoomRequest request, User currentUser) {
         Room room = roomRepository.findById(roomId)

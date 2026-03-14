@@ -108,6 +108,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         roomSessions.computeIfAbsent(roomId, id -> ConcurrentHashMap.newKeySet())
                 .add(session);
         session.getAttributes().put("roomId", roomId);
+        session.getAttributes().put("userId", user.getId());
         sendInitialState(session, roomId, user);
     }
 
@@ -127,8 +128,11 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         pendingPositionRequests.entrySet().removeIf(e -> e.getValue() == session);
-        Object attr = session.getAttributes().get("roomId");
-        if (attr instanceof Long roomId) {
+        Object roomIdAttr = session.getAttributes().get("roomId");
+        Object userIdAttr = session.getAttributes().get("userId");
+        Long roomId = roomIdAttr instanceof Long l ? l : null;
+        Long userId = userIdAttr instanceof Long l ? l : (userIdAttr instanceof Number n ? n.longValue() : null);
+        if (roomId != null) {
             Set<WebSocketSession> sessions = roomSessions.get(roomId);
             if (sessions != null) {
                 sessions.remove(session);
@@ -136,6 +140,10 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                     roomSessions.remove(roomId);
                 }
             }
+        }
+        if (roomId != null && userId != null) {
+            roomService.pauseRoomIfHostDisconnected(roomId, userId).ifPresent(state ->
+                    broadcastRoomState(roomId, state));
         }
     }
 
