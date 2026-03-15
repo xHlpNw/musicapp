@@ -8,8 +8,6 @@ import { ArtistsListComponent } from './components/admin/artists-list/artists-li
 import { ArtistFormComponent } from './components/admin/artist-form/artist-form.component';
 import { AlbumsListComponent } from './components/admin/albums-list/albums-list.component';
 import { AlbumFormComponent } from './components/admin/album-form/album-form.component';
-import { TracksListComponent } from './components/admin/tracks-list/tracks-list.component';
-import { TrackUploadComponent } from './components/admin/track-upload/track-upload.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FavoritesComponent } from './components/favorites/favorites.component';
 import { PlaylistsComponent } from './components/playlists/playlists.component';
@@ -46,9 +44,7 @@ export const routes: Routes = [
       { path: 'artists', component: ArtistsListComponent },
       { path: 'artists/new', component: ArtistFormComponent },
       { path: 'albums', component: AlbumsListComponent },
-      { path: 'albums/new', component: AlbumFormComponent },
-      { path: 'tracks', component: TracksListComponent },
-      { path: 'tracks/new', component: TrackUploadComponent }
+      { path: 'albums/new', component: AlbumFormComponent }
     ]
   },
   { path: '**', redirectTo: '/' }

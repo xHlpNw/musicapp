@@ -1,62 +1,318 @@
-.admin-page {
+:host {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #0E0F11;
+  color: #EDEDED;
 }
 
-.admin-nav {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 16px 24px;
+.page-layout {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex: 1;
+  min-height: 0;
 }
 
-.admin-nav-brand {
-  color: white;
-  font-weight: 700;
-  font-size: 20px;
-  text-decoration: none;
+.page-content {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  outline: none;
 }
 
-.admin-nav-links {
+.main {
+  max-width: var(--content-visible-max);
+  width: 100%;
+  margin-left: max(0px, calc(50vw - var(--sidebar-width) - var(--content-visible-max) / 2));
+  margin-right: auto;
+  padding: var(--content-padding-y) var(--content-padding-x) clamp(3rem, 6vh, 4rem);
+  outline: none;
+}
+
+.admin-section {
+  margin-bottom: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.admin-page-title {
+  font-size: clamp(1.35rem, 1.6vw + 0.5rem, 1.65rem);
+  font-weight: 600;
+  margin-bottom: clamp(1rem, 2vh, 1.25rem);
+  color: #EDEDED;
+}
+
+.admin-tabs {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  gap: 4px;
+  margin-bottom: clamp(1.25rem, 2.5vh, 1.5rem);
+  border-bottom: 1px solid #1C1F24;
 }
 
-.admin-nav-links a {
-  color: rgba(255, 255, 255, 0.9);
+.admin-tabs__tab {
+  padding: 12px 20px;
+  color: #9A9A9A;
   text-decoration: none;
   font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 8px 8px 0 0;
+  transition: color 0.2s, background 0.2s;
+}
+
+.admin-tabs__tab:hover {
+  color: #EDEDED;
+  background: rgba(28, 31, 36, 0.6);
+}
+
+.admin-tabs__tab--active {
+  color: #F09020;
+  background: #15171A;
+}
+
+.admin-tabs__tab--active:hover {
+  color: #FFA030;
+}
+
+.admin-tab-content {
+  min-height: 200px;
+  min-width: 0;
+}
+
+/* Тёмная тема для контента списков (артисты, альбомы) */
+.admin-tab-content ::ng-deep .admin-card {
+  background: #15171A;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #1C1F24;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-tab-content ::ng-deep .admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.admin-tab-content ::ng-deep .admin-card-header h1 {
+  font-size: 1.25rem;
+  color: #EDEDED;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Кнопка «Добавить исполнителя» / «Добавить альбом» — компактная */
+.admin-tab-content ::ng-deep .admin-card-header .btn-primary {
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.admin-tab-content ::ng-deep .admin-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+
+.admin-tab-content ::ng-deep .admin-search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 420px;
   padding: 8px 12px;
+  border: 1px solid #1C1F24;
   border-radius: 8px;
+  font-size: 14px;
+  background: #0E0F11;
+  color: #EDEDED;
+}
+
+.admin-tab-content ::ng-deep .admin-toolbar .btn-secondary {
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.admin-tab-content ::ng-deep .admin-search::placeholder {
+  color: #6B6B6B;
+}
+
+.admin-tab-content ::ng-deep .admin-search:focus {
+  outline: none;
+  border-color: #F09020;
+}
+
+.admin-tab-content ::ng-deep .admin-loading,
+.admin-tab-content ::ng-deep .admin-empty {
+  padding: 40px;
+  text-align: center;
+  color: #9A9A9A;
+}
+
+.admin-tab-content ::ng-deep .admin-empty .link {
+  color: #F09020;
+  text-decoration: none;
+}
+
+.admin-tab-content ::ng-deep .admin-empty .link:hover {
+  color: #FFA030;
+  text-decoration: underline;
+}
+
+.admin-tab-content ::ng-deep .admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-tab-content ::ng-deep .admin-table th,
+.admin-tab-content ::ng-deep .admin-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #1C1F24;
+}
+
+.admin-tab-content ::ng-deep .admin-table th {
+  background: rgba(28, 31, 36, 0.5);
+  font-weight: 600;
+  color: #9A9A9A;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-tab-content ::ng-deep .admin-table td {
+  color: #EDEDED;
+  font-size: 0.95rem;
+}
+
+.admin-tab-content ::ng-deep .admin-table tbody tr:hover {
+  background: rgba(28, 31, 36, 0.3);
+}
+
+.admin-tab-content ::ng-deep .admin-pagination {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #1C1F24;
+}
+
+.admin-tab-content ::ng-deep .admin-pagination-info {
+  font-size: 14px;
+  color: #9A9A9A;
+}
+
+.admin-tab-content ::ng-deep .btn-primary {
+  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  color: #0E0F11;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.admin-tab-content ::ng-deep .btn-primary:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.admin-tab-content ::ng-deep .btn-secondary {
+  background: #1C1F24;
+  color: #EDEDED;
+  padding: 10px 20px;
+  border: 1px solid #2a2e35;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
   transition: background 0.2s;
 }
 
-.admin-nav-links a:hover,
-.admin-nav-links a.active {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+.admin-tab-content ::ng-deep .btn-secondary:hover {
+  background: #2a2e35;
 }
 
-.admin-nav-logout {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
+.admin-tab-content ::ng-deep .btn-small {
   padding: 8px 16px;
+  font-size: 14px;
+  background: #1C1F24;
+  color: #EDEDED;
+  border: 1px solid #2a2e35;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
   transition: background 0.2s;
 }
 
-.admin-nav-logout:hover {
-  background: rgba(255, 255, 255, 0.3);
+.admin-tab-content ::ng-deep .btn-small:hover:not(:disabled) {
+  background: #2a2e35;
 }
 
-.admin-content {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 32px 24px;
+.admin-tab-content ::ng-deep .btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-tab-content ::ng-deep .alert-error {
+  background: rgba(180, 60, 60, 0.15);
+  color: #e88;
+  border: 1px solid rgba(180, 60, 60, 0.4);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Формы добавления (артист, альбом) */
+.admin-tab-content ::ng-deep .admin-card .form-group {
+  margin-bottom: 20px;
+}
+
+.admin-tab-content ::ng-deep .admin-card .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #9A9A9A;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.admin-tab-content ::ng-deep .admin-card .form-group input,
+.admin-tab-content ::ng-deep .admin-card .form-group select,
+.admin-tab-content ::ng-deep .admin-card .form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #1C1F24;
+  border-radius: 8px;
+  font-size: 15px;
+  background: #0E0F11;
+  color: #EDEDED;
+}
+
+.admin-tab-content ::ng-deep .admin-card .form-group input:focus,
+.admin-tab-content ::ng-deep .admin-card .form-group select:focus,
+.admin-tab-content ::ng-deep .admin-card .form-group textarea:focus {
+  outline: none;
+  border-color: #F09020;
+}
+
+.admin-tab-content ::ng-deep .admin-card .form-group input.error,
+.admin-tab-content ::ng-deep .admin-card .form-group select.error {
+  border-color: #c44;
+}
+
+.admin-tab-content ::ng-deep .admin-card .form-group .error-message,
+.admin-tab-content ::ng-deep .admin-card .form-group .hint {
+  display: block;
+  font-size: 13px;
+  color: #9A9A9A;
+  margin-top: 6px;
+}
+
+.admin-tab-content ::ng-deep .admin-card .form-group .error-message {
+  color: #e88;
 }

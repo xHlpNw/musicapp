@@ -1,21 +1,20 @@
-<div class="admin-page">
-  <nav class="admin-nav">
-    <a routerLink="/" class="admin-nav-brand">MusicApp</a>
-    <div class="admin-nav-links">
-      <a routerLink="/admin/artists" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-        Исполнители
-      </a>
-      <a routerLink="/admin/albums" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-        Альбомы
-      </a>
-      <a routerLink="/admin/tracks" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-        Треки
-      </a>
-      <button type="button" class="admin-nav-logout" (click)="logout()">Выход</button>
-    </div>
-  </nav>
+<app-header [(searchValue)]="searchQuery" [searchReadonly]="true" />
 
-  <main class="admin-content">
-    <router-outlet></router-outlet>
-  </main>
+<div class="page-layout">
+  <app-side-nav />
+
+  <div class="page-content">
+    <main class="main">
+      <section class="admin-section">
+        <h1 class="admin-page-title">Админ-панель</h1>
+        <nav class="admin-tabs" role="tablist">
+          <a routerLink="/admin/artists" routerLinkActive="admin-tabs__tab--active" [routerLinkActiveOptions]="{ exact: false }" class="admin-tabs__tab" role="tab">Артисты</a>
+          <a routerLink="/admin/albums" routerLinkActive="admin-tabs__tab--active" [routerLinkActiveOptions]="{ exact: false }" class="admin-tabs__tab" role="tab">Альбомы</a>
+        </nav>
+        <div class="admin-tab-content">
+          <router-outlet></router-outlet>
+        </div>
+      </section>
+    </main>
+  </div>
 </div>
