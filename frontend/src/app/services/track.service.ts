@@ -36,4 +36,28 @@ export class TrackService {
   upload(formData: FormData): Observable<TrackResponse> {
     return this.http.post<TrackResponse>(this.API_URL, formData);
   }
+
+  update(
+    id: number,
+    body: {
+      title: string;
+      durationSeconds: number;
+      albumId: number;
+      position: number;
+      artists: { artistId: number; displayOrder: number; role: string }[];
+    }
+  ): Observable<TrackResponse> {
+    return this.http.put<TrackResponse>(`${this.API_URL}/${id}`, body);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
+
+  /** Заменить аудиофайл (только для админа). */
+  replaceAudio(id: number, file: File): Observable<TrackResponse> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<TrackResponse>(`${this.API_URL}/${id}/audio`, fd);
+  }
 }

@@ -33,4 +33,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying(clearAutomatically = true)
     @Query(value = "DELETE FROM user_favorite_artists WHERE artist_id = :artistId", nativeQuery = true)
     void removeArtistFromAllFavorites(@Param("artistId") Long artistId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "DELETE FROM user_favorite_albums WHERE album_id = :albumId", nativeQuery = true)
+    void removeAlbumFromAllFavorites(@Param("albumId") Long albumId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "DELETE FROM user_favorite_tracks WHERE track_id = :trackId", nativeQuery = true)
+    void removeTrackFromAllFavorites(@Param("trackId") Long trackId);
 }

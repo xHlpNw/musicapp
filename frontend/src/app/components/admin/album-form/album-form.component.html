@@ -1,6 +1,6 @@
 <div class="admin-card">
   <div class="admin-card-header">
-    <h1>Добавить альбом</h1>
+    <h1>{{ isEditMode ? 'Редактировать альбом' : 'Добавить альбом' }}</h1>
     <a routerLink="/admin/albums" class="btn btn-secondary">Назад к списку</a>
   </div>
 
@@ -50,17 +50,22 @@
       />
     </div>
     <div class="form-group">
-      <label for="coverImagePath">Путь к обложке</label>
+      <label for="coverFile">Обложка альбома</label>
       <input
-        type="text"
-        id="coverImagePath"
-        formControlName="coverImagePath"
-        placeholder="Опционально"
+        type="file"
+        id="coverFile"
+        accept="image/jpeg,image/png,image/webp"
+        (change)="onCoverFileChange($event)"
       />
+      <span class="hint">JPG, PNG или WebP. При создании и редактировании — по желанию; без файла обложка не меняется (при редактировании остаётся старая).</span>
+      <div *ngIf="coverPreviewUrl" class="album-cover-preview">
+        <span class="hint">Текущая обложка:</span>
+        <img [src]="coverPreviewUrl" alt="Обложка" />
+      </div>
     </div>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="isLoading || isLoadingArtists || artists.length === 0">
-        {{ isLoading ? 'Сохранение...' : 'Создать' }}
+        {{ isLoading ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать') }}
       </button>
       <a routerLink="/admin/albums" class="btn btn-secondary">Отмена</a>
     </div>

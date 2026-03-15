@@ -29,9 +29,17 @@ export interface AlbumSummaryResponse {
 }
 
 export interface CreateAlbumRequest {
-  artistId: number;
   title: string;
-  releaseYear?: number;
+  releaseDate: string;
+  artistId?: number;
+  artists?: { artistId: number; displayOrder: number; role: string }[];
+  coverImagePath?: string;
+}
+
+export interface UpdateAlbumRequest {
+  title?: string;
+  releaseDate?: string;
+  artists?: { artistId: number; displayOrder: number; role: string }[];
   coverImagePath?: string;
 }
 

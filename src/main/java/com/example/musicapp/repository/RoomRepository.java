@@ -5,6 +5,7 @@ import com.example.musicapp.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,4 +31,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query(value = "SELECT r FROM Room r LEFT JOIN r.members m GROUP BY r ORDER BY COUNT(m) DESC",
            countQuery = "SELECT COUNT(r) FROM Room r")
     Page<Room> findPopularRooms(Pageable pageable);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Room r SET r.currentTrack = null, r.currentQueueItemId = null WHERE r.currentTrack.id = :trackId")
+    void clearCurrentTrackByTrackId(@Param("trackId") Long trackId);
 }

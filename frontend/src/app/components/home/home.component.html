@@ -2,7 +2,9 @@
   <header class="home-header">
     <a routerLink="/home" class="home-logo">MusicApp</a>
     <div class="home-nav">
-      <a routerLink="/admin" class="home-link">Админка</a>
+      @if (authService.getCurrentUser()?.admin) {
+        <a routerLink="/admin" class="home-link">Админка</a>
+      }
       <button type="button" class="home-btn" (click)="logout()">Выход</button>
     </div>
   </header>

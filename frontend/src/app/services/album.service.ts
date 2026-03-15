@@ -5,6 +5,7 @@ import {
   AlbumResponse,
   AlbumSummaryResponse,
   CreateAlbumRequest,
+  UpdateAlbumRequest,
   PageResponse
 } from '../models/album.model';
 
@@ -39,5 +40,19 @@ export class AlbumService {
 
   create(request: CreateAlbumRequest): Observable<AlbumResponse> {
     return this.http.post<AlbumResponse>(this.API_URL, request);
+  }
+
+  update(id: number, request: UpdateAlbumRequest): Observable<AlbumResponse> {
+    return this.http.put<AlbumResponse>(`${this.API_URL}/${id}`, request);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
+
+  uploadCover(id: number, file: File): Observable<AlbumResponse> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<AlbumResponse>(`${this.API_URL}/${id}/cover`, fd);
   }
 }

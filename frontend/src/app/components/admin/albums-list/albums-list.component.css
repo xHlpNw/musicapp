@@ -149,3 +149,43 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.admin-table__actions {
+  white-space: nowrap;
+}
+
+.admin-table__actions .btn-edit,
+.admin-table__actions .btn-delete {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  margin-right: 8px;
+  text-decoration: none;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.admin-table__actions .btn-edit:last-child,
+.admin-table__actions .btn-delete:last-child {
+  margin-right: 0;
+}
+
+.admin-table__actions .btn-edit {
+  background: #1C1F24;
+  color: #EDEDED;
+  border: 1px solid #2a2e35;
+}
+
+.admin-table__actions .btn-edit:hover {
+  background: #2a2e35;
+}
+
+.admin-table__actions .btn-delete {
+  background: rgba(180, 60, 60, 0.2);
+  color: #e88;
+  border: 1px solid rgba(180, 60, 60, 0.4);
+}
+
+.admin-table__actions .btn-delete:hover:not(:disabled) {
+  background: rgba(180, 60, 60, 0.35);
+}

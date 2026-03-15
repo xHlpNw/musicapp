@@ -21,8 +21,12 @@
       <p style="color: #666;">More features coming soon...</p>
       <p class="mt-3">
         <a routerLink="/" class="link">Главная</a>
-        &nbsp;·&nbsp;
-        <a routerLink="/admin" class="link">Админка</a>
+        @if (currentUser?.admin) {
+          <span>
+            &nbsp;·&nbsp;
+            <a routerLink="/admin" class="link">Админка</a>
+          </span>
+        }
       </p>
     </div>
   </div>

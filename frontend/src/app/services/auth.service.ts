@@ -72,6 +72,12 @@ export class AuthService {
     return !!token && !this.isTokenExpired(token);
   }
 
+  /** Админ-панель и API с ROLE_ADMIN — только для учёток с admin в БД. */
+  isAdmin(): boolean {
+    const u = this.getCurrentUser();
+    return u?.admin === true;
+  }
+
   /** При загрузке приложения: если токен в storage просрочен — очищаем и не считаем пользователя авторизованным */
   private getInitialUser(): LoginResponse | null {
     const token = this.getToken();

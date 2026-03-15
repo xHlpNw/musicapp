@@ -21,8 +21,26 @@ export class AlbumsListComponent implements OnInit {
   searchQuery = '';
   isLoading = false;
   errorMessage = '';
+  deletingId: number | null = null;
 
   constructor(private albumService: AlbumService) {}
+
+  onDelete(album: AlbumSummaryResponse): void {
+    if (!confirm(`Удалить альбом «${album.title}»?`)) {
+      return;
+    }
+    this.deletingId = album.id;
+    this.albumService.delete(album.id).subscribe({
+      next: () => {
+        this.deletingId = null;
+        this.loadPage();
+      },
+      error: () => {
+        this.deletingId = null;
+        this.errorMessage = 'Не удалось удалить альбом';
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loadPage();

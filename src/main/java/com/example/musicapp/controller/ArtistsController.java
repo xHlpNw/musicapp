@@ -14,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,23 +45,27 @@ public class ArtistsController {
         return ResponseEntity.ok(albumService.findByArtistId(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ArtistResponse> create(@Valid @RequestBody CreateArtistRequest request) {
         ArtistResponse response = artistService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ArtistResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateArtistRequest request) {
         return ResponseEntity.ok(artistService.update(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         artistService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArtistResponse> uploadCover(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(artistService.uploadCover(id, file));

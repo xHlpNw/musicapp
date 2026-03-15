@@ -9,6 +9,8 @@ import java.util.Collection;
 
 public interface ListenHistoryRepository extends JpaRepository<ListenHistory, Long> {
 
+    void deleteByTrack_Id(Long trackId);
+
     Page<ListenHistory> findByUserIdOrderByPlayedAtDesc(Long userId, Pageable pageable);
 
     /** Удалить записи пользователя, id которых не входят в переданный список (для ограничения истории 50 записями). */

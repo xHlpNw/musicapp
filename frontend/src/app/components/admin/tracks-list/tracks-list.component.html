@@ -10,7 +10,7 @@
       class="admin-search"
       [(ngModel)]="searchQuery"
       (keyup.enter)="onSearch()"
-      placeholder="Поиск по названию..."
+      placeholder="По названию..."
     />
     <button type="button" class="btn btn-secondary" (click)="onSearch()">Найти</button>
   </div>
@@ -29,15 +29,27 @@
         <th>Исполнитель</th>
         <th>Альбом</th>
         <th>Длительность</th>
+        <th class="admin-table__actions">Действия</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let t of tracks">
         <td>{{ t.id }}</td>
         <td>{{ t.title }}</td>
-        <td>{{ t.artistName }}</td>
-        <td>{{ t.albumTitle || '—' }}</td>
+        <td>{{ getTrackArtistNames(t) }}</td>
+        <td>{{ getAlbumTitle(t) }}</td>
         <td>{{ formatDuration(t.durationSeconds) }}</td>
+        <td class="admin-table__actions">
+          <a [routerLink]="['/admin/tracks', t.id, 'edit']" class="btn btn-small btn-edit">Редактировать</a>
+          <button
+            type="button"
+            class="btn btn-small btn-delete"
+            (click)="onDelete(t)"
+            [disabled]="deletingId === t.id"
+          >
+            Удалить
+          </button>
+        </td>
       </tr>
     </tbody>
   </table>

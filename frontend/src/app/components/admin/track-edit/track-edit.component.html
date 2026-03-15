@@ -1,35 +1,20 @@
 <div class="admin-card">
   <div class="admin-card-header">
-    <h1>Загрузить трек</h1>
+    <h1>Редактировать трек</h1>
     <a routerLink="/admin/tracks" class="btn btn-secondary">Назад к списку</a>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="participants.length">
     <div class="form-group">
-      <label for="file">Аудиофайл *</label>
-      <input type="file" id="file" accept="audio/*" (change)="onFileSelected($event)" />
-      <span class="hint" *ngIf="selectedFile">{{ selectedFile.name }}</span>
-    </div>
-
-    <div class="form-group">
-      <label for="title">Название трека *</label>
-      <input
-        id="title"
-        formControlName="title"
-        [class.error]="title?.invalid && title?.touched"
-        placeholder="Название"
-      />
-      <span class="error-message" *ngIf="title?.invalid && title?.touched">Обязательно</span>
+      <label for="title">Название *</label>
+      <input id="title" formControlName="title" [class.error]="title?.invalid && title?.touched" />
     </div>
 
     <div class="form-group form-group--wide">
       <label>Исполнители</label>
-      <p class="hint">
-        Порядок в списке — как в треке. Ровно один <strong>основной</strong> (PRIMARY), остальные — приглашённые (FEATURED).
-        Альбомы подгружаются по основному или по первому выбранному исполнителю.
-      </p>
+      <p class="hint">Порядок строк — порядок в треке. Один основной (PRIMARY), остальные — приглашённые.</p>
       <div class="participants">
         <div class="participant-row" *ngFor="let row of participants; let i = index">
           <span class="participant-order">{{ i + 1 }}.</span>
@@ -38,7 +23,7 @@
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="onParticipantArtistChange()"
           >
-            <option [ngValue]="null">— выберите —</option>
+            <option [ngValue]="null">—</option>
             <option *ngFor="let a of artistsCatalog" [ngValue]="a.id">{{ a.name }}</option>
           </select>
           <select
@@ -51,13 +36,10 @@
             <option value="FEATURED">Приглашённый</option>
           </select>
           <div class="participant-actions">
-            <button type="button" class="btn-icon" title="Выше" (click)="moveParticipantUp(i)" [disabled]="i === 0">
-              ↑
-            </button>
+            <button type="button" class="btn-icon" (click)="moveParticipantUp(i)" [disabled]="i === 0">↑</button>
             <button
               type="button"
               class="btn-icon"
-              title="Ниже"
               (click)="moveParticipantDown(i)"
               [disabled]="i === participants.length - 1"
             >
@@ -66,7 +48,6 @@
             <button
               type="button"
               class="btn-icon btn-icon--danger"
-              title="Убрать"
               (click)="removeParticipant(i)"
               [disabled]="participants.length <= 1"
             >
@@ -75,10 +56,9 @@
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-secondary btn-small" (click)="addParticipant()">+ Добавить исполнителя</button>
-
+      <button type="button" class="btn btn-secondary btn-small" (click)="addParticipant()">+ Исполнитель</button>
       <div class="new-artist-block">
-        <span class="hint">Нового исполнителя в базе:</span>
+        <span class="hint">Новый исполнитель в базе:</span>
         <div class="new-artist-row">
           <input
             type="text"
@@ -88,7 +68,7 @@
             (keyup.enter)="createNewArtist()"
           />
           <button type="button" class="btn btn-secondary btn-small" (click)="createNewArtist()" [disabled]="creatingArtist">
-            {{ creatingArtist ? '…' : 'Создать и подставить' }}
+            {{ creatingArtist ? '…' : 'Создать' }}
           </button>
         </div>
       </div>
@@ -96,13 +76,9 @@
 
     <div class="form-group">
       <label for="albumId">Альбом *</label>
-      <select id="albumId" formControlName="albumId" [class.error]="albumId?.invalid && albumId?.touched">
-        <option [ngValue]="null" disabled>Выберите исполнителей — список альбомов по первому PRIMARY</option>
+      <select id="albumId" formControlName="albumId">
         <option *ngFor="let al of albums" [ngValue]="al.id">{{ al.title }}</option>
       </select>
-      <span class="hint" *ngIf="referenceArtistId() && albums.length === 0 && !isLoadingArtists">
-        Нет альбомов у этого исполнителя — создайте альбом.
-      </span>
     </div>
 
     <div class="form-group">
@@ -112,19 +88,17 @@
 
     <div class="form-group">
       <label for="durationSeconds">Длительность (сек) *</label>
-      <input
-        id="durationSeconds"
-        type="number"
-        formControlName="durationSeconds"
-        min="1"
-        [class.error]="durationSeconds?.invalid && durationSeconds?.touched"
-      />
+      <input type="number" id="durationSeconds" formControlName="durationSeconds" min="1" />
+    </div>
+
+    <div class="form-group">
+      <label for="audioFile">Новый аудиофайл</label>
+      <input type="file" id="audioFile" accept="audio/*" (change)="onAudioFileSelected($event)" />
+      <span class="hint" *ngIf="selectedAudioFile">{{ selectedAudioFile.name }}</span>
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
-        {{ isLoading ? 'Загрузка…' : 'Загрузить' }}
-      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading || !trackId">Сохранить</button>
       <a routerLink="/admin/tracks" class="btn btn-secondary">Отмена</a>
     </div>
   </form>

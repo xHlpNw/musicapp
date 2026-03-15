@@ -21,6 +21,7 @@ export class TracksListComponent implements OnInit {
   searchQuery = '';
   isLoading = false;
   errorMessage = '';
+  deletingId: number | null = null;
 
   constructor(private trackService: TrackService) {}
 
@@ -41,6 +42,23 @@ export class TracksListComponent implements OnInit {
       error: () => {
         this.errorMessage = 'Не удалось загрузить список';
         this.isLoading = false;
+      }
+    });
+  }
+
+  onDelete(track: TrackResponse): void {
+    if (!confirm(`Удалить трек «${track.title}»? Файл и связи будут удалены.`)) {
+      return;
+    }
+    this.deletingId = track.id;
+    this.trackService.delete(track.id).subscribe({
+      next: () => {
+        this.deletingId = null;
+        this.loadPage();
+      },
+      error: () => {
+        this.deletingId = null;
+        this.errorMessage = 'Не удалось удалить трек';
       }
     });
   }
@@ -68,5 +86,19 @@ export class TracksListComponent implements OnInit {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  getTrackArtistNames(track: TrackResponse): string {
+    if (track.artists?.length) {
+      return track.artists.map((a) => a.artistName).join(', ');
+    }
+    return track.artistName || '—';
+  }
+
+  getAlbumTitle(track: TrackResponse): string {
+    if (track.albumTracks?.length) {
+      return track.albumTracks.map((a) => a.albumTitle).filter(Boolean).join(', ') || '—';
+    }
+    return track.albumTitle || '—';
   }
 }

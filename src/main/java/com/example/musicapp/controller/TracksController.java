@@ -3,6 +3,7 @@ package com.example.musicapp.controller;
 import com.example.musicapp.dto.track.CreateTrackRequest;
 import com.example.musicapp.dto.track.TrackParticipantRequest;
 import com.example.musicapp.dto.track.TrackResponse;
+import com.example.musicapp.dto.track.UpdateTrackRequest;
 import com.example.musicapp.entity.AlbumArtistRole;
 import com.example.musicapp.entity.User;
 import com.example.musicapp.security.SecurityUser;
@@ -16,9 +17,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +52,7 @@ public class TracksController {
         return ResponseEntity.ok(trackService.findById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TrackResponse> upload(
             @RequestParam("file") MultipartFile file,
@@ -55,16 +60,34 @@ public class TracksController {
             @RequestParam("albumId") Long albumId,
             @RequestParam("position") Integer position,
             @RequestParam("artistIds") List<Long> artistIds,
+            @RequestParam(value = "roles", required = false) List<String> roles,
             @RequestParam("durationSeconds") Integer durationSeconds,
             @AuthenticationPrincipal SecurityUser securityUser) {
         User user = securityUser.getUser();
+        if (artistIds == null || artistIds.isEmpty()) {
+            throw new IllegalArgumentException("At least one artist is required");
+        }
         List<TrackParticipantRequest> artists = new ArrayList<>();
         for (int i = 0; i < artistIds.size(); i++) {
+            AlbumArtistRole role = AlbumArtistRole.FEATURED;
+            if (roles != null && i < roles.size()) {
+                try {
+                    role = AlbumArtistRole.valueOf(roles.get(i).trim().toUpperCase());
+                } catch (Exception ignored) {
+                    role = i == 0 ? AlbumArtistRole.PRIMARY : AlbumArtistRole.FEATURED;
+                }
+            } else {
+                role = i == 0 ? AlbumArtistRole.PRIMARY : AlbumArtistRole.FEATURED;
+            }
             artists.add(TrackParticipantRequest.builder()
                     .artistId(artistIds.get(i))
                     .displayOrder(i)
-                    .role(i == 0 ? AlbumArtistRole.PRIMARY : AlbumArtistRole.FEATURED)
+                    .role(role)
                     .build());
+        }
+        long primaryCount = artists.stream().filter(a -> a.getRole() == AlbumArtistRole.PRIMARY).count();
+        if (primaryCount != 1) {
+            throw new IllegalArgumentException("Exactly one artist must have role PRIMARY");
         }
         CreateTrackRequest request = CreateTrackRequest.builder()
                 .title(title)
@@ -75,6 +98,29 @@ public class TracksController {
                 .build();
         TrackResponse response = trackService.upload(file, request, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/{id}/audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<TrackResponse> replaceAudio(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(trackService.replaceAudioFile(id, file));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<TrackResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTrackRequest request) {
+        return ResponseEntity.ok(trackService.update(id, request));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        trackService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/stream")

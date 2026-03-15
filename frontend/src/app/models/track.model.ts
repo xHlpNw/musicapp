@@ -6,7 +6,7 @@ export interface TrackResponse {
   trackNumber?: number;
   artistId?: number;
   artistName?: string;
-  artists?: { artistId: number; artistName: string }[];
+  artists?: { artistId: number; artistName: string; role?: string; displayOrder?: number }[];
   albumId?: number;
   albumTitle?: string;
   /** Альбомы, в которые входит трек (бэкенд может отдавать только это, без albumId на верхнем уровне) */
