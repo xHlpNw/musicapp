@@ -19,12 +19,13 @@
 -- Роль: PRIMARY (основной), FEATURED (гость). Можно добавить несколько артистов с разными display_order.
 -- ========================================================================================
 
--- Пользователи
-INSERT INTO users (username, email, password_hash, created_at)
+-- Пользователи (admin = true для пользователя admin)
+INSERT INTO users (username, email, password_hash, created_at, admin)
 VALUES
-    ('admin', 'admin@musicapp.local', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', CURRENT_TIMESTAMP),
-    ('demo', 'demo@musicapp.local', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', CURRENT_TIMESTAMP)
+    ('admin', 'admin@musicapp.local', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', CURRENT_TIMESTAMP, true),
+    ('demo', 'demo@musicapp.local', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', CURRENT_TIMESTAMP, false)
 ON CONFLICT (username) DO NOTHING;
+UPDATE users SET admin = true WHERE username = 'admin';
 
 -- Исполнители
 INSERT INTO artists (name, description, created_at)

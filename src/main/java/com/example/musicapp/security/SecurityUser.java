@@ -21,9 +21,9 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Stream.of("ROLE_USER")
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return user.isAdmin()
+                ? Stream.of("ROLE_USER", "ROLE_ADMIN").map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                : Stream.of("ROLE_USER").map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     @Override

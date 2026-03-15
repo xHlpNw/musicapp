@@ -123,7 +123,7 @@ export class RegisterComponent implements OnInit {
     this.authService.register(payload).subscribe({
       next: () => {
         this.registerOverlay.close();
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoading = false;

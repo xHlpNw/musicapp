@@ -37,6 +37,10 @@ public class User {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "admin", nullable = false)
+    @Builder.Default
+    private boolean admin = false;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Playlist> playlists = new ArrayList<>();

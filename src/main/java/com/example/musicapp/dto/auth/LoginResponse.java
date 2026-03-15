@@ -17,4 +17,5 @@ public class LoginResponse {
     private Long userId;
     private String username;
     private String avatarUrl;
+    private boolean admin;
 }

@@ -65,6 +65,7 @@ public class AuthService {
                 .userId(user.getId())
                 .username(user.getUsername())
                 .avatarUrl(user.getAvatarUrl())
+                .admin(user.isAdmin())
                 .build();
     }
 
@@ -87,6 +88,7 @@ public class AuthService {
                 .userId(user.getId())
                 .username(user.getUsername())
                 .avatarUrl(user.getAvatarUrl())
+                .admin(user.isAdmin())
                 .build();
     }
 
@@ -200,6 +202,7 @@ public class AuthService {
                 .userId(user.getId())
                 .username(user.getUsername())
                 .avatarUrl(user.getAvatarUrl())
+                .admin(user.isAdmin())
                 .build();
     }
 }

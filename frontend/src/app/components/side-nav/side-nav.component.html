@@ -24,5 +24,15 @@
       </span>
       <span class="side-nav__label">Избранное</span>
     </a>
+    @if (authService.currentUser$ | async; as user) {
+      @if (user.admin) {
+        <a routerLink="/admin" class="side-nav__link" routerLinkActive="side-nav__link--active" [routerLinkActiveOptions]="{ exact: false }" title="Админ-панель">
+          <span class="side-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
+          </span>
+          <span class="side-nav__label">Админ-панель</span>
+        </a>
+      }
+    }
   </nav>
 </aside>
