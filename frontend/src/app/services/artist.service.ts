@@ -31,4 +31,18 @@ export class ArtistService {
   create(request: CreateArtistRequest): Observable<ArtistResponse> {
     return this.http.post<ArtistResponse>(this.API_URL, request);
   }
+
+  update(id: number, request: CreateArtistRequest): Observable<ArtistResponse> {
+    return this.http.put<ArtistResponse>(`${this.API_URL}/${id}`, request);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
+
+  uploadCover(id: number, file: File): Observable<ArtistResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ArtistResponse>(`${this.API_URL}/${id}/cover`, formData);
+  }
 }

@@ -1,3 +1,36 @@
+.cover-preview {
+  margin-bottom: 12px;
+}
+
+.cover-preview__img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.cover-preview__hint {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+}
+
+.form-group__file {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.form-group__hint {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+}
+
 .form-actions {
   display: flex;
   gap: 12px;

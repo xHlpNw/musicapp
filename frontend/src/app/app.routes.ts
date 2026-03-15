@@ -43,6 +43,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'artists', pathMatch: 'full' },
       { path: 'artists', component: ArtistsListComponent },
       { path: 'artists/new', component: ArtistFormComponent },
+      { path: 'artists/:id/edit', component: ArtistFormComponent },
       { path: 'albums', component: AlbumsListComponent },
       { path: 'albums/new', component: AlbumFormComponent }
     ]

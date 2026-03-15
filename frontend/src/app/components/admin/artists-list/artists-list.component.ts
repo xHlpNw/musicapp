@@ -21,8 +21,26 @@ export class ArtistsListComponent implements OnInit {
   searchQuery = '';
   isLoading = false;
   errorMessage = '';
+  deletingId: number | null = null;
 
   constructor(private artistService: ArtistService) {}
+
+  onDelete(artist: ArtistResponse): void {
+    if (!confirm(`Удалить исполнителя «${artist.name}»?`)) {
+      return;
+    }
+    this.deletingId = artist.id;
+    this.artistService.delete(artist.id).subscribe({
+      next: () => {
+        this.deletingId = null;
+        this.loadPage();
+      },
+      error: () => {
+        this.deletingId = null;
+        this.errorMessage = 'Не удалось удалить исполнителя';
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loadPage();
