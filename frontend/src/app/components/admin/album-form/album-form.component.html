@@ -14,22 +14,75 @@
     {{ errorMessage }}
   </div>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="artistId">Исполнитель *</label>
-      <select
-        id="artistId"
-        formControlName="artistId"
-        [class.error]="artistId?.invalid && artistId?.touched"
-      >
-        <option [ngValue]="null" disabled>Выберите исполнителя</option>
-        <option *ngFor="let a of artists" [ngValue]="a.id">{{ a.name }}</option>
-      </select>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="participants.length">
+    <div class="form-group form-group--wide">
+      <label>Исполнители</label>
+      <p class="hint">Порядок строк — порядок отображения. Один основной (PRIMARY), остальные — приглашённые.</p>
+      <div class="participants">
+        <div class="participant-row" *ngFor="let row of participants; let i = index">
+          <span class="participant-order">{{ i + 1 }}.</span>
+          <select
+            [(ngModel)]="row.artistId"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            <option [ngValue]="null">—</option>
+            <option *ngFor="let a of artists" [ngValue]="a.id">{{ a.name }}</option>
+          </select>
+          <select
+            [(ngModel)]="row.role"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onParticipantRoleChange(row)"
+            class="participant-role"
+          >
+            <option value="PRIMARY">Основной</option>
+            <option value="FEATURED">Приглашённый</option>
+          </select>
+          <div class="participant-actions">
+            <button type="button" class="btn-icon" (click)="moveParticipantUp(i)" [disabled]="i === 0">↑</button>
+            <button
+              type="button"
+              class="btn-icon"
+              (click)="moveParticipantDown(i)"
+              [disabled]="i === participants.length - 1"
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              class="btn-icon btn-icon--danger"
+              (click)="removeParticipant(i)"
+              [disabled]="participants.length <= 1"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn-icon-inline" (click)="addParticipant()" title="Добавить исполнителя">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3.33331V12.6666" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3.33301 8H12.6663" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Добавить исполнителя</span>
+      </button>
+      <div class="new-artist-block">
+        <span class="hint">Новый исполнитель в базе:</span>
+        <div class="new-artist-row">
+          <input
+            type="text"
+            [(ngModel)]="newArtistName"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Имя"
+            (keyup.enter)="createNewArtist()"
+          />
+          <button type="button" class="btn-compact" (click)="createNewArtist()" [disabled]="creatingArtist">
+            {{ creatingArtist ? '…' : 'Создать' }}
+          </button>
+        </div>
+      </div>
       <span *ngIf="isLoadingArtists" class="hint">Загрузка списка...</span>
-      <span class="error-message" *ngIf="artistId?.invalid && artistId?.touched">
-        Выберите исполнителя
-      </span>
     </div>
+
     <div class="form-group">
       <label for="title">Название альбома *</label>
       <input
@@ -84,6 +137,70 @@
         />
       </div>
     </div>
+
+    <div class="form-group form-group--wide" *ngIf="isEditMode">
+      <label>Треки альбома</label>
+      <p class="hint" *ngIf="tracks.length > 0">Используйте стрелки для изменения порядка треков. Изменения сохраняются при сохранении альбома.</p>
+      <div class="tracks-list" *ngIf="tracks.length > 0">
+        <div class="track-row" *ngFor="let track of tracks; let i = index">
+          <span class="track-position">{{ i + 1 }}.</span>
+          <div class="track-info">
+            <span class="track-title">{{ track.title }}</span>
+            <span class="track-duration">{{ formatDuration(track.durationSeconds) }}</span>
+          </div>
+          <div class="track-actions">
+            <button type="button" class="btn-icon" (click)="moveTrackUp(i)" [disabled]="i === 0" title="Вверх">↑</button>
+            <button
+              type="button"
+              class="btn-icon"
+              (click)="moveTrackDown(i)"
+              [disabled]="i === tracks.length - 1"
+              title="Вниз"
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              class="btn-icon btn-icon--danger"
+              (click)="removeTrack(track)"
+              [disabled]="deletingTrackId === track.id"
+              title="Удалить"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="hint" *ngIf="tracks.length === 0">В альбоме пока нет треков.</p>
+      <div class="tracks-actions">
+        <button 
+          type="button"
+          class="btn-icon-inline"
+          (click)="openAddTrackOverlay()"
+          title="Создать новый трек"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 3.33331V12.6666" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.33301 8H12.6663" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Создать трек</span>
+        </button>
+        <button 
+          type="button"
+          class="btn-icon-inline"
+          (click)="openSelectTrackOverlay()"
+          title="Добавить существующий трек"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 3.33337V12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.6667 8H3.33337" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.66667 5.33337L3.33333 8.00004L6.66667 10.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Добавить существующий</span>
+        </button>
+      </div>
+    </div>
+
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="isLoading || isLoadingArtists || artists.length === 0">
         {{ isLoading ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать') }}
@@ -92,3 +209,17 @@
     </div>
   </form>
 </div>
+
+<app-add-track-overlay
+  [isOpen]="isAddTrackOverlayOpen"
+  [data]="addTrackData"
+  (closeOverlay)="closeAddTrackOverlay()"
+  (trackAdded)="onTrackAdded()"
+></app-add-track-overlay>
+
+<app-select-track-overlay
+  [isOpen]="isSelectTrackOverlayOpen"
+  [data]="selectTrackData"
+  (closeOverlay)="closeSelectTrackOverlay()"
+  (trackSelected)="onTrackSelected()"
+></app-select-track-overlay>

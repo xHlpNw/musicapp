@@ -1,0 +1,78 @@
+<div
+  class="select-track-overlay"
+  [class.select-track-overlay--open]="isAnimated"
+  (click)="onBackdropClick($event)"
+  role="dialog"
+  aria-labelledby="select-track-title"
+  aria-modal="true"
+  tabindex="-1"
+  *ngIf="isOpen"
+>
+  <div class="select-track-overlay__panel" (click)="onPanelClick($event)">
+    <header class="select-track-overlay__header">
+      <h2 id="select-track-title" class="select-track-overlay__title">
+        Добавить существующий трек в «{{ data?.albumTitle }}»
+      </h2>
+      <button type="button" class="select-track-overlay__close" aria-label="Закрыть" (click)="doClose()" [disabled]="isAdding">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="select-track-overlay__search">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Поиск по названию, исполнителю или альбому..."
+        class="select-track-overlay__search-input"
+      />
+    </div>
+
+    <div class="select-track-overlay__content">
+      <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+
+      <div *ngIf="isLoading" class="select-track-overlay__loading">
+        Загрузка треков...
+      </div>
+
+      <div *ngIf="!isLoading && filteredTracks.length === 0" class="select-track-overlay__empty">
+        <p *ngIf="searchQuery">Треки не найдены</p>
+        <p *ngIf="!searchQuery">Нет доступных треков</p>
+      </div>
+
+      <div *ngIf="!isLoading && filteredTracks.length > 0" class="select-track-overlay__list">
+        <div
+          *ngFor="let track of filteredTracks"
+          class="track-item"
+          [class.track-item--selected]="selectedTrackId === track.id"
+          (click)="selectTrack(track.id)"
+        >
+          <div class="track-item__info">
+            <div class="track-item__title">{{ track.title }}</div>
+            <div class="track-item__meta">
+              <span *ngIf="track.artistName" class="track-item__artist">{{ track.artistName }}</span>
+              <span *ngIf="track.albumTitle" class="track-item__album"> • {{ track.albumTitle }}</span>
+              <span class="track-item__duration"> • {{ formatDuration(track.durationSeconds) }}</span>
+            </div>
+          </div>
+          <div class="track-item__check" *ngIf="selectedTrackId === track.id">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="select-track-overlay__actions">
+      <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="!selectedTrackId || isAdding">
+        {{ isAdding ? 'Добавление...' : 'Добавить трек' }}
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="doClose()" [disabled]="isAdding">
+        Отмена
+      </button>
+    </div>
+  </div>
+</div>

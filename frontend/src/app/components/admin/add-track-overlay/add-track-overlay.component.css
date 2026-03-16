@@ -1,0 +1,356 @@
+/* Backdrop - темная тема */
+.add-track-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.add-track-overlay--open {
+  opacity: 1;
+}
+
+/* Panel - темная тема с оранжевым акцентом */
+.add-track-overlay__panel {
+  width: 100%;
+  max-width: 680px;
+  max-height: 92vh;
+  border-radius: 16px;
+  background: #15171A;
+  border: 1px solid #1C1F24;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-track-overlay--open .add-track-overlay__panel {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Header - компактный */
+.add-track-overlay__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #1C1F24;
+}
+
+.add-track-overlay__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #EDEDED;
+  margin: 0;
+}
+
+.add-track-overlay__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #9A9A9A;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.add-track-overlay__close:hover:not(:disabled) {
+  background: #1C1F24;
+  color: #EDEDED;
+}
+
+.add-track-overlay__close:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Content with scroll - компактный */
+.add-track-overlay__content {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.add-track-overlay__content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.add-track-overlay__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.add-track-overlay__content::-webkit-scrollbar-thumb {
+  background: #2a2e35;
+  border-radius: 3px;
+}
+
+.add-track-overlay__content::-webkit-scrollbar-thumb:hover {
+  background: #3a3e45;
+}
+
+/* Form - компактные отступы */
+.add-track-overlay__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Компактные form-group внутри overlay */
+.add-track-overlay__form .form-group {
+  margin-bottom: 0;
+}
+
+.add-track-overlay__form .form-group label {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+/* Темная тема для инпутов и селектов */
+.add-track-overlay__form .form-group input[type="text"],
+.add-track-overlay__form .form-group input[type="number"],
+.add-track-overlay__form .form-group select,
+.add-track-overlay__form .form-group textarea {
+  padding: 8px 12px;
+  font-size: 14px;
+  background: #0E0F11;
+  color: #EDEDED;
+  border: 1px solid #1C1F24;
+  border-radius: 8px;
+}
+
+.add-track-overlay__form .form-group input[type="text"]:focus,
+.add-track-overlay__form .form-group input[type="number"]:focus,
+.add-track-overlay__form .form-group select:focus,
+.add-track-overlay__form .form-group textarea:focus {
+  outline: none;
+  border-color: #F09020;
+}
+
+.add-track-overlay__form .form-group input[type="file"] {
+  font-size: 13px;
+  padding: 8px 12px;
+  background: #1C1F24;
+  color: #EDEDED;
+  border: 1px solid #2a2e35;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.add-track-overlay__form .form-group input[type="file"]::file-selector-button {
+  padding: 6px 12px;
+  margin-right: 12px;
+  background: #0E0F11;
+  color: #EDEDED;
+  border: 1px solid #1C1F24;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-track-overlay__form .form-group input[type="file"]::file-selector-button:hover {
+  background: #1C1F24;
+}
+
+.add-track-overlay__form .hint {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.add-track-overlay__form .error-message {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Компактный блок участников */
+.add-track-overlay__form .participants {
+  margin: 8px 0;
+  gap: 8px;
+}
+
+.add-track-overlay__form .participant-row {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 8px;
+}
+
+/* Номер участника */
+.add-track-overlay__form .participant-order {
+  font-weight: 600;
+  color: #F09020;
+  min-width: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Темная тема для селектов в блоке участников */
+.add-track-overlay__form .participant-row select {
+  padding: 8px 10px;
+  font-size: 13px;
+  background: #0E0F11;
+  color: #EDEDED;
+  border: 1px solid #1C1F24;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.add-track-overlay__form .participant-row select:focus {
+  outline: none;
+  border-color: #F09020;
+}
+
+.add-track-overlay__form .participant-row select option {
+  background: #0E0F11;
+  color: #EDEDED;
+}
+
+.add-track-overlay__form .participant-row .participant-role {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+/* Кнопки управления порядком - справа от селектов */
+.add-track-overlay__form .participant-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.add-track-overlay__form .btn-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+}
+
+/* Кнопка добавления исполнителя - темная тема */
+.add-track-overlay__form .btn-add-participant {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #1C1F24;
+  color: #EDEDED;
+  border: 1px solid #2a2e35;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-track-overlay__form .btn-add-participant:hover {
+  background: #2a2e35;
+}
+
+.add-track-overlay__form .btn-add-participant svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+
+/* Компактный form-row - номер и длительность в одну строку */
+.add-track-overlay__form .form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+
+.add-track-overlay__form .form-row .form-group {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.add-track-overlay__form .form-row .form-group--compact {
+  flex: 0 1 auto;
+  min-width: 140px;
+  max-width: 180px;
+}
+
+/* Actions - компактный с оранжевым акцентом */
+.add-track-overlay__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #1C1F24;
+}
+
+.add-track-overlay__actions .btn {
+  padding: 9px 18px;
+  font-size: 14px;
+}
+
+/* Оранжевый акцент для primary кнопки */
+.add-track-overlay__actions .btn-primary {
+  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  color: #0E0F11;
+  font-weight: 600;
+}
+
+.add-track-overlay__actions .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.add-track-overlay__actions .btn-secondary {
+  background: #1C1F24;
+  color: #EDEDED;
+  border: 1px solid #2a2e35;
+}
+
+.add-track-overlay__actions .btn-secondary:hover {
+  background: #2a2e35;
+}
+
+@media (max-width: 768px) {
+  .add-track-overlay {
+    padding: 10px;
+  }
+
+  .add-track-overlay__panel {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
+  .add-track-overlay__header {
+    padding: 16px 20px;
+  }
+
+  .add-track-overlay__content {
+    padding: 16px 20px;
+  }
+
+  .add-track-overlay__title {
+    font-size: 16px;
+  }
+
+  .add-track-overlay__form {
+    gap: 12px;
+  }
+  
+  .add-track-overlay__form .participant-row {
+    flex-wrap: wrap;
+  }
+}

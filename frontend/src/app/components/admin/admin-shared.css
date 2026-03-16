@@ -438,6 +438,16 @@
   font-size: 14px;
 }
 
+.alert-info {
+  background: rgba(240, 144, 32, 0.1);
+  color: #F09020;
+  border: 1px solid rgba(240, 144, 32, 0.3);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
 /* === ФОРМЫ === */
 .form-group {
   margin-bottom: 20px;
@@ -490,11 +500,29 @@
 
 .form-group input[type="file"] {
   max-width: 400px;
-  padding: 8px 0;
-  border: none;
-  background: transparent;
+  padding: 10px 14px;
+  background: #1C1F24;
   color: #EDEDED;
+  border: 1px solid #2a2e35;
+  border-radius: 8px;
   font-size: 14px;
+  cursor: pointer;
+}
+
+.form-group input[type="file"]::file-selector-button {
+  padding: 7px 14px;
+  margin-right: 14px;
+  background: #0E0F11;
+  color: #EDEDED;
+  border: 1px solid #1C1F24;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+  background: #1C1F24;
 }
 
 .form-group textarea {
@@ -719,6 +747,69 @@
   border-radius: 8px;
   background: #0E0F11;
   color: #EDEDED;
+}
+
+/* === ТРЕКИ АЛЬБОМА === */
+.tracks-list {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.track-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #0E0F11;
+  border: 1px solid #1C1F24;
+  border-radius: 8px;
+}
+
+.track-position {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #F09020;
+  min-width: 2rem;
+}
+
+.track-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.track-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #EDEDED;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track-duration {
+  font-size: 0.85rem;
+  color: #9A9A9A;
+}
+
+.track-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.tracks-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
 /* === АДАПТИВНОСТЬ === */
