@@ -32,9 +32,9 @@
 /* === TOOLBAR (поиск и фильтры) === */
 .admin-toolbar {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 20px;
-  align-items: stretch;
+  align-items: center;
   flex-wrap: wrap;
 }
 
@@ -42,6 +42,7 @@
   flex: 1;
   min-width: 180px;
   max-width: 420px;
+  height: 40px;
   padding: 8px 12px;
   border: 1px solid #1C1F24;
   border-radius: 8px;
@@ -159,6 +160,59 @@
   padding: 8px 14px;
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+/* Кнопка "Добавить" с иконкой + */
+.btn-icon-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  color: #0E0F11;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-icon-add:hover {
+  opacity: 0.9;
+}
+
+.btn-icon-add svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Кнопка поиска с иконкой лупы */
+.btn-icon-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: #1C1F24;
+  color: #EDEDED;
+  border: 1px solid #2a2e35;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-icon-search:hover {
+  background: #2a2e35;
+}
+
+.btn-icon-search svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .btn-secondary {
