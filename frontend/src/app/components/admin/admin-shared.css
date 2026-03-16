@@ -143,12 +143,11 @@
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
+  transition: opacity 0.2s;
 }
 
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.95;
-  transform: translateY(-1px);
+  opacity: 0.9;
 }
 
 .btn-primary:disabled {
@@ -211,42 +210,56 @@
   cursor: not-allowed;
 }
 
-/* Кнопки в таблице */
-.admin-table__actions .btn-edit,
-.admin-table__actions .btn-delete {
-  padding: 6px 10px;
-  font-size: 0.8rem;
-  margin-right: 8px;
+/* Кнопки с иконками в таблице */
+.btn-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin-right: 6px;
   text-decoration: none;
   border-radius: 6px;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
 }
 
-.admin-table__actions .btn-edit:last-child,
-.admin-table__actions .btn-delete:last-child {
+.btn-icon-action:last-child {
   margin-right: 0;
 }
 
-.admin-table__actions .btn-edit {
+.btn-icon-action svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.btn-icon-action.btn-edit {
   background: #1C1F24;
   color: #EDEDED;
-  border: 1px solid #2a2e35;
+  border-color: #2a2e35;
 }
 
-.admin-table__actions .btn-edit:hover {
+.btn-icon-action.btn-edit:hover {
   background: #2a2e35;
+  border-color: #3a3e45;
 }
 
-.admin-table__actions .btn-delete {
+.btn-icon-action.btn-delete {
   background: rgba(220, 70, 70, 0.15);
   color: #ff6b6b;
-  border: 1px solid rgba(220, 70, 70, 0.4);
+  border-color: rgba(220, 70, 70, 0.4);
 }
 
-.admin-table__actions .btn-delete:hover:not(:disabled) {
+.btn-icon-action.btn-delete:hover:not(:disabled) {
   background: rgba(220, 70, 70, 0.25);
   border-color: rgba(220, 70, 70, 0.6);
+}
+
+.btn-icon-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* === АЛЕРТЫ === */
