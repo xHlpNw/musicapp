@@ -22,6 +22,7 @@
     <div class="form-group">
       <label for="title">Название трека *</label>
       <input
+        type="text"
         id="title"
         formControlName="title"
         [class.error]="title?.invalid && title?.touched"
@@ -106,31 +107,33 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="albumId">Альбом *</label>
-      <select id="albumId" formControlName="albumId" [class.error]="albumId?.invalid && albumId?.touched">
-        <option [ngValue]="null" disabled>Выберите исполнителей — список альбомов по первому PRIMARY</option>
-        <option *ngFor="let al of albums" [ngValue]="al.id">{{ al.title }}</option>
-      </select>
-      <span class="hint" *ngIf="referenceArtistId() && albums.length === 0 && !isLoadingArtists">
-        Нет альбомов у этого исполнителя — создайте альбом.
-      </span>
-    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="albumId">Альбом *</label>
+        <select id="albumId" formControlName="albumId" [class.error]="albumId?.invalid && albumId?.touched">
+          <option [ngValue]="null" disabled>Выберите исполнителей — список альбомов по первому PRIMARY</option>
+          <option *ngFor="let al of albums" [ngValue]="al.id">{{ al.title }}</option>
+        </select>
+        <span class="hint" *ngIf="referenceArtistId() && albums.length === 0 && !isLoadingArtists">
+          Нет альбомов у этого исполнителя — создайте альбом.
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label for="position">Номер в альбоме *</label>
-      <input type="number" id="position" formControlName="position" min="1" />
-    </div>
+      <div class="form-group form-group--compact">
+        <label for="position">Номер *</label>
+        <input type="number" id="position" formControlName="position" min="1" />
+      </div>
 
-    <div class="form-group">
-      <label for="durationSeconds">Длительность (сек) *</label>
-      <input
-        id="durationSeconds"
-        type="number"
-        formControlName="durationSeconds"
-        min="1"
-        [class.error]="durationSeconds?.invalid && durationSeconds?.touched"
-      />
+      <div class="form-group form-group--compact">
+        <label for="durationSeconds">Длительность (сек) *</label>
+        <input
+          id="durationSeconds"
+          type="number"
+          formControlName="durationSeconds"
+          min="1"
+          [class.error]="durationSeconds?.invalid && durationSeconds?.touched"
+        />
+      </div>
     </div>
 
     <div class="form-actions">

@@ -15,7 +15,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="participants.length">
     <div class="form-group">
       <label for="title">Название *</label>
-      <input id="title" formControlName="title" [class.error]="title?.invalid && title?.touched" />
+      <input type="text" id="title" formControlName="title" [class.error]="title?.invalid && title?.touched" />
     </div>
 
     <div class="form-group form-group--wide">
@@ -86,21 +86,23 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="albumId">Альбом *</label>
-      <select id="albumId" formControlName="albumId">
-        <option *ngFor="let al of albums" [ngValue]="al.id">{{ al.title }}</option>
-      </select>
-    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="albumId">Альбом *</label>
+        <select id="albumId" formControlName="albumId">
+          <option *ngFor="let al of albums" [ngValue]="al.id">{{ al.title }}</option>
+        </select>
+      </div>
 
-    <div class="form-group">
-      <label for="position">Номер в альбоме *</label>
-      <input type="number" id="position" formControlName="position" min="1" />
-    </div>
+      <div class="form-group form-group--compact">
+        <label for="position">Номер *</label>
+        <input type="number" id="position" formControlName="position" min="1" />
+      </div>
 
-    <div class="form-group">
-      <label for="durationSeconds">Длительность (сек) *</label>
-      <input type="number" id="durationSeconds" formControlName="durationSeconds" min="1" />
+      <div class="form-group form-group--compact">
+        <label for="durationSeconds">Длительность (сек) *</label>
+        <input type="number" id="durationSeconds" formControlName="durationSeconds" min="1" />
+      </div>
     </div>
 
     <div class="form-group">

@@ -443,6 +443,28 @@
   margin-bottom: 20px;
 }
 
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
+  flex: 0 1 auto;
+}
+
+.form-row .form-group select {
+  max-width: 350px;
+}
+
+.form-row .form-group--compact {
+  flex: 0 0 auto;
+  min-width: 140px;
+  max-width: 180px;
+}
+
 .form-group label {
   display: block;
   margin-bottom: 8px;
@@ -701,6 +723,15 @@
 
 /* === АДАПТИВНОСТЬ === */
 @media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-row .form-group--compact {
+    max-width: none;
+  }
+
   .admin-card-header {
     flex-direction: column;
     align-items: stretch;
