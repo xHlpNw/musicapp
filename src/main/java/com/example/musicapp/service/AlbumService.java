@@ -161,7 +161,10 @@ public class AlbumService {
             if (!request.getArtists().isEmpty()) {
                 validateAtLeastOnePrimary(request.getArtists());
             }
+            // Сначала удаляем существующие связи, затем флашим, чтобы Hibernate выполнил DELETE
+            // до INSERT новых записей и не нарушил уникальный индекс (album_id, artist_id).
             album.getArtists().clear();
+            albumRepository.flush();
             for (AlbumParticipantRequest pr : request.getArtists()) {
                 Artist artist = artistRepository.findById(pr.getArtistId())
                         .orElseThrow(() -> new ResourceNotFoundException("Artist not found: " + pr.getArtistId()));
