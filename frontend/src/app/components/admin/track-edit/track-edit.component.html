@@ -1,7 +1,13 @@
 <div class="admin-card">
   <div class="admin-card-header">
     <h1>Редактировать трек</h1>
-    <a routerLink="/admin/tracks" class="btn btn-secondary">Назад к списку</a>
+    <a routerLink="/admin/tracks" class="btn-back-with-text" title="Назад к списку">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.8334 10H4.16675" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10.0001 15.8333L4.16675 9.99996L10.0001 4.16663" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Назад к списку</span>
+    </a>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
@@ -56,7 +62,13 @@
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-secondary btn-small" (click)="addParticipant()">+ Исполнитель</button>
+      <button type="button" class="btn-icon-inline" (click)="addParticipant()" title="Добавить исполнителя">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3.33331V12.6666" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3.33301 8H12.6663" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Добавить исполнителя</span>
+      </button>
       <div class="new-artist-block">
         <span class="hint">Новый исполнитель в базе:</span>
         <div class="new-artist-row">
@@ -67,7 +79,7 @@
             placeholder="Имя"
             (keyup.enter)="createNewArtist()"
           />
-          <button type="button" class="btn btn-secondary btn-small" (click)="createNewArtist()" [disabled]="creatingArtist">
+          <button type="button" class="btn-compact" (click)="createNewArtist()" [disabled]="creatingArtist">
             {{ creatingArtist ? '…' : 'Создать' }}
           </button>
         </div>

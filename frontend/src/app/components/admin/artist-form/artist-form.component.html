@@ -1,7 +1,13 @@
 <div class="admin-card">
   <div class="admin-card-header">
     <h1>{{ isEditMode ? 'Редактировать исполнителя' : 'Добавить исполнителя' }}</h1>
-    <a routerLink="/admin/artists" class="btn btn-secondary">Назад к списку</a>
+    <a routerLink="/admin/artists" class="btn-back-with-text" title="Назад к списку">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.8334 10H4.16675" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10.0001 15.8333L4.16675 9.99996L10.0001 4.16663" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Назад к списку</span>
+    </a>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert-error">
@@ -35,19 +41,32 @@
     <div class="form-group">
       <label for="coverFile">Обложка</label>
       @if (isEditMode && currentCoverPath) {
-        <div class="cover-preview">
-          <img [src]="'/api/covers/' + currentCoverPath" alt="Текущая обложка" class="cover-preview__img" />
-          <span class="cover-preview__hint">Текущая обложка</span>
+        <div class="cover-upload-container">
+          <div class="cover-preview">
+            <img [src]="'/api/covers/' + currentCoverPath" alt="Текущая обложка" class="cover-preview__img" />
+            <span class="cover-preview__hint">Текущая обложка</span>
+          </div>
+          <div class="cover-upload-block">
+            <p class="cover-upload-title">Выберите новый файл, чтобы заменить обложку.</p>
+            <input
+              type="file"
+              id="coverFile"
+              accept="image/jpeg,image/png,image/webp"
+              (change)="onCoverFileChange($event)"
+              class="form-group__file"
+            />
+          </div>
         </div>
+      } @else {
+        <p class="form-group__hint">JPG, PNG или WebP. Необязательно.</p>
+        <input
+          type="file"
+          id="coverFile"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="onCoverFileChange($event)"
+          class="form-group__file"
+        />
       }
-      <input
-        type="file"
-        id="coverFile"
-        accept="image/jpeg,image/png,image/webp"
-        (change)="onCoverFileChange($event)"
-        class="form-group__file"
-      />
-      <span class="form-group__hint">{{ isEditMode && currentCoverPath ? 'Выберите новый файл, чтобы заменить обложку.' : 'JPG, PNG или WebP. Необязательно.' }}</span>
     </div>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="isLoading">
