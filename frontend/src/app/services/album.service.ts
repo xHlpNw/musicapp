@@ -50,6 +50,10 @@ export class AlbumService {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
+  addTrack(albumId: number, trackId: number, position: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${albumId}/tracks`, { trackId, position });
+  }
+
   uploadCover(id: number, file: File): Observable<AlbumResponse> {
     const fd = new FormData();
     fd.append('file', file);

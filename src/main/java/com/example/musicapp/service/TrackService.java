@@ -70,11 +70,14 @@ public class TrackService {
     private String storagePath;
 
     private Path tracksDir;
+    private Path trackCoversDir;
 
     @PostConstruct
     public void init() throws IOException {
         tracksDir = Paths.get(storagePath).resolve("tracks").toAbsolutePath();
         Files.createDirectories(tracksDir);
+        trackCoversDir = Paths.get(storagePath).resolve("covers").resolve("tracks").toAbsolutePath();
+        Files.createDirectories(trackCoversDir);
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +101,6 @@ public class TrackService {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is required");
         }
-        validateAtLeastOnePrimary(request.getArtists());
         Album album = albumRepository.findById(request.getAlbumId())
                 .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + request.getAlbumId()));
 
@@ -198,7 +200,6 @@ public class TrackService {
     public TrackResponse update(Long id, UpdateTrackRequest request) {
         Track track = trackRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + id));
-        validateAtLeastOnePrimary(request.getArtists());
         Album album = albumRepository.findById(request.getAlbumId())
                 .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + request.getAlbumId()));
 
@@ -235,6 +236,12 @@ public class TrackService {
     public void delete(Long id) {
         Track track = trackRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + id));
+
+        // Запоминаем альбомы до удаления, чтобы после проверить их на пустоту
+        List<Long> albumIds = track.getAlbumTracks().stream()
+                .map(at -> at.getAlbum().getId())
+                .collect(Collectors.toList());
+
         userRepository.removeTrackFromAllFavorites(id);
         listenHistoryRepository.deleteByTrack_Id(id);
         roomRepository.clearCurrentTrackByTrackId(id);
@@ -246,13 +253,49 @@ public class TrackService {
             log.warn("Could not delete track file: {}", e.getMessage());
         }
         trackRepository.delete(track);
+        trackRepository.flush(); // Гарантируем удаление AlbumTrack до проверки альбомов
+
+        deleteAlbumsIfEmpty(albumIds);
     }
 
-    private void validateAtLeastOnePrimary(List<com.example.musicapp.dto.track.TrackParticipantRequest> artists) {
-        long n = artists.stream().filter(p -> p.getRole() == AlbumArtistRole.PRIMARY).count();
-        if (n != 1) {
-            throw new IllegalArgumentException("Exactly one artist must have role PRIMARY");
+    /** Удаляет альбомы из списка, если в них не осталось треков. */
+    void deleteAlbumsIfEmpty(List<Long> albumIds) {
+        for (Long albumId : albumIds) {
+            albumRepository.findById(albumId).ifPresent(album -> {
+                if (album.getAlbumTracks().isEmpty()) {
+                    userRepository.removeAlbumFromAllFavorites(albumId);
+                    albumRepository.delete(album);
+                }
+            });
         }
+    }
+
+    @Transactional
+    public TrackResponse uploadCover(Long id, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is required");
+        }
+        Track track = trackRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + id));
+        String ext = getImageExtension(file.getOriginalFilename()).orElse("jpg");
+        String fileName = id + "." + ext;
+        Path targetFile = trackCoversDir.resolve(fileName);
+        try {
+            Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save track cover", e);
+        }
+        track.setCoverImagePath("tracks/" + fileName);
+        return toResponse(trackRepository.save(track));
+    }
+
+    private java.util.Optional<String> getImageExtension(String filename) {
+        if (filename == null || filename.isBlank()) return java.util.Optional.empty();
+        String lower = filename.toLowerCase(java.util.Locale.ROOT);
+        if (lower.endsWith(".jpeg") || lower.endsWith(".jpg")) return java.util.Optional.of("jpg");
+        if (lower.endsWith(".png")) return java.util.Optional.of("png");
+        if (lower.endsWith(".webp")) return java.util.Optional.of("webp");
+        return java.util.Optional.empty();
     }
 
     @Transactional(readOnly = true)

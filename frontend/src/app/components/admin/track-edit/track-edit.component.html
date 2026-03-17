@@ -20,7 +20,7 @@
 
     <div class="form-group form-group--wide">
       <label>Исполнители</label>
-      <p class="hint">Порядок строк — порядок в треке. Один основной (PRIMARY), остальные — приглашённые.</p>
+      <p class="hint">Порядок строк — порядок в треке. Можно назначить любое количество основных (PRIMARY) и приглашённых (FEATURED).</p>
       <div class="participants">
         <div class="participant-row" *ngFor="let row of participants; let i = index">
           <span class="participant-order">{{ i + 1 }}.</span>
@@ -109,6 +109,38 @@
       <label for="audioFile">Новый аудиофайл</label>
       <input type="file" id="audioFile" accept="audio/*" (change)="onAudioFileSelected($event)" />
       <span class="hint" *ngIf="selectedAudioFile">{{ selectedAudioFile.name }}</span>
+    </div>
+
+    <div class="form-group">
+      <label>Обложка трека</label>
+      <div *ngIf="coverPreviewUrl" class="cover-upload-container">
+        <div class="cover-preview">
+          <img [src]="coverPreviewUrl" alt="Обложка" class="cover-preview__img" />
+          <span class="cover-preview__hint">Текущая обложка</span>
+        </div>
+        <div class="cover-upload-block">
+          <p class="cover-upload-title">Выберите новый файл, чтобы заменить обложку.</p>
+          <input
+            type="file"
+            id="coverFile"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="onCoverFileSelected($event)"
+            class="form-group__file"
+          />
+          <span class="hint" *ngIf="selectedCoverFile">{{ selectedCoverFile.name }}</span>
+        </div>
+      </div>
+      <div *ngIf="!coverPreviewUrl">
+        <p class="form-group__hint">JPG, PNG или WebP. Необязательно.</p>
+        <input
+          type="file"
+          id="coverFile"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="onCoverFileSelected($event)"
+          class="form-group__file"
+        />
+        <span class="hint" *ngIf="selectedCoverFile">{{ selectedCoverFile.name }}</span>
+      </div>
     </div>
 
     <div class="form-actions">

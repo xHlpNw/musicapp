@@ -26,6 +26,8 @@ export class TrackEditComponent implements OnInit {
   isLoading = false;
   trackId: number | null = null;
   selectedAudioFile: File | null = null;
+  selectedCoverFile: File | null = null;
+  currentCoverPath: string | null = null;
   newArtistName = '';
   creatingArtist = false;
   private loadedAlbumId: number | null = null;
@@ -54,6 +56,17 @@ export class TrackEditComponent implements OnInit {
   }
   get albumId() {
     return this.form.get('albumId');
+  }
+
+  get coverPreviewUrl(): string | null {
+    if (!this.currentCoverPath) return null;
+    const p = this.currentCoverPath.replace(/^\//, '');
+    return `/api/covers/${p}?v=${this.trackId ?? 0}`;
+  }
+
+  onCoverFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedCoverFile = input.files?.length ? input.files[0] : null;
   }
 
   referenceArtistId(): number | null {
@@ -96,9 +109,7 @@ export class TrackEditComponent implements OnInit {
                 | 'PRIMARY'
                 | 'FEATURED'
             }));
-            if (!this.participants.some((p) => p.role === 'PRIMARY')) {
-              this.participants[0].role = 'PRIMARY';
-            }
+            this.currentCoverPath = track.coverImagePath ?? null;
             this.form.patchValue({
               title: track.title,
               durationSeconds: track.durationSeconds,
@@ -150,15 +161,8 @@ export class TrackEditComponent implements OnInit {
     });
   }
 
-  onParticipantRoleChange(row: ParticipantRow): void {
-    if (row.role === 'PRIMARY') {
-      this.participants.forEach((p) => {
-        if (p !== row) p.role = 'FEATURED';
-      });
-    } else if (!this.participants.some((p) => p.role === 'PRIMARY')) {
-      const first = this.participants.find((p) => p.artistId) || this.participants[0];
-      if (first) first.role = 'PRIMARY';
-    }
+  onParticipantRoleChange(_row: ParticipantRow): void {
+    // Ограничение на единственный PRIMARY снято — роли задаются свободно
   }
 
   addParticipant(): void {
@@ -168,9 +172,6 @@ export class TrackEditComponent implements OnInit {
   removeParticipant(index: number): void {
     if (this.participants.length <= 1) return;
     this.participants.splice(index, 1);
-    this.participants.forEach((p) => (p.role = 'FEATURED'));
-    const first = this.participants.find((p) => p.artistId) || this.participants[0];
-    if (first) first.role = 'PRIMARY';
     this.onParticipantArtistChange();
   }
 
@@ -222,14 +223,43 @@ export class TrackEditComponent implements OnInit {
     this.selectedAudioFile = input.files?.length ? input.files[0] : null;
   }
 
+  private uploadFilesAndNavigate(): void {
+    const uploadAudio = (then: () => void) => {
+      if (this.selectedAudioFile) {
+        this.trackService.replaceAudio(this.trackId!, this.selectedAudioFile).subscribe({
+          next: () => then(),
+          error: (err) => {
+            this.isLoading = false;
+            this.errorMessage = err.error?.error || 'Сохранено, но аудиофайл не заменён — попробуйте ещё раз.';
+          }
+        });
+      } else {
+        then();
+      }
+    };
+
+    const uploadCover = (then: () => void) => {
+      if (this.selectedCoverFile) {
+        this.trackService.uploadCover(this.trackId!, this.selectedCoverFile).subscribe({
+          next: () => then(),
+          error: (err) => {
+            this.isLoading = false;
+            this.errorMessage = err.error?.error || 'Сохранено, но обложку загрузить не удалось.';
+          }
+        });
+      } else {
+        then();
+      }
+    };
+
+    uploadAudio(() => uploadCover(() => this.router.navigate(['/admin/tracks'])));
+  }
+
   private validateParticipants(): string | null {
     const withId = this.participants.filter((p) => p.artistId != null);
     if (withId.length === 0) return 'Нужен хотя бы один исполнитель';
-    if (this.participants.filter((p) => p.role === 'PRIMARY' && p.artistId).length !== 1) {
-      return 'Ровно один основной исполнитель';
-    }
     const ids = withId.map((p) => p.artistId!);
-    if (new Set(ids).size !== ids.length) return 'Исполнители не повторяются';
+    if (new Set(ids).size !== ids.length) return 'Исполнители не должны повторяться';
     return null;
   }
 
@@ -260,20 +290,7 @@ export class TrackEditComponent implements OnInit {
     };
 
     this.trackService.update(this.trackId, payload).subscribe({
-      next: () => {
-        if (this.selectedAudioFile) {
-          this.trackService.replaceAudio(this.trackId!, this.selectedAudioFile).subscribe({
-            next: () => this.router.navigate(['/admin/tracks']),
-            error: (err) => {
-              this.isLoading = false;
-              this.errorMessage =
-                err.error?.error || 'Сохранено, но файл не заменён — попробуйте ещё раз.';
-            }
-          });
-        } else {
-          this.router.navigate(['/admin/tracks']);
-        }
-      },
+      next: () => this.uploadFilesAndNavigate(),
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.error || 'Ошибка сохранения';

@@ -3,14 +3,21 @@ package com.example.musicapp.service;
 import com.example.musicapp.dto.artist.ArtistResponse;
 import com.example.musicapp.dto.artist.CreateArtistRequest;
 import com.example.musicapp.dto.artist.UpdateArtistRequest;
+import com.example.musicapp.entity.Album;
 import com.example.musicapp.entity.Artist;
 import com.example.musicapp.entity.Genre;
 import com.example.musicapp.exception.ResourceNotFoundException;
+import com.example.musicapp.repository.AlbumArtistRepository;
+import com.example.musicapp.repository.AlbumRepository;
 import com.example.musicapp.repository.ArtistRepository;
 import com.example.musicapp.repository.GenreRepository;
+import com.example.musicapp.repository.TrackArtistRepository;
+import com.example.musicapp.repository.TrackRepository;
 import com.example.musicapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
-import com.example.musicapp.entity.Album;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,8 +50,17 @@ public class ArtistService {
     private Path artistsCoversDir;
 
     private final ArtistRepository artistRepository;
+    private final AlbumRepository albumRepository;
+    private final TrackRepository trackRepository;
+    private final TrackArtistRepository trackArtistRepository;
+    private final AlbumArtistRepository albumArtistRepository;
     private final GenreRepository genreRepository;
     private final UserRepository userRepository;
+
+    // Ленивое внедрение для разрыва циклической зависимости (TrackService → ArtistService)
+    @Autowired
+    @Lazy
+    private TrackService trackService;
 
     @PostConstruct
     public void init() throws IOException {
@@ -113,6 +128,36 @@ public class ArtistService {
         if (!artistRepository.existsById(id)) {
             throw new ResourceNotFoundException("Artist not found: " + id);
         }
+
+        // --- Треки ---
+        // Находим треки, где артист единственный исполнитель (до удаления связей)
+        List<Long> soleArtistTrackIds = trackArtistRepository.findTrackIdsWhereArtistIsOnly(id);
+
+        // Находим альбомы, где артист единственный исполнитель (до удаления связей)
+        List<Long> soleArtistAlbumIds = albumArtistRepository.findAlbumIdsWhereArtistIsOnly(id);
+
+        // Удаляем все TrackArtist-связи артиста одним запросом.
+        // clearAutomatically=true сбрасывает L1-кеш, исключая cascade-конфликты.
+        trackArtistRepository.deleteByArtistId(id);
+
+        // Удаляем треки, где артист был единственным (TrackArtist уже удалён выше)
+        for (Long trackId : soleArtistTrackIds) {
+            if (trackRepository.existsById(trackId)) {
+                trackService.delete(trackId); // также удаляет пустые альбомы
+            }
+        }
+
+        // Удаляем все AlbumArtist-связи артиста одним запросом
+        albumArtistRepository.deleteByArtistId(id);
+
+        // Удаляем альбомы, где артист был единственным (могли уже удалиться как пустые выше)
+        for (Long albumId : soleArtistAlbumIds) {
+            if (albumRepository.existsById(albumId)) {
+                userRepository.removeAlbumFromAllFavorites(albumId);
+                albumRepository.deleteById(albumId);
+            }
+        }
+
         userRepository.removeArtistFromAllFavorites(id);
         artistRepository.deleteById(id);
     }

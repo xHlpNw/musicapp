@@ -34,8 +34,8 @@
     <div class="form-group form-group--wide">
       <label>Исполнители</label>
       <p class="hint">
-        Порядок в списке — как в треке. Ровно один <strong>основной</strong> (PRIMARY), остальные — приглашённые (FEATURED).
-        Альбомы подгружаются по основному или по первому выбранному исполнителю.
+        Порядок в списке — как в треке. Можно назначить любое количество основных (PRIMARY) и приглашённых (FEATURED).
+        Альбомы подгружаются по первому выбранному исполнителю.
       </p>
       <div class="participants">
         <div class="participant-row" *ngFor="let row of participants; let i = index">
@@ -133,7 +133,21 @@
           min="1"
           [class.error]="durationSeconds?.invalid && durationSeconds?.touched"
         />
+        <span class="hint">Заполняется автоматически при выборе файла.</span>
       </div>
+    </div>
+
+    <div class="form-group">
+      <label for="coverFile">Обложка трека</label>
+      <p class="form-group__hint">JPG, PNG или WebP. Необязательно.</p>
+      <input
+        type="file"
+        id="coverFile"
+        accept="image/jpeg,image/png,image/webp"
+        (change)="onCoverFileSelected($event)"
+        class="form-group__file"
+      />
+      <span class="hint" *ngIf="selectedCoverFile">{{ selectedCoverFile.name }}</span>
     </div>
 
     <div class="form-actions">

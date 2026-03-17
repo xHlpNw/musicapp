@@ -7,7 +7,14 @@ export interface AlbumResponse {
   artistId?: number;
   artistName?: string;
   artists?: AlbumArtistItem[];
-  tracks?: { id: number; title: string; durationSeconds: number; trackNumber?: number; position?: number }[];
+  tracks?: {
+    id: number;
+    title: string;
+    durationSeconds: number;
+    trackNumber?: number;
+    position?: number;
+    artists?: { artistId: number; artistName: string; displayOrder?: number; role?: string }[];
+  }[];
 }
 
 export interface AlbumArtistItem {

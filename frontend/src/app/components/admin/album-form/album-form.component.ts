@@ -19,6 +19,7 @@ export interface AlbumTrackRow {
   title: string;
   position: number;
   durationSeconds: number;
+  artists: { artistId: number; displayOrder: number; role: string }[];
 }
 
 @Component({
@@ -44,6 +45,7 @@ export class AlbumFormComponent implements OnInit {
   newArtistName = '';
   creatingArtist = false;
   deletingTrackId: number | null = null;
+  trackPositionsDirty = false;
   isAddTrackOverlayOpen = false;
   addTrackData: AddTrackData | null = null;
   isSelectTrackOverlayOpen = false;
@@ -105,13 +107,9 @@ export class AlbumFormComponent implements OnInit {
         next: (album) => {
           if (album.tracks && album.tracks.length > 0) {
             this.tracks = album.tracks
-              .map((t) => ({
-                id: t.id,
-                title: t.title,
-                position: t.position ?? t.trackNumber ?? 0,
-                durationSeconds: t.durationSeconds
-              }))
+              .map((t) => this.mapTrackSummary(t))
               .sort((a, b) => a.position - b.position);
+            this.trackPositionsDirty = false;
           }
         }
       });
@@ -162,9 +160,6 @@ export class AlbumFormComponent implements OnInit {
               artistId: a.artistId,
               role: (a.role === 'PRIMARY' || a.role === 'primary' ? 'PRIMARY' : 'FEATURED') as 'PRIMARY' | 'FEATURED'
             }));
-            if (!this.participants.some((p) => p.role === 'PRIMARY')) {
-              this.participants[0].role = 'PRIMARY';
-            }
           } else {
             this.participants = [{ artistId: null, role: 'PRIMARY' }];
           }
@@ -172,13 +167,9 @@ export class AlbumFormComponent implements OnInit {
           // Загружаем треки
           if (album.tracks && album.tracks.length > 0) {
             this.tracks = album.tracks
-              .map((t) => ({
-                id: t.id,
-                title: t.title,
-                position: t.position ?? t.trackNumber ?? 0,
-                durationSeconds: t.durationSeconds
-              }))
+              .map((t) => this.mapTrackSummary(t))
               .sort((a, b) => a.position - b.position);
+            this.trackPositionsDirty = false;
           }
         },
         error: () => {
@@ -225,17 +216,14 @@ export class AlbumFormComponent implements OnInit {
     this.router.navigate(['/admin/albums']);
   }
 
+  private navigateToEdit(albumId: number): void {
+    this.router.navigate(['/admin/albums', albumId, 'edit']);
+  }
+
   // === Методы для работы с участниками ===
 
-  onParticipantRoleChange(row: ParticipantRow): void {
-    if (row.role === 'PRIMARY') {
-      this.participants.forEach((p) => {
-        if (p !== row) p.role = 'FEATURED';
-      });
-    } else if (!this.participants.some((p) => p.role === 'PRIMARY')) {
-      const first = this.participants.find((p) => p.artistId) || this.participants[0];
-      if (first) first.role = 'PRIMARY';
-    }
+  onParticipantRoleChange(_row: ParticipantRow): void {
+    // Ограничение на единственный PRIMARY снято — роли задаются свободно
   }
 
   addParticipant(): void {
@@ -245,9 +233,6 @@ export class AlbumFormComponent implements OnInit {
   removeParticipant(index: number): void {
     if (this.participants.length <= 1) return;
     this.participants.splice(index, 1);
-    this.participants.forEach((p) => (p.role = 'FEATURED'));
-    const first = this.participants.find((p) => p.artistId) || this.participants[0];
-    if (first) first.role = 'PRIMARY';
   }
 
   moveParticipantUp(index: number): void {
@@ -301,6 +286,7 @@ export class AlbumFormComponent implements OnInit {
       this.tracks[index - 1]
     ];
     this.updateTrackPositions();
+    this.trackPositionsDirty = true;
   }
 
   moveTrackDown(index: number): void {
@@ -310,12 +296,27 @@ export class AlbumFormComponent implements OnInit {
       this.tracks[index]
     ];
     this.updateTrackPositions();
+    this.trackPositionsDirty = true;
   }
 
   private updateTrackPositions(): void {
     this.tracks.forEach((t, i) => {
       t.position = i + 1;
     });
+  }
+
+  private mapTrackSummary(t: NonNullable<import('../../../models/album.model').AlbumResponse['tracks']>[number]): AlbumTrackRow {
+    return {
+      id: t.id,
+      title: t.title,
+      position: t.position ?? t.trackNumber ?? 0,
+      durationSeconds: t.durationSeconds,
+      artists: (t.artists ?? []).map((a, i) => ({
+        artistId: a.artistId,
+        displayOrder: a.displayOrder ?? i,
+        role: a.role ?? 'FEATURED'
+      }))
+    };
   }
 
   removeTrack(track: AlbumTrackRow): void {
@@ -325,6 +326,7 @@ export class AlbumFormComponent implements OnInit {
       next: () => {
         this.tracks = this.tracks.filter((t) => t.id !== track.id);
         this.updateTrackPositions();
+        this.trackPositionsDirty = true;
         this.deletingTrackId = null;
       },
       error: (err) => {
@@ -337,27 +339,21 @@ export class AlbumFormComponent implements OnInit {
   private validateParticipants(): string | null {
     const withId = this.participants.filter((p) => p.artistId != null);
     if (withId.length === 0) return 'Нужен хотя бы один исполнитель';
-    if (this.participants.filter((p) => p.role === 'PRIMARY' && p.artistId).length !== 1) {
-      return 'Ровно один основной исполнитель';
-    }
     const ids = withId.map((p) => p.artistId!);
     if (new Set(ids).size !== ids.length) return 'Исполнители не должны повторяться';
     return null;
   }
 
   private saveTrackPositions(): void {
-    if (!this.isEditMode || this.tracks.length === 0) return;
-    // Обновляем позиции треков через API
+    if (!this.isEditMode || !this.trackPositionsDirty || this.tracks.length === 0) return;
     this.tracks.forEach((track, index) => {
-      if (track.position !== index + 1) {
-        this.trackService.update(track.id, {
-          title: track.title,
-          durationSeconds: track.durationSeconds,
-          albumId: this.albumId!,
-          position: index + 1,
-          artists: []
-        }).subscribe();
-      }
+      this.trackService.update(track.id, {
+        title: track.title,
+        durationSeconds: track.durationSeconds,
+        albumId: this.albumId!,
+        position: index + 1,
+        artists: track.artists
+      }).subscribe();
     });
   }
 
@@ -420,7 +416,7 @@ export class AlbumFormComponent implements OnInit {
         .subscribe({
           next: (album) =>
             this.uploadCoverIfNeeded(album.id, () => {
-              this.navigateToList();
+              this.navigateToEdit(album.id);
             }),
           error: (err) => {
             this.isLoading = false;

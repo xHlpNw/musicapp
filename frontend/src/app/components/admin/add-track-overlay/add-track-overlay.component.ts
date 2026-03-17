@@ -138,18 +138,31 @@ export class AddTrackOverlayComponent implements OnChanges, OnInit {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.selectedFile = input.files?.length ? input.files[0] : null;
+    if (input.files?.length) {
+      this.selectedFile = input.files[0];
+      this.detectAudioDuration(this.selectedFile);
+    } else {
+      this.selectedFile = null;
+    }
   }
 
-  onParticipantRoleChange(row: ParticipantRow): void {
-    if (row.role === 'PRIMARY') {
-      this.participants.forEach((p) => {
-        if (p !== row) p.role = 'FEATURED';
-      });
-    } else if (!this.participants.some((p) => p.role === 'PRIMARY')) {
-      const first = this.participants.find((p) => p.artistId) || this.participants[0];
-      if (first) first.role = 'PRIMARY';
-    }
+  private detectAudioDuration(file: File): void {
+    const audio = new Audio();
+    const objectUrl = URL.createObjectURL(file);
+    audio.preload = 'metadata';
+    audio.onloadedmetadata = () => {
+      URL.revokeObjectURL(objectUrl);
+      const seconds = Math.round(audio.duration);
+      if (isFinite(seconds) && seconds > 0) {
+        this.form.patchValue({ durationSeconds: seconds });
+      }
+    };
+    audio.onerror = () => URL.revokeObjectURL(objectUrl);
+    audio.src = objectUrl;
+  }
+
+  onParticipantRoleChange(_row: ParticipantRow): void {
+    // Ограничение на единственный PRIMARY снято — роли задаются свободно
   }
 
   addParticipant(): void {
@@ -159,9 +172,6 @@ export class AddTrackOverlayComponent implements OnChanges, OnInit {
   removeParticipant(index: number): void {
     if (this.participants.length <= 1) return;
     this.participants.splice(index, 1);
-    this.participants.forEach((p) => (p.role = 'FEATURED'));
-    const first = this.participants.find((p) => p.artistId) || this.participants[0];
-    if (first) first.role = 'PRIMARY';
   }
 
   moveParticipantUp(index: number): void {
@@ -209,9 +219,6 @@ export class AddTrackOverlayComponent implements OnChanges, OnInit {
   private validateParticipants(): string | null {
     const withId = this.participants.filter((p) => p.artistId != null);
     if (withId.length === 0) return 'Нужен хотя бы один исполнитель';
-    if (this.participants.filter((p) => p.role === 'PRIMARY' && p.artistId).length !== 1) {
-      return 'Ровно один основной исполнитель';
-    }
     const ids = withId.map((p) => p.artistId!);
     if (new Set(ids).size !== ids.length) return 'Исполнители не должны повторяться';
     return null;

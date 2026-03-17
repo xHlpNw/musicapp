@@ -17,7 +17,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="participants.length">
     <div class="form-group form-group--wide">
       <label>Исполнители</label>
-      <p class="hint">Порядок строк — порядок отображения. Один основной (PRIMARY), остальные — приглашённые.</p>
+      <p class="hint">Порядок строк — порядок отображения. Можно назначить любое количество основных (PRIMARY) и приглашённых (FEATURED).</p>
       <div class="participants">
         <div class="participant-row" *ngFor="let row of participants; let i = index">
           <span class="participant-order">{{ i + 1 }}.</span>
@@ -199,6 +199,10 @@
           <span>Добавить существующий</span>
         </button>
       </div>
+    </div>
+
+    <div *ngIf="!isEditMode" class="alert alert-info">
+      После создания альбома вы перейдёте на страницу редактирования, где сможете добавить треки.
     </div>
 
     <div class="form-actions">

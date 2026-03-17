@@ -66,6 +66,7 @@
           (change)="onCoverFileChange($event)"
           class="form-group__file"
         />
+        <span class="hint" *ngIf="selectedCoverFile">{{ selectedCoverFile.name }}</span>
       }
     </div>
     <div class="form-actions">

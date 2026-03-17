@@ -30,6 +30,7 @@ export class TrackUploadComponent implements OnInit {
   errorMessage = '';
   isLoading = false;
   selectedFile: File | null = null;
+  selectedCoverFile: File | null = null;
   newArtistName = '';
   creatingArtist = false;
 
@@ -101,18 +102,8 @@ export class TrackUploadComponent implements OnInit {
     this.refreshAlbums();
   }
 
-  onParticipantRoleChange(row: ParticipantRow): void {
-    if (row.role === 'PRIMARY') {
-      this.participants.forEach((p) => {
-        if (p !== row) p.role = 'FEATURED';
-      });
-    } else {
-      if (!this.participants.some((p) => p.role === 'PRIMARY')) {
-        const firstWithId = this.participants.find((p) => p.artistId);
-        if (firstWithId) firstWithId.role = 'PRIMARY';
-        else this.participants[0].role = 'PRIMARY';
-      }
-    }
+  onParticipantRoleChange(_row: ParticipantRow): void {
+    // Ограничение на единственный PRIMARY снято — роли задаются свободно
   }
 
   addParticipant(): void {
@@ -121,15 +112,7 @@ export class TrackUploadComponent implements OnInit {
 
   removeParticipant(index: number): void {
     if (this.participants.length <= 1) return;
-    const removed = this.participants[index];
     this.participants.splice(index, 1);
-    if (removed.role === 'PRIMARY' && this.participants.length) {
-      const first = this.participants.find((p) => p.artistId) || this.participants[0];
-      first.role = 'PRIMARY';
-      this.participants.forEach((p) => {
-        if (p !== first) p.role = 'FEATURED';
-      });
-    }
     this.refreshAlbums();
   }
 
@@ -183,14 +166,33 @@ export class TrackUploadComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.selectedFile = input.files[0];
+      this.detectAudioDuration(this.selectedFile);
     }
+  }
+
+  private detectAudioDuration(file: File): void {
+    const audio = new Audio();
+    const objectUrl = URL.createObjectURL(file);
+    audio.preload = 'metadata';
+    audio.onloadedmetadata = () => {
+      URL.revokeObjectURL(objectUrl);
+      const seconds = Math.round(audio.duration);
+      if (isFinite(seconds) && seconds > 0) {
+        this.form.patchValue({ durationSeconds: seconds });
+      }
+    };
+    audio.onerror = () => URL.revokeObjectURL(objectUrl);
+    audio.src = objectUrl;
+  }
+
+  onCoverFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedCoverFile = input.files?.length ? input.files[0] : null;
   }
 
   private validateParticipants(): string | null {
     const withId = this.participants.filter((p) => p.artistId != null);
     if (withId.length === 0) return 'Добавьте хотя бы одного исполнителя';
-    const primary = this.participants.filter((p) => p.role === 'PRIMARY' && p.artistId);
-    if (primary.length !== 1) return 'Должен быть ровно один основной исполнитель (PRIMARY)';
     const ids = withId.map((p) => p.artistId!);
     if (new Set(ids).size !== ids.length) return 'Исполнители не должны повторяться';
     return null;
@@ -228,7 +230,19 @@ export class TrackUploadComponent implements OnInit {
     }
 
     this.trackService.upload(fd).subscribe({
-      next: () => this.router.navigate(['/admin/tracks']),
+      next: (track) => {
+        if (this.selectedCoverFile) {
+          this.trackService.uploadCover(track.id, this.selectedCoverFile).subscribe({
+            next: () => this.router.navigate(['/admin/tracks']),
+            error: (err) => {
+              this.isLoading = false;
+              this.errorMessage = err.error?.error || 'Трек сохранён, но обложку загрузить не удалось';
+            }
+          });
+        } else {
+          this.router.navigate(['/admin/tracks']);
+        }
+      },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.error || err.message || 'Ошибка при загрузке';

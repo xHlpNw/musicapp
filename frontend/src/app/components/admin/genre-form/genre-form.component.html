@@ -1,0 +1,47 @@
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h1>{{ isEditMode ? 'Редактировать жанр' : 'Добавить жанр' }}</h1>
+    <a routerLink="/admin/genres" class="btn-back-with-text" title="Назад к списку">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.8334 10H4.16675" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10.0001 15.8333L4.16675 9.99996L10.0001 4.16663" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Назад к списку</span>
+    </a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Название *</label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        [class.error]="name?.invalid && name?.touched"
+        placeholder="Например, Hip-Hop"
+      />
+      <span class="error-message" *ngIf="name?.invalid && name?.touched">
+        <span *ngIf="name?.errors?.['required']">Обязательное поле</span>
+        <span *ngIf="name?.errors?.['maxlength']">Не более 255 символов</span>
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="parentId">Родительский жанр</label>
+      <select id="parentId" formControlName="parentId">
+        <option [ngValue]="null">— нет (корневой жанр) —</option>
+        <option *ngFor="let g of availableParents" [ngValue]="g.id">{{ g.name }}</option>
+      </select>
+      <span class="hint">Оставьте пустым для жанра верхнего уровня.</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать') }}
+      </button>
+      <a routerLink="/admin/genres" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>

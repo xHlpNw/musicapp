@@ -60,4 +60,11 @@ export class TrackService {
     fd.append('file', file);
     return this.http.post<TrackResponse>(`${this.API_URL}/${id}/audio`, fd);
   }
+
+  /** Загрузить/заменить обложку трека (только для админа). */
+  uploadCover(id: number, file: File): Observable<TrackResponse> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<TrackResponse>(`${this.API_URL}/${id}/cover`, fd);
+  }
 }

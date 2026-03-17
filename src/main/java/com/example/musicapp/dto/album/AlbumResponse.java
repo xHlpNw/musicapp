@@ -1,5 +1,6 @@
 package com.example.musicapp.dto.album;
 
+import com.example.musicapp.dto.track.TrackArtistItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,10 +27,12 @@ public class AlbumResponse {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class TrackSummary {
         private Long id;
         private String title;
         private Integer durationSeconds;
         private Integer position;
+        private List<TrackArtistItem> artists;
     }
 }

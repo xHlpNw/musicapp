@@ -11,6 +11,8 @@ import { AlbumFormComponent } from './components/admin/album-form/album-form.com
 import { TracksListComponent } from './components/admin/tracks-list/tracks-list.component';
 import { TrackUploadComponent } from './components/admin/track-upload/track-upload.component';
 import { TrackEditComponent } from './components/admin/track-edit/track-edit.component';
+import { GenresListComponent } from './components/admin/genres-list/genres-list.component';
+import { GenreFormComponent } from './components/admin/genre-form/genre-form.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FavoritesComponent } from './components/favorites/favorites.component';
 import { PlaylistsComponent } from './components/playlists/playlists.component';
@@ -53,7 +55,10 @@ export const routes: Routes = [
       { path: 'albums/:id/edit', component: AlbumFormComponent },
       { path: 'tracks', component: TracksListComponent },
       { path: 'tracks/new', component: TrackUploadComponent },
-      { path: 'tracks/:id/edit', component: TrackEditComponent }
+      { path: 'tracks/:id/edit', component: TrackEditComponent },
+      { path: 'genres', component: GenresListComponent },
+      { path: 'genres/new', component: GenreFormComponent },
+      { path: 'genres/:id/edit', component: GenreFormComponent }
     ]
   },
   { path: '**', redirectTo: '/' }

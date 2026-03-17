@@ -85,10 +85,6 @@ public class TracksController {
                     .role(role)
                     .build());
         }
-        long primaryCount = artists.stream().filter(a -> a.getRole() == AlbumArtistRole.PRIMARY).count();
-        if (primaryCount != 1) {
-            throw new IllegalArgumentException("Exactly one artist must have role PRIMARY");
-        }
         CreateTrackRequest request = CreateTrackRequest.builder()
                 .title(title)
                 .albumId(albumId)
@@ -98,6 +94,14 @@ public class TracksController {
                 .build();
         TrackResponse response = trackService.upload(file, request, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<TrackResponse> uploadCover(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(trackService.uploadCover(id, file));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

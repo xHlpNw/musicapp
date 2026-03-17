@@ -1,15 +1,20 @@
 package com.example.musicapp.service;
 
 import com.example.musicapp.dto.album.*;
+import com.example.musicapp.dto.track.TrackArtistItem;
 import com.example.musicapp.entity.Album;
 import com.example.musicapp.entity.AlbumArtist;
 import com.example.musicapp.entity.AlbumArtistRole;
+import com.example.musicapp.entity.AlbumTrack;
 import com.example.musicapp.entity.Artist;
 import com.example.musicapp.entity.Genre;
+import com.example.musicapp.entity.Track;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.repository.AlbumRepository;
+import com.example.musicapp.repository.AlbumTrackRepository;
 import com.example.musicapp.repository.ArtistRepository;
 import com.example.musicapp.repository.GenreRepository;
+import com.example.musicapp.repository.TrackRepository;
 import com.example.musicapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +49,8 @@ public class AlbumService {
     private Path albumsCoversDir;
 
     private final AlbumRepository albumRepository;
+    private final AlbumTrackRepository albumTrackRepository;
+    private final TrackRepository trackRepository;
     private final ArtistRepository artistRepository;
     private final GenreRepository genreRepository;
     private final UserRepository userRepository;
@@ -112,7 +119,6 @@ public class AlbumService {
 
     @Transactional
     public AlbumResponse create(CreateAlbumRequest request) {
-        validateAtLeastOnePrimary(request.getArtists());
         Album album = Album.builder()
                 .title(request.getTitle())
                 .releaseDate(request.getReleaseDate())
@@ -158,9 +164,6 @@ public class AlbumService {
             album.setCoverImagePath(request.getCoverImagePath());
         }
         if (request.getArtists() != null) {
-            if (!request.getArtists().isEmpty()) {
-                validateAtLeastOnePrimary(request.getArtists());
-            }
             // Сначала удаляем существующие связи, затем флашим, чтобы Hibernate выполнил DELETE
             // до INSERT новых записей и не нарушил уникальный индекс (album_id, artist_id).
             album.getArtists().clear();
@@ -204,12 +207,21 @@ public class AlbumService {
                 .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + id));
     }
 
-    private void validateAtLeastOnePrimary(List<AlbumParticipantRequest> artists) {
-        boolean hasPrimary = artists.stream()
-                .anyMatch(p -> p.getRole() == AlbumArtistRole.PRIMARY);
-        if (!hasPrimary) {
-            throw new IllegalArgumentException("At least one artist must have role PRIMARY");
+    @Transactional
+    public void addTrackToAlbum(Long albumId, Long trackId, Integer position) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ResourceNotFoundException("Album not found: " + albumId));
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Track not found: " + trackId));
+        if (albumTrackRepository.existsByAlbumAndTrack(album, track)) {
+            throw new IllegalArgumentException("Track is already in this album");
         }
+        AlbumTrack at = AlbumTrack.builder()
+                .album(album)
+                .track(track)
+                .position(position)
+                .build();
+        albumTrackRepository.save(at);
     }
 
     public AlbumSummaryResponse toSummaryResponse(Album album) {
@@ -246,6 +258,27 @@ public class AlbumService {
         Set<Long> genreIds = album.getGenres().stream()
                 .map(Genre::getId)
                 .collect(Collectors.toSet());
+        List<AlbumResponse.TrackSummary> trackSummaries = album.getAlbumTracks().stream()
+                .map(at -> {
+                    List<TrackArtistItem> trackArtists = at.getTrack().getArtists().stream()
+                            .sorted(java.util.Comparator.comparingInt(ta -> ta.getDisplayOrder()))
+                            .map(ta -> TrackArtistItem.builder()
+                                    .artistId(ta.getArtist().getId())
+                                    .artistName(ta.getArtist().getName())
+                                    .displayOrder(ta.getDisplayOrder())
+                                    .role(ta.getRole())
+                                    .build())
+                            .collect(Collectors.toList());
+                    return AlbumResponse.TrackSummary.builder()
+                            .id(at.getTrack().getId())
+                            .title(at.getTrack().getTitle())
+                            .durationSeconds(at.getTrack().getDurationSeconds())
+                            .position(at.getPosition())
+                            .artists(trackArtists)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
         return AlbumResponse.builder()
                 .id(album.getId())
                 .title(album.getTitle())
@@ -253,13 +286,7 @@ public class AlbumService {
                 .coverImagePath(album.getCoverImagePath())
                 .artists(artistItems)
                 .genreIds(genreIds)
-                .tracks(album.getAlbumTracks().stream()
-                        .map(at -> new AlbumResponse.TrackSummary(
-                                at.getTrack().getId(),
-                                at.getTrack().getTitle(),
-                                at.getTrack().getDurationSeconds(),
-                                at.getPosition()))
-                        .collect(Collectors.toList()))
+                .tracks(trackSummaries)
                 .build();
     }
 }

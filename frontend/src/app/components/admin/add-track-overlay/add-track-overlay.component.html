@@ -44,7 +44,7 @@
 
         <div class="form-group form-group--wide">
           <label>Исполнители</label>
-          <p class="hint">Порядок строк — как в треке. Ровно один <strong>основной</strong> (PRIMARY), остальные — приглашённые (FEATURED).</p>
+          <p class="hint">Порядок строк — как в треке. Можно назначить любое количество основных (PRIMARY) и приглашённых (FEATURED).</p>
           <div class="participants">
             <div class="participant-row" *ngFor="let row of participants; let i = index">
               <span class="participant-order">{{ i + 1 }}.</span>
@@ -110,6 +110,7 @@
               min="1"
               [class.error]="durationSeconds?.invalid && durationSeconds?.touched"
             />
+            <span class="hint">Заполняется автоматически при выборе файла.</span>
           </div>
         </div>
 

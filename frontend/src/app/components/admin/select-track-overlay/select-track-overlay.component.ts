@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnIni
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TrackService } from '../../../services/track.service';
+import { AlbumService } from '../../../services/album.service';
 import { TrackResponse } from '../../../models/track.model';
 
 export interface SelectTrackData {
@@ -33,7 +34,8 @@ export class SelectTrackOverlayComponent implements OnChanges, OnInit {
   isAdding = false;
 
   constructor(
-    private trackService: TrackService
+    private trackService: TrackService,
+    private albumService: AlbumService
   ) {}
 
   ngOnInit(): void {
@@ -115,39 +117,15 @@ export class SelectTrackOverlayComponent implements OnChanges, OnInit {
     this.isAdding = true;
     this.errorMessage = '';
 
-    // Сначала получаем данные трека, чтобы сохранить его текущие поля
-    this.trackService.getById(this.selectedTrackId).subscribe({
-      next: (track) => {
-        // Обновляем трек - добавляем его в альбом
-        const artists = (track.artists || [])
-          .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-          .map((a, i) => ({
-            artistId: a.artistId,
-            displayOrder: i,
-            role: a.role || 'FEATURED'
-          }));
-
-        this.trackService.update(this.selectedTrackId!, {
-          title: track.title,
-          durationSeconds: track.durationSeconds,
-          albumId: this.data!.albumId,
-          position: this.data!.nextPosition,
-          artists: artists
-        }).subscribe({
-          next: () => {
-            this.isAdding = false;
-            this.trackSelected.emit();
-            this.doClose();
-          },
-          error: (err) => {
-            this.isAdding = false;
-            this.errorMessage = err.error?.error || 'Не удалось добавить трек';
-          }
-        });
+    this.albumService.addTrack(this.data.albumId, this.selectedTrackId, this.data.nextPosition).subscribe({
+      next: () => {
+        this.isAdding = false;
+        this.trackSelected.emit();
+        this.doClose();
       },
       error: (err) => {
         this.isAdding = false;
-        this.errorMessage = err.error?.error || 'Не удалось загрузить данные трека';
+        this.errorMessage = err.error?.error || 'Не удалось добавить трек';
       }
     });
   }

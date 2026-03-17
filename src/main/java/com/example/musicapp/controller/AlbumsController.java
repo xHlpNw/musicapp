@@ -1,5 +1,6 @@
 package com.example.musicapp.controller;
 
+import com.example.musicapp.dto.album.AddTrackToAlbumRequest;
 import com.example.musicapp.dto.album.AlbumResponse;
 import com.example.musicapp.dto.album.AlbumSummaryResponse;
 import com.example.musicapp.dto.album.CreateAlbumRequest;
@@ -63,6 +64,15 @@ public class AlbumsController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         albumService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/tracks")
+    public ResponseEntity<Void> addTrack(
+            @PathVariable Long id,
+            @Valid @RequestBody AddTrackToAlbumRequest request) {
+        albumService.addTrackToAlbum(id, request.getTrackId(), request.getPosition());
+        return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
