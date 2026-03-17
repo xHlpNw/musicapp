@@ -5,6 +5,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AlbumService } from '../../../services/album.service';
 import { ArtistService } from '../../../services/artist.service';
 import { TrackService } from '../../../services/track.service';
+import { GenreService, GenreResponse } from '../../../services/genre.service';
 import { ArtistResponse } from '../../../models/artist.model';
 import { AddTrackOverlayComponent, AddTrackData } from '../add-track-overlay/add-track-overlay.component';
 import { SelectTrackOverlayComponent, SelectTrackData } from '../select-track-overlay/select-track-overlay.component';
@@ -50,12 +51,15 @@ export class AlbumFormComponent implements OnInit {
   addTrackData: AddTrackData | null = null;
   isSelectTrackOverlayOpen = false;
   selectTrackData: SelectTrackData | null = null;
+  allGenres: GenreResponse[] = [];
+  selectedGenreIds: number[] = [];
 
   constructor(
     private fb: FormBuilder,
     private albumService: AlbumService,
     private artistService: ArtistService,
     private trackService: TrackService,
+    private genreService: GenreService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -137,6 +141,7 @@ export class AlbumFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.genreService.getAll().subscribe({ next: (res) => { this.allGenres = res.content; } });
     this.loadArtists();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -150,7 +155,8 @@ export class AlbumFormComponent implements OnInit {
             releaseYear: year ?? (album as { releaseYear?: number }).releaseYear ?? null
           });
           this.currentCoverPath = album.coverImagePath ?? null;
-          
+          this.selectedGenreIds = album.genreIds ? [...album.genreIds] : [];
+
           // Загружаем участников
           const sorted = [...(album.artists || [])].sort(
             (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
@@ -163,7 +169,7 @@ export class AlbumFormComponent implements OnInit {
           } else {
             this.participants = [{ artistId: null, role: 'PRIMARY' }];
           }
-          
+
           // Загружаем треки
           if (album.tracks && album.tracks.length > 0) {
             this.tracks = album.tracks
@@ -177,6 +183,16 @@ export class AlbumFormComponent implements OnInit {
         }
       });
     }
+  }
+
+  isGenreSelected(id: number): boolean {
+    return this.selectedGenreIds.includes(id);
+  }
+
+  toggleGenre(id: number): void {
+    const idx = this.selectedGenreIds.indexOf(id);
+    if (idx === -1) this.selectedGenreIds.push(id);
+    else this.selectedGenreIds.splice(idx, 1);
   }
 
   loadArtists(): void {
@@ -394,7 +410,8 @@ export class AlbumFormComponent implements OnInit {
         .update(this.albumId, {
           title: value.title,
           releaseDate,
-          artists
+          artists,
+          genreIds: this.selectedGenreIds.length ? this.selectedGenreIds : []
         })
         .subscribe({
           next: () =>
@@ -411,7 +428,8 @@ export class AlbumFormComponent implements OnInit {
         .create({
           title: value.title,
           releaseDate,
-          artists
+          artists,
+          genreIds: this.selectedGenreIds.length ? this.selectedGenreIds : undefined
         })
         .subscribe({
           next: (album) =>

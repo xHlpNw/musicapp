@@ -25,6 +25,13 @@
             } @else {
               <p class="ald-hero__meta">{{ album.tracks?.length ?? 0 }} треков</p>
             }
+            @if (getGenreNames().length) {
+              <div class="ald-hero__genres">
+                @for (name of getGenreNames(); track name) {
+                  <span class="ald-genre-tag">{{ name }}</span>
+                }
+              </div>
+            }
           </div>
         </section>
 

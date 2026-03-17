@@ -7,6 +7,7 @@ export interface AlbumResponse {
   artistId?: number;
   artistName?: string;
   artists?: AlbumArtistItem[];
+  genreIds?: number[];
   tracks?: {
     id: number;
     title: string;
@@ -41,6 +42,7 @@ export interface CreateAlbumRequest {
   artistId?: number;
   artists?: { artistId: number; displayOrder: number; role: string }[];
   coverImagePath?: string;
+  genreIds?: number[];
 }
 
 export interface UpdateAlbumRequest {
@@ -48,6 +50,7 @@ export interface UpdateAlbumRequest {
   releaseDate?: string;
   artists?: { artistId: number; displayOrder: number; role: string }[];
   coverImagePath?: string;
+  genreIds?: number[];
 }
 
 export interface PageResponse<T> {

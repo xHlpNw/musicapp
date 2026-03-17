@@ -27,7 +27,9 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +64,7 @@ public class TracksController {
             @RequestParam("artistIds") List<Long> artistIds,
             @RequestParam(value = "roles", required = false) List<String> roles,
             @RequestParam("durationSeconds") Integer durationSeconds,
+            @RequestParam(value = "genreIds", required = false) List<Long> genreIds,
             @AuthenticationPrincipal SecurityUser securityUser) {
         User user = securityUser.getUser();
         if (artistIds == null || artistIds.isEmpty()) {
@@ -85,12 +88,14 @@ public class TracksController {
                     .role(role)
                     .build());
         }
+        Set<Long> genreIdSet = (genreIds != null && !genreIds.isEmpty()) ? new HashSet<>(genreIds) : null;
         CreateTrackRequest request = CreateTrackRequest.builder()
                 .title(title)
                 .albumId(albumId)
                 .position(position)
                 .artists(artists)
                 .durationSeconds(durationSeconds)
+                .genreIds(genreIdSet)
                 .build();
         TrackResponse response = trackService.upload(file, request, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

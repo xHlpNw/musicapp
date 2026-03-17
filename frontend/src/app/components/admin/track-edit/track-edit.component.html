@@ -143,6 +143,19 @@
       </div>
     </div>
 
+    <div class="form-group form-group--wide" *ngIf="allGenres.length">
+      <label>Жанры</label>
+      <div class="genre-chips">
+        <button
+          type="button"
+          *ngFor="let g of allGenres"
+          class="genre-chip"
+          [class.genre-chip--selected]="isGenreSelected(g.id)"
+          (click)="toggleGenre(g.id)"
+        >{{ g.name }}</button>
+      </div>
+    </div>
+
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="isLoading || !trackId">Сохранить</button>
       <a routerLink="/admin/tracks" class="btn btn-secondary">Отмена</a>

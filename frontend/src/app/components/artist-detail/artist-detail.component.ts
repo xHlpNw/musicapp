@@ -6,6 +6,7 @@ import { ArtistService } from '../../services/artist.service';
 import { AuthService } from '../../services/auth.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
+import { GenreService } from '../../services/genre.service';
 import { ArtistResponse } from '../../models/artist.model';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
@@ -26,12 +27,14 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
   error = '';
   hasActiveTrack = false;
   currentUser: LoginResponse | null = null;
+  private genreMap = new Map<number, string>();
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private artistService: ArtistService,
+    private genreService: GenreService,
     public authService: AuthService,
     public playerService: PlayerService,
     private loginOverlay: LoginOverlayService,
@@ -44,6 +47,9 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.genreService.getAll().subscribe({
+      next: (res) => res.content.forEach(g => this.genreMap.set(g.id, g.name))
+    });
     this.authService.currentUser$.subscribe(u => this.currentUser = u);
     this.playerService.currentTrack$.subscribe(t => this.hasActiveTrack = !!t);
     this.route.paramMap.pipe(
@@ -76,6 +82,13 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  getGenreNames(): string[] {
+    if (!this.artist?.genreIds?.length) return [];
+    return [...this.artist.genreIds]
+      .map(id => this.genreMap.get(id))
+      .filter((n): n is string => !!n);
   }
 
   getAlbumCount(): number {

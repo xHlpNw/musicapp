@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ArtistService } from '../../../services/artist.service';
+import { GenreService, GenreResponse } from '../../../services/genre.service';
 
 @Component({
   selector: 'app-artist-form',
@@ -17,14 +18,15 @@ export class ArtistFormComponent implements OnInit {
   isLoading = false;
   isEditMode = false;
   artistId: number | null = null;
-  /** Текущая обложка (путь) в режиме редактирования — чтобы не сбрасывать при update. */
   currentCoverPath: string | null = null;
-  /** Выбранный файл обложки для загрузки. */
   selectedCoverFile: File | null = null;
+  allGenres: GenreResponse[] = [];
+  selectedGenreIds: number[] = [];
 
   constructor(
     private fb: FormBuilder,
     private artistService: ArtistService,
+    private genreService: GenreService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -39,6 +41,8 @@ export class ArtistFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.genreService.getAll().subscribe({ next: (res) => { this.allGenres = res.content; } });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.artistId = +id;
@@ -50,12 +54,23 @@ export class ArtistFormComponent implements OnInit {
             description: artist.description ?? ''
           });
           this.currentCoverPath = artist.coverImagePath ?? null;
+          this.selectedGenreIds = artist.genreIds ? [...artist.genreIds] : [];
         },
         error: () => {
           this.errorMessage = 'Исполнитель не найден';
         }
       });
     }
+  }
+
+  isGenreSelected(id: number): boolean {
+    return this.selectedGenreIds.includes(id);
+  }
+
+  toggleGenre(id: number): void {
+    const idx = this.selectedGenreIds.indexOf(id);
+    if (idx === -1) this.selectedGenreIds.push(id);
+    else this.selectedGenreIds.splice(idx, 1);
   }
 
   onCoverFileChange(event: Event): void {
@@ -74,7 +89,8 @@ export class ArtistFormComponent implements OnInit {
     const payload = {
       name: value.name,
       description: value.description || undefined,
-      coverImagePath: this.currentCoverPath || undefined
+      coverImagePath: this.currentCoverPath || undefined,
+      genreIds: this.selectedGenreIds.length ? this.selectedGenreIds : undefined
     };
 
     if (this.isEditMode && this.artistId != null) {

@@ -7,6 +7,7 @@ import { TrackService } from '../../services/track.service';
 import { AuthService } from '../../services/auth.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
+import { GenreService } from '../../services/genre.service';
 import { AlbumResponse } from '../../models/album.model';
 import { TrackResponse } from '../../models/track.model';
 import { TrackActionsContext } from '../track-actions/track-actions.component';
@@ -31,6 +32,7 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   hasActiveTrack = false;
   isPlaying = false;
   currentUser: LoginResponse | null = null;
+  private genreMap = new Map<number, string>();
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -38,6 +40,7 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private albumService: AlbumService,
     private trackService: TrackService,
+    private genreService: GenreService,
     public authService: AuthService,
     public playerService: PlayerService,
     private loginOverlay: LoginOverlayService,
@@ -50,6 +53,9 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.genreService.getAll().subscribe({
+      next: (res) => res.content.forEach(g => this.genreMap.set(g.id, g.name))
+    });
     this.authService.currentUser$.subscribe(u => this.currentUser = u);
     this.playerService.currentTrack$.subscribe(t => this.hasActiveTrack = !!t);
     this.playerService.isPlaying$.subscribe(v => this.isPlaying = v);
@@ -83,6 +89,13 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  getGenreNames(): string[] {
+    if (!this.album?.genreIds?.length) return [];
+    return [...this.album.genreIds]
+      .map(id => this.genreMap.get(id))
+      .filter((n): n is string => !!n);
   }
 
   getAlbumArtistName(): string {

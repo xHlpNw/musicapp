@@ -229,6 +229,15 @@ public class TrackService {
             trackArtistRepository.save(ta);
             track.getArtists().add(ta);
         }
+
+        track.getGenres().clear();
+        if (request.getGenreIds() != null) {
+            for (Long genreId : request.getGenreIds()) {
+                Genre genre = genreRepository.findById(genreId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Genre not found: " + genreId));
+                track.getGenres().add(genre);
+            }
+        }
         return toResponse(trackRepository.save(track));
     }
 

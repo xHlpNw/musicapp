@@ -5,6 +5,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { TrackService } from '../../../services/track.service';
 import { ArtistService } from '../../../services/artist.service';
 import { AlbumService } from '../../../services/album.service';
+import { GenreService, GenreResponse } from '../../../services/genre.service';
 import { ArtistResponse } from '../../../models/artist.model';
 import { AlbumSummaryResponse } from '../../../models/album.model';
 import { ParticipantRow } from '../track-upload/track-upload.component';
@@ -30,6 +31,8 @@ export class TrackEditComponent implements OnInit {
   currentCoverPath: string | null = null;
   newArtistName = '';
   creatingArtist = false;
+  allGenres: GenreResponse[] = [];
+  selectedGenreIds: number[] = [];
   private loadedAlbumId: number | null = null;
 
   constructor(
@@ -37,6 +40,7 @@ export class TrackEditComponent implements OnInit {
     private trackService: TrackService,
     private artistService: ArtistService,
     private albumService: AlbumService,
+    private genreService: GenreService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -77,6 +81,7 @@ export class TrackEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.genreService.getAll().subscribe({ next: (res) => { this.allGenres = res.content; } });
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.errorMessage = 'Не указан трек';
@@ -110,6 +115,7 @@ export class TrackEditComponent implements OnInit {
                 | 'FEATURED'
             }));
             this.currentCoverPath = track.coverImagePath ?? null;
+            this.selectedGenreIds = track.genreIds ? [...track.genreIds] : [];
             this.form.patchValue({
               title: track.title,
               durationSeconds: track.durationSeconds,
@@ -127,6 +133,16 @@ export class TrackEditComponent implements OnInit {
         this.isLoadingArtists = false;
       }
     });
+  }
+
+  isGenreSelected(id: number): boolean {
+    return this.selectedGenreIds.includes(id);
+  }
+
+  toggleGenre(id: number): void {
+    const idx = this.selectedGenreIds.indexOf(id);
+    if (idx === -1) this.selectedGenreIds.push(id);
+    else this.selectedGenreIds.splice(idx, 1);
   }
 
   private refreshAlbumsAfterLoad(): void {
@@ -286,7 +302,8 @@ export class TrackEditComponent implements OnInit {
         artistId: p.artistId!,
         displayOrder: i,
         role: p.role
-      }))
+      })),
+      genreIds: this.selectedGenreIds.length ? this.selectedGenreIds : []
     };
 
     this.trackService.update(this.trackId, payload).subscribe({

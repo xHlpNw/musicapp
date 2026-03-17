@@ -21,6 +21,13 @@
             @if (getAlbumCount() > 0) {
               <p class="ard-hero__meta">{{ getAlbumCount() }} {{ getAlbumsWord(getAlbumCount()) }}</p>
             }
+            @if (getGenreNames().length) {
+              <div class="ard-hero__genres">
+                @for (name of getGenreNames(); track name) {
+                  <span class="ard-genre-tag">{{ name }}</span>
+                }
+              </div>
+            }
           </div>
         </section>
 

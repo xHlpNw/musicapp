@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -33,4 +34,6 @@ public class UpdateTrackRequest {
     @NotEmpty
     @Valid
     private List<TrackParticipantRequest> artists;
+
+    private Set<Long> genreIds;
 }

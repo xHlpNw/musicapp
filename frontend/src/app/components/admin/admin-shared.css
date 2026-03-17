@@ -812,6 +812,37 @@
   margin-top: 12px;
 }
 
+/* === GENRE CHIPS === */
+.genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.genre-chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid #2A2D32;
+  background: #1C1F24;
+  color: #A0A0A0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.genre-chip:hover {
+  border-color: #F09020;
+  color: #EDEDED;
+}
+
+.genre-chip--selected {
+  background: rgba(240, 144, 32, 0.15);
+  border-color: #F09020;
+  color: #F09020;
+}
+
 /* === АДАПТИВНОСТЬ === */
 @media (max-width: 768px) {
   .form-row {

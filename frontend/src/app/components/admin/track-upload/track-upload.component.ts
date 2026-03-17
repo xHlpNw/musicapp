@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TrackService } from '../../../services/track.service';
 import { ArtistService } from '../../../services/artist.service';
 import { AlbumService } from '../../../services/album.service';
+import { GenreService, GenreResponse } from '../../../services/genre.service';
 import { ArtistResponse } from '../../../models/artist.model';
 import { AlbumSummaryResponse } from '../../../models/album.model';
 
@@ -33,12 +34,15 @@ export class TrackUploadComponent implements OnInit {
   selectedCoverFile: File | null = null;
   newArtistName = '';
   creatingArtist = false;
+  allGenres: GenreResponse[] = [];
+  selectedGenreIds: number[] = [];
 
   constructor(
     private fb: FormBuilder,
     private trackService: TrackService,
     private artistService: ArtistService,
     private albumService: AlbumService,
+    private genreService: GenreService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -62,7 +66,18 @@ export class TrackUploadComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.genreService.getAll().subscribe({ next: (res) => { this.allGenres = res.content; } });
     this.loadArtists();
+  }
+
+  isGenreSelected(id: number): boolean {
+    return this.selectedGenreIds.includes(id);
+  }
+
+  toggleGenre(id: number): void {
+    const idx = this.selectedGenreIds.indexOf(id);
+    if (idx === -1) this.selectedGenreIds.push(id);
+    else this.selectedGenreIds.splice(idx, 1);
   }
 
   loadArtists(): void {
@@ -227,6 +242,9 @@ export class TrackUploadComponent implements OnInit {
     for (const p of ordered) {
       fd.append('artistIds', String(p.artistId));
       fd.append('roles', p.role);
+    }
+    for (const gId of this.selectedGenreIds) {
+      fd.append('genreIds', String(gId));
     }
 
     this.trackService.upload(fd).subscribe({

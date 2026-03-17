@@ -3,6 +3,7 @@ export interface ArtistResponse {
   name: string;
   description?: string;
   coverImagePath?: string;
+  genreIds?: number[];
   albums?: { id: number; title: string; releaseYear?: number; releaseDate?: string }[];
 }
 
@@ -10,6 +11,7 @@ export interface CreateArtistRequest {
   name: string;
   description?: string;
   coverImagePath?: string;
+  genreIds?: number[];
 }
 
 export interface PageResponse<T> {

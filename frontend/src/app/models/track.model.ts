@@ -12,6 +12,7 @@ export interface TrackResponse {
   /** Альбомы, в которые входит трек (бэкенд может отдавать только это, без albumId на верхнем уровне) */
   albumTracks?: { albumId: number; albumTitle?: string; position?: number }[];
   coverImagePath?: string;
+  genreIds?: number[];
 }
 
 export interface PageResponse<T> {
