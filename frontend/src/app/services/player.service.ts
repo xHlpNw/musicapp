@@ -52,6 +52,16 @@ export class PlayerService {
     private listenHistoryService: ListenHistoryService
   ) {}
 
+  /**
+   * Воспроизвести трек по первому клику.
+   * Важно: просто setCurrentTrack(...) только выбирает трек и загружает поток, но не запускает play.
+   * Здесь мы после выбора трека выставляем playing=true, чтобы PlayerComponent стартовал воспроизведение в onCanPlay.
+   */
+  playTrack(track: TrackResponse): void {
+    this.setCurrentTrack(track);
+    this.setPlaying(true);
+  }
+
   setCurrentTrack(track: TrackResponse | null): void {
     this.errorSubject.next(null);
     this.isPlayingSubject.next(false);
@@ -74,7 +84,8 @@ export class PlayerService {
   setPlaylist(tracks: TrackResponse[], startIndex: number): void {
     if (!tracks.length || startIndex < 0 || startIndex >= tracks.length) return;
     this.errorSubject.next(null);
-    this.isPlayingSubject.next(false);
+    // Ожидаемое поведение UI: выбор трека из списка/альбома/поиска сразу запускает воспроизведение.
+    this.isPlayingSubject.next(true);
     this.playlist = [...tracks];
     this.playlistIndex = startIndex;
     this.playlistSubject.next({ list: this.playlist, index: this.playlistIndex });

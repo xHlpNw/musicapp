@@ -12,6 +12,14 @@ export interface HostPositionResponse {
   currentQueueItemId?: number | null;
 }
 
+export interface PositionTick {
+  positionSeconds: number;
+  playing: boolean;
+  currentTrackId: number | null;
+  currentQueueItemId?: number | null;
+  serverTimeMs?: number;
+}
+
 const MAX_RECONNECT_ATTEMPTS = 5;
 const INITIAL_RECONNECT_DELAY_MS = 1000;
 const MAX_RECONNECT_DELAY_MS = 30000;
@@ -33,6 +41,7 @@ export class RoomRealtimeService implements OnDestroy {
   private roomClosed$ = new Subject<number>();
   private positionResponse$ = new Subject<HostPositionResponse>();
   private getPositionRequest$ = new Subject<{ requestId: string }>();
+  private positionTick$ = new Subject<PositionTick>();
   private explicitlyDisconnected = false;
   private reconnectAttempts = 0;
   private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -95,6 +104,16 @@ export class RoomRealtimeService implements OnDestroy {
             playing: Boolean(data.playing),
             currentTrackId: data.currentTrackId ?? null,
             currentQueueItemId: data.currentQueueItemId ?? null
+          });
+          return;
+        }
+        if (data?.type === 'position') {
+          this.positionTick$.next({
+            positionSeconds: Number(data.positionSeconds) || 0,
+            playing: Boolean(data.playing),
+            currentTrackId: data.currentTrackId ?? null,
+            currentQueueItemId: data.currentQueueItemId ?? null,
+            serverTimeMs: typeof data.serverTimeMs === 'number' ? data.serverTimeMs : undefined
           });
           return;
         }
@@ -193,11 +212,27 @@ export class RoomRealtimeService implements OnDestroy {
     return this.getPositionRequest$.asObservable();
   }
 
+  /** Периодические тики позиции (анти-дрифт) от хоста через сервер. */
+  onPositionTick(): Observable<PositionTick> {
+    return this.positionTick$.asObservable();
+  }
+
   /** Отправить текущую позицию (вызывает хост в ответ на getPositionRequest). */
   sendPositionResponse(requestId: string, data: Omit<HostPositionResponse, 'requestId'>): void {
     this.send({
       type: 'positionResponse',
       requestId,
+      positionSeconds: data.positionSeconds,
+      playing: data.playing,
+      currentTrackId: data.currentTrackId,
+      currentQueueItemId: data.currentQueueItemId ?? null
+    });
+  }
+
+  /** Отправить тик позиции (вызывает хост периодически при playing=true). */
+  sendPositionTick(data: Omit<PositionTick, 'serverTimeMs'>): void {
+    this.send({
+      type: 'positionTick',
       positionSeconds: data.positionSeconds,
       playing: data.playing,
       currentTrackId: data.currentTrackId,

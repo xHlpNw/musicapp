@@ -148,7 +148,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * Обработка сообщений от клиентов: getPosition (запрос позиции у хоста) и positionResponse (ответ хоста).
+     * Обработка сообщений от клиентов:
+     * - getPosition (запрос позиции у хоста) и positionResponse (ответ хоста)
+     * - positionTick (периодические тики позиции от хоста для анти-дрифта)
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -156,6 +158,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         if (!(roomIdAttr instanceof Long roomId)) {
             return;
         }
+        Object userIdAttr = session.getAttributes().get("userId");
+        Long userId = userIdAttr instanceof Long l ? l : (userIdAttr instanceof Number n ? n.longValue() : null);
         try {
             @SuppressWarnings("unchecked")
             Map<String, Object> payload = objectMapper.readValue(message.getPayload(), Map.class);
@@ -181,6 +185,37 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         }
                     }
                 }
+                return;
+            }
+            if ("positionTick".equals(type)) {
+                if (userId == null) return;
+                Optional<Room> roomOpt = roomRepository.findById(roomId);
+                if (roomOpt.isEmpty()) return;
+                Room room = roomOpt.get();
+                if (!room.getHost().getId().equals(userId)) {
+                    return; // only host can emit ticks
+                }
+
+                // Minimal validation / normalization
+                double positionSeconds = 0.0;
+                Object posObj = payload.get("positionSeconds");
+                if (posObj instanceof Number n) {
+                    positionSeconds = Math.max(0.0, n.doubleValue());
+                }
+                boolean playing = Boolean.TRUE.equals(payload.get("playing"));
+                Object currentTrackId = payload.get("currentTrackId");
+                Object currentQueueItemId = payload.get("currentQueueItemId");
+
+                Map<String, Object> tick = new java.util.HashMap<>();
+                tick.put("type", "position");
+                tick.put("positionSeconds", positionSeconds);
+                tick.put("playing", playing);
+                tick.put("currentTrackId", currentTrackId);
+                tick.put("currentQueueItemId", currentQueueItemId);
+                tick.put("serverTimeMs", System.currentTimeMillis());
+
+                String tickPayload = objectMapper.writeValueAsString(tick);
+                sendToRoom(roomId, new TextMessage(tickPayload), session); // exclude sender
             }
         } catch (Exception e) {
             // ignore malformed messages

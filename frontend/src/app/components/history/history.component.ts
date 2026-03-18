@@ -105,7 +105,7 @@ export class HistoryComponent implements OnInit {
   }
 
   playTrack(track: TrackResponse): void {
-    this.playerService.setCurrentTrack(track);
+    this.playerService.playTrack(track);
   }
 
   isCurrentTrack(track: TrackResponse): boolean {

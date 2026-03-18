@@ -182,7 +182,7 @@ export class FavoritesComponent implements OnInit, OnDestroy {
   }
 
   playTrack(track: TrackResponse): void {
-    this.playerService.setCurrentTrack(track);
+    this.playerService.playTrack(track);
   }
 
   formatDuration(seconds: number): string {

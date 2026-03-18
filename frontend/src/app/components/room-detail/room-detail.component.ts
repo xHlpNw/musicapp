@@ -13,7 +13,7 @@ import { RoomService } from '../../services/room.service';
 import { RoomControlService } from '../../services/room-control.service';
 import { TrackService } from '../../services/track.service';
 import { FavoritesService } from '../../services/favorites.service';
-import { RoomRealtimeService, HostPositionResponse } from '../../services/room-realtime.service';
+import { RoomRealtimeService, HostPositionResponse, PositionTick } from '../../services/room-realtime.service';
 import { RoomChatMessage, RoomResponse, RoomQueueItemInfo } from '../../models/room.model';
 import { TrackResponse } from '../../models/track.model';
 import { RoomSettingsOverlayComponent } from '../room-settings-overlay/room-settings-overlay.component';
@@ -57,6 +57,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   private needScrollChatToBottom = false;
   /** Таймер повторной попытки запуска воспроизведения после загрузки (обход гонки с потоком/автовоспроизведением). */
   private playRetryTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  /** Периодические тики позиции от хоста (анти-дрифт). */
+  private positionTickIntervalId: ReturnType<typeof setInterval> | null = null;
 
   room: RoomResponse | null = null;
   /** Показать кнопку «Присоединиться» (пользователь не участник). */
@@ -174,6 +176,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   ngOnDestroy(): void {
     this.clearPlayRetryTimeout();
+    this.stopPositionTicking();
     this.roomControlService.unregister();
     this.roomRealtimeService.disconnect();
     this.destroy$.next();
@@ -184,6 +187,54 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     if (this.playRetryTimeoutId != null) {
       clearTimeout(this.playRetryTimeoutId);
       this.playRetryTimeoutId = null;
+    }
+  }
+
+  private stopPositionTicking(): void {
+    if (this.positionTickIntervalId != null) {
+      clearInterval(this.positionTickIntervalId);
+      this.positionTickIntervalId = null;
+    }
+  }
+
+  private updatePositionTicking(): void {
+    // Отправляет только хост и только когда комната играет.
+    const shouldTick = !!this.room && this.isCurrentUserHost && !this.needJoin && (this.room.playing ?? false) && this.room.currentTrackId != null;
+    if (!shouldTick) {
+      this.stopPositionTicking();
+      return;
+    }
+    if (this.positionTickIntervalId != null) return;
+
+    this.positionTickIntervalId = setInterval(() => {
+      if (!this.room || !this.isCurrentUserHost || this.needJoin) return;
+      if (!(this.room.playing ?? false) || this.room.currentTrackId == null) return;
+
+      const positionSeconds = this.playerService.getCurrentTime?.() ?? this.room.positionSeconds ?? 0;
+      this.roomRealtimeService.sendPositionTick({
+        positionSeconds,
+        playing: this.room.playing ?? false,
+        currentTrackId: this.room.currentTrackId ?? null,
+        currentQueueItemId: this.room.currentQueueItemId ?? null
+      });
+    }, 5000);
+  }
+
+  private applyPositionTick(tick: PositionTick): void {
+    // Слушатели: подстройка позиции без полного sync (чтобы не перезагружать трек/сбрасывать состояние).
+    if (this.needJoin || this.isCurrentUserHost) return;
+    if (!this.room) return;
+    if (!(this.room.playing ?? false)) return;
+    if (!tick.playing) return;
+    if (this.room.currentTrackId == null || tick.currentTrackId == null) return;
+    if (this.room.currentTrackId !== tick.currentTrackId) return;
+
+    const local = this.playerService.getCurrentTime?.() ?? this.room.positionSeconds ?? 0;
+    const remote = tick.positionSeconds ?? 0;
+    if (Math.abs(local - remote) >= 2) {
+      this.playerService.requestSeek(remote);
+      // чтобы UI комнаты (progress/position) не выглядел "зависшим" до следующего state push:
+      this.room = { ...this.room, positionSeconds: remote };
     }
   }
 
@@ -245,6 +296,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       if (data) {
         this.room = data;
         this.needScrollQueueToCurrent = true;
+        this.updatePositionTicking();
         if (this.needJoin) {
           this.chatMessages = [];
           this.roomControlService.unregister();
@@ -284,6 +336,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
           const roomPlayingButPlayerPaused = state.playing && !this.playerService.isPlaying();
           this.room = state;
           this.needScrollQueueToCurrent = true;
+          this.updatePositionTicking();
           if (!this.needJoin && (playbackChanged || roomPlayingButPlayerPaused)) {
             this.syncPlayerToRoom(state);
             if (roomPlayingButPlayerPaused) this.schedulePlayRetryIfNeeded(state);
@@ -310,6 +363,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         this.ngZone.run(() => {
           this.error = 'Комната закрыта';
           this.router.navigate(['/rooms']);
+        });
+      });
+    this.roomRealtimeService.onPositionTick()
+      .pipe(takeUntil(stop$))
+      .subscribe(tick => {
+        this.ngZone.run(() => {
+          this.applyPositionTick(tick);
         });
       });
     this.roomRealtimeService.onGetPositionRequest()

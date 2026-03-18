@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit {
   }
 
   selectTrack(track: TrackResponse): void {
-    this.playerService.setCurrentTrack(track);
+    this.playerService.playTrack(track);
   }
 
   formatDuration(seconds: number): string {
