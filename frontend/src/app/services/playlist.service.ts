@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { PlaylistResponse, CreatePlaylistRequest, UpdatePlaylistRequest, PageResponse } from '../models/playlist.model';
 import { TrackResponse } from '../models/track.model';
 
+export interface AddTrackToPlaylistRequest {
+  trackId: number;
+  position?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,6 +40,15 @@ export class PlaylistService {
 
   getTracks(id: number): Observable<TrackResponse[]> {
     return this.http.get<TrackResponse[]>(`${this.API_URL}/${id}/tracks`);
+  }
+
+  addTrack(playlistId: number, trackId: number, position?: number): Observable<void> {
+    const payload: AddTrackToPlaylistRequest = { trackId, position };
+    return this.http.post<void>(`${this.API_URL}/${playlistId}/tracks`, payload);
+  }
+
+  removeTrack(playlistId: number, trackId: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${playlistId}/tracks/${trackId}`);
   }
 
   create(request: CreatePlaylistRequest): Observable<PlaylistResponse> {

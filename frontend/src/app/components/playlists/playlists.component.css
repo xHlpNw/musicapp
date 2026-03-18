@@ -233,6 +233,13 @@
   background-position: center;
 }
 
+.playlists-card__cover--has-image {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #15171A;
+}
+
 .playlists-card__cover.cover--1 {
   background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
 }
@@ -250,6 +257,14 @@
 }
 .playlists-card__cover.cover--6 {
   background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+}
+
+/* Если есть реальная картинка — показываем целиком (перебиваем cover--N с background shorthand). */
+.playlists-card__cover.playlists-card__cover--has-image {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #15171A;
 }
 
 .playlists-card__name {

@@ -12,7 +12,15 @@
       } @else if (artist) {
 
         <section class="ard-hero">
-          <div class="ard-hero__cover" [style.background-image]="getCoverStyle(artist.coverImagePath)"></div>
+          <div
+            class="ard-hero__cover"
+            [class.ard-hero__cover--placeholder]="!artist.coverImagePath"
+            [style.background-image]="getCoverStyle(artist.coverImagePath)"
+          >
+            @if (!artist.coverImagePath) {
+              <span class="ard-hero__cover-initial" aria-hidden="true">{{ getArtistInitial() }}</span>
+            }
+          </div>
           <div class="ard-hero__info">
             <h1 class="ard-hero__title">{{ artist.name }}</h1>
             @if (artist.description) {
@@ -38,7 +46,11 @@
               @for (album of artist.albums; track album.id; let i = $index) {
                 <li class="ard-album-item">
                   <a [routerLink]="['/album', album.id]" class="ard-album-item__link">
-                    <div class="ard-album-item__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
+                    <div
+                      class="ard-album-item__cover"
+                      [style.background-image]="getCoverStyle(album.coverImagePath)"
+                      [ngClass]="album.coverImagePath ? '' : ('cover--' + ((i % 6) + 1))"
+                    ></div>
                     <span class="ard-album-item__title">{{ album.title }}</span>
                     @if (album.releaseYear || album.releaseDate) {
                       <span class="ard-album-item__year">{{ album.releaseYear ?? (album.releaseDate ? album.releaseDate.toString().slice(0, 4) : '') }}</span>

@@ -4,7 +4,7 @@ export interface ArtistResponse {
   description?: string;
   coverImagePath?: string;
   genreIds?: number[];
-  albums?: { id: number; title: string; releaseYear?: number; releaseDate?: string }[];
+  albums?: { id: number; title: string; releaseYear?: number; releaseDate?: string; coverImagePath?: string }[];
 }
 
 export interface CreateArtistRequest {

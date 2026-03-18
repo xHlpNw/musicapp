@@ -76,6 +76,7 @@
       <div class="player__more-menu">
         <button type="button" class="player__more-item" (click)="addToQueue(track)">Добавить в очередь</button>
         <button type="button" class="player__more-item" (click)="addToQueueNext(track)">Играть следующим</button>
+        <button type="button" class="player__more-item" (click)="openAddToPlaylist(track)">Добавить в плейлист</button>
         @if (hasAlbum(track)) {
           <button type="button" class="player__more-item" (click)="goToAlbum(track)">Перейти к альбому</button>
         }

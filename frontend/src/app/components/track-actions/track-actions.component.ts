@@ -9,6 +9,7 @@ import { FavoritesService } from '../../services/favorites.service';
 import { PlayerService } from '../../services/player.service';
 import { TrackService } from '../../services/track.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
+import { AddToPlaylistOverlayService } from '../../services/add-to-playlist-overlay.service';
 
 /** Контекст для треков без полных данных (например, в альбоме): альбом и/или исполнители. */
 export interface TrackActionsContext {
@@ -36,7 +37,8 @@ export class TrackActionsComponent implements OnInit, OnDestroy {
     private playerService: PlayerService,
     private trackService: TrackService,
     private router: Router,
-    private loginOverlay: LoginOverlayService
+    private loginOverlay: LoginOverlayService,
+    private addToPlaylistOverlay: AddToPlaylistOverlayService
   ) {}
 
   ngOnInit(): void {
@@ -113,6 +115,15 @@ export class TrackActionsComponent implements OnInit, OnDestroy {
   addToQueueNext(event: Event): void {
     event.stopPropagation();
     this.ensureFullTrackThen(t => this.playerService.addToQueueNext(t));
+  }
+
+  openAddToPlaylist(event: Event): void {
+    event.stopPropagation();
+    if (!this.authService.isAuthenticated()) {
+      this.loginOverlay.open();
+      return;
+    }
+    this.addToPlaylistOverlay.open(this.track);
   }
 
   goToAlbum(event: Event): void {

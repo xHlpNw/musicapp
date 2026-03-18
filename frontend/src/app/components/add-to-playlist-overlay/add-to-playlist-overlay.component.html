@@ -1,0 +1,39 @@
+@if (isOpen && track) {
+  <div class="addpl" (click)="close()">
+    <div class="addpl__card" (click)="$event.stopPropagation()">
+      <div class="addpl__head">
+        <div class="addpl__title">Добавить в плейлист</div>
+        <button type="button" class="addpl__close" (click)="close()" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="addpl__subtitle">{{ track.title }}</div>
+
+      @if (playlistsLoading) {
+        <div class="addpl__muted">Загрузка плейлистов...</div>
+      } @else if (playlists.length === 0) {
+        <div class="addpl__muted">У вас пока нет плейлистов.</div>
+      } @else {
+        <div class="addpl__list">
+          @for (pl of playlists; track pl.id) {
+            <button
+              type="button"
+              class="addpl__item"
+              [disabled]="addLoadingId === pl.id"
+              (click)="addToPlaylist(pl)"
+            >
+              <span class="addpl__item-name">{{ pl.name }}</span>
+              <span class="addpl__item-meta">{{ pl.trackCount }} трек(ов)</span>
+            </button>
+          }
+        </div>
+      }
+
+      @if (error) {
+        <div class="addpl__error">{{ error }}</div>
+      }
+      @if (success) {
+        <div class="addpl__success">{{ success }}</div>
+      }
+    </div>
+  </div>
+}
+

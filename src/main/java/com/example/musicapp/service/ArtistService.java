@@ -236,7 +236,8 @@ public class ArtistService {
                 .map(a -> new ArtistResponse.AlbumSummary(
                         a.getId(),
                         a.getTitle(),
-                        a.getReleaseDate()))
+                        a.getReleaseDate(),
+                        a.getCoverImagePath()))
                 .collect(Collectors.toList());
         return ArtistResponse.builder()
                 .id(artist.getId())

@@ -15,6 +15,7 @@
       <div class="track-actions__more-menu">
         <button type="button" class="track-actions__more-item" (click)="addToQueue($event)">Добавить в очередь</button>
         <button type="button" class="track-actions__more-item" (click)="addToQueueNext($event)">Играть следующим</button>
+        <button type="button" class="track-actions__more-item" (click)="openAddToPlaylist($event)">Добавить в плейлист</button>
         @if (hasAlbum() && getAlbumId() != null) {
           <button type="button" class="track-actions__more-item" (click)="goToAlbum($event)">Перейти к альбому</button>
         }

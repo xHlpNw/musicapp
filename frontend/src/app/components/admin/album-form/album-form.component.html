@@ -219,7 +219,7 @@
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary" [disabled]="isLoading || isLoadingArtists || artists.length === 0">
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
         {{ isLoading ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать') }}
       </button>
       <a routerLink="/admin/albums" class="btn btn-secondary">Отмена</a>

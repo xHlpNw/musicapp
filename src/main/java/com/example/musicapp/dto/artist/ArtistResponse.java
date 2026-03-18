@@ -29,5 +29,6 @@ public class ArtistResponse {
         private Long id;
         private String title;
         private LocalDate releaseDate;
+        private String coverImagePath;
     }
 }

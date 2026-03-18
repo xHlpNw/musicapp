@@ -41,7 +41,12 @@
           <div class="playlists-row">
             @for (p of popularPlaylists; track p.id; let i = $index) {
               <a [routerLink]="['/playlists', p.id]" class="playlists-card">
-                <div class="playlists-card__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
+                <div
+                  class="playlists-card__cover"
+                  [ngClass]="'cover--' + ((i % 6) + 1)"
+                  [class.playlists-card__cover--has-image]="!!p.coverImagePath"
+                  [style.background-image]="getPlaylistCoverStyle(p) ?? null"
+                ></div>
                 <span class="playlists-card__name">{{ p.name }}</span>
                 <span class="playlists-card__meta">{{ p.ownerUsername }}</span>
               </a>
@@ -99,7 +104,12 @@
           <div class="playlists-grid">
             @for (p of filteredMyPlaylists; track p.id; let i = $index) {
               <a [routerLink]="['/playlists', p.id]" class="playlists-card">
-                <div class="playlists-card__cover" [ngClass]="'cover--' + ((i % 6) + 1)"></div>
+                <div
+                  class="playlists-card__cover"
+                  [ngClass]="'cover--' + ((i % 6) + 1)"
+                  [class.playlists-card__cover--has-image]="!!p.coverImagePath"
+                  [style.background-image]="getPlaylistCoverStyle(p) ?? null"
+                ></div>
                 <span class="playlists-card__name">{{ p.name }}</span>
                 <span class="playlists-card__meta">{{ trackCountLabel(p.trackCount) }}</span>
               </a>

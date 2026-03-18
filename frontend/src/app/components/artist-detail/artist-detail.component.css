@@ -61,6 +61,22 @@
   background: #1C1F24;
   background-size: cover;
   background-position: center;
+  display: grid;
+  place-items: center;
+}
+
+.ard-hero__cover--placeholder {
+  background: radial-gradient(circle at 30% 30%, rgba(240, 144, 32, 0.35) 0%, rgba(240, 144, 32, 0.08) 45%, rgba(28, 31, 36, 1) 100%);
+  border: 1px solid rgba(240, 144, 32, 0.18);
+}
+
+.ard-hero__cover-initial {
+  font-size: clamp(3.25rem, 6vw, 4.75rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(237, 237, 237, 0.9);
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  user-select: none;
 }
 
 .ard-hero__info {

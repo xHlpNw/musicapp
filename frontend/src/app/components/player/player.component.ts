@@ -11,6 +11,7 @@ import { FavoritesService } from '../../services/favorites.service';
 import { RoomControlService } from '../../services/room-control.service';
 import { TrackResponse } from '../../models/track.model';
 import { LoginResponse } from '../../models/auth.model';
+import { AddToPlaylistOverlayService } from '../../services/add-to-playlist-overlay.service';
 
 @Component({
   selector: 'app-player',
@@ -47,6 +48,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private favoritesService: FavoritesService,
     private roomControlService: RoomControlService,
+    private addToPlaylistOverlay: AddToPlaylistOverlayService,
     private sanitizer: DomSanitizer,
     private router: Router
   ) {}
@@ -313,6 +315,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   addToQueueNext(track: TrackResponse): void {
     this.playerService.addToQueueNext(track);
+  }
+
+  openAddToPlaylist(track: TrackResponse): void {
+    // Оверлей рендерится в AppComponent (поверх всего) — без проблем с перекрытиями.
+    this.addToPlaylistOverlay.open(track);
   }
 
   goToAlbum(track: TrackResponse): void {

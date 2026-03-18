@@ -197,3 +197,5 @@
   padding: 8px 14px;
   font-size: 13px;
 }
+
+/* Overlay вынесен в корень приложения (AddToPlaylistOverlayComponent) */

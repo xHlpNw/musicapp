@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { PlaylistService } from '../../services/playlist.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { AuthService } from '../../services/auth.service';
@@ -51,7 +52,8 @@ export class PlaylistsComponent implements OnInit {
     private favoritesService: FavoritesService,
     public authService: AuthService,
     public playerService: PlayerService,
-    private loginOverlay: LoginOverlayService
+    private loginOverlay: LoginOverlayService,
+    private sanitizer: DomSanitizer
   ) {}
 
   openLogin(event: Event): void {
@@ -144,6 +146,13 @@ export class PlaylistsComponent implements OnInit {
     if (count === 1) return '1 трек';
     if (count >= 2 && count <= 4) return `${count} трека`;
     return `${count} треков`;
+  }
+
+  getPlaylistCoverStyle(playlist: PlaylistResponse): SafeStyle | null {
+    const path = playlist.coverImagePath;
+    if (!path) return null;
+    const url = path.startsWith('http') ? path : '/api/covers/' + path;
+    return this.sanitizer.bypassSecurityTrustStyle(`url(${url})`);
   }
 
   openCreateModal(): void {

@@ -111,6 +111,11 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
     return url ? this.sanitizer.bypassSecurityTrustStyle('url(' + url + ')') : null;
   }
 
+  getArtistInitial(): string {
+    const name = this.artist?.name?.trim();
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
   getAvatarUrl(user: LoginResponse): string | null {
     if (!user?.avatarUrl) return null;
     const base = user.avatarUrl.startsWith('http') ? user.avatarUrl : '/api/covers/' + user.avatarUrl;

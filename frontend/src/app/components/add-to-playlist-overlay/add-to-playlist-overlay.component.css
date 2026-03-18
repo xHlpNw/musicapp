@@ -1,0 +1,126 @@
+.addpl {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 24px 16px 96px;
+}
+
+.addpl__card {
+  width: min(520px, 100%);
+  background: rgba(35, 35, 40, 0.92);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 18px 60px -18px rgba(0, 0, 0, 0.6);
+  padding: 14px 14px 12px;
+  color: #EDEDED;
+}
+
+.addpl__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.addpl__title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.addpl__close {
+  border: none;
+  background: transparent;
+  color: #9A9A9A;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.addpl__close:hover {
+  color: #F09020;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.addpl__subtitle {
+  margin-top: 6px;
+  color: #B9B9B9;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addpl__muted {
+  margin-top: 10px;
+  color: #9A9A9A;
+  font-size: 13px;
+}
+
+.addpl__list {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.addpl__item {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #EDEDED;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.addpl__item:hover:not(:disabled) {
+  border-color: rgba(240, 144, 32, 0.45);
+  background: rgba(240, 144, 32, 0.08);
+}
+
+.addpl__item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.addpl__item-name {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addpl__item-meta {
+  font-size: 12px;
+  color: #9A9A9A;
+  flex-shrink: 0;
+}
+
+.addpl__error {
+  margin-top: 10px;
+  color: #f87171;
+  font-size: 13px;
+}
+
+.addpl__success {
+  margin-top: 10px;
+  color: #a7f3d0;
+  font-size: 13px;
+}
+
