@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { AlbumService } from '../../services/album.service';
 import { TrackService } from '../../services/track.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { AuthService } from '../../services/auth.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
@@ -15,7 +16,7 @@ import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { TrackActionsComponent } from '../track-actions/track-actions.component';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { switchMap, takeUntil, filter } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 
 @Component({
@@ -32,6 +33,8 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   hasActiveTrack = false;
   isPlaying = false;
   currentUser: LoginResponse | null = null;
+  isFavorite = false;
+  private favoriteAlbumIds = new Set<number>();
   private genreMap = new Map<number, string>();
   private destroy$ = new Subject<void>();
 
@@ -40,6 +43,7 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private albumService: AlbumService,
     private trackService: TrackService,
+    private favoritesService: FavoritesService,
     private genreService: GenreService,
     public authService: AuthService,
     public playerService: PlayerService,
@@ -59,6 +63,13 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
     this.authService.currentUser$.subscribe(u => this.currentUser = u);
     this.playerService.currentTrack$.subscribe(t => this.hasActiveTrack = !!t);
     this.playerService.isPlaying$.subscribe(v => this.isPlaying = v);
+    if (this.authService.isAuthenticated()) {
+      this.loadFavoriteIds();
+    }
+    this.favoritesService.favoritesChanged$.pipe(
+      takeUntil(this.destroy$),
+      filter(kind => kind === 'albums')
+    ).subscribe(() => this.loadFavoriteIds());
     this.route.paramMap.pipe(
       switchMap(params => {
         const id = params.get('id');
@@ -77,6 +88,7 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
           return;
         }
         this.album = album;
+        this.isFavorite = this.favoriteAlbumIds.has(album.id);
         this.isLoading = false;
       },
       error: () => {
@@ -89,6 +101,43 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadFavoriteIds(): void {
+    this.favoritesService.getAlbums().subscribe({
+      next: (list) => {
+        this.favoriteAlbumIds = new Set(list.map(a => a.id));
+        if (this.album) this.isFavorite = this.favoriteAlbumIds.has(this.album.id);
+      }
+    });
+  }
+
+  isHeartActive(): boolean {
+    return this.isFavorite;
+  }
+
+  toggleFavorite(event: Event): void {
+    event.stopPropagation();
+    if (!this.album) return;
+    if (!this.authService.isAuthenticated()) {
+      this.openLogin(event);
+      return;
+    }
+    if (this.isFavorite) {
+      this.favoritesService.removeAlbum(this.album.id).subscribe({
+        next: () => {
+          this.favoriteAlbumIds.delete(this.album!.id);
+          this.isFavorite = false;
+        }
+      });
+    } else {
+      this.favoritesService.addAlbum(this.album.id).subscribe({
+        next: () => {
+          this.favoriteAlbumIds.add(this.album!.id);
+          this.isFavorite = true;
+        }
+      });
+    }
   }
 
   getGenreNames(): string[] {

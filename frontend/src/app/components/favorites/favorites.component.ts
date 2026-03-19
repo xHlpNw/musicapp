@@ -230,6 +230,11 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     return 'cover--' + ((index % 6) + 1);
   }
 
+  getPlaylistCoverStyle(playlist: PlaylistResponse): SafeStyle | null {
+    const url = this.getCoversUrl(playlist.coverImagePath);
+    return url ? this.sanitizer.bypassSecurityTrustStyle('url(' + url + ')') : null;
+  }
+
   getArtistCoverClass(index: number): string {
     return 'cover--' + ((index % 6) + 1);
   }

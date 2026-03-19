@@ -189,6 +189,7 @@ public class RoomService {
             List<RoomMember> remaining = roomMemberRepository.findByRoomOrderByJoinedAtAsc(room);
             if (remaining.isEmpty()) {
                 roomWebSocketHandler.broadcastRoomClosed(roomId);
+                roomChatMessageRepository.deleteByRoom(room);
                 roomRepository.delete(room);
             } else {
                 room.setHost(remaining.get(0).getUser());

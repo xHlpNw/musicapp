@@ -34,6 +34,11 @@
   color: #F09020;
 }
 
+.track-actions__heart--active svg {
+  fill: currentColor;
+  stroke: none;
+}
+
 .track-actions__heart svg {
   width: 18px;
   height: 18px;

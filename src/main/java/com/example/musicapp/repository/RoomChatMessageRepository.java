@@ -12,5 +12,7 @@ public interface RoomChatMessageRepository extends JpaRepository<RoomChatMessage
 
     @Query("select m from RoomChatMessage m where m.room = :room order by m.createdAt desc")
     List<RoomChatMessage> findRecentByRoom(Room room, Pageable pageable);
+
+    void deleteByRoom(Room room);
 }
 

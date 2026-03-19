@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { ArtistService } from '../../services/artist.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { AuthService } from '../../services/auth.service';
 import { LoginOverlayService } from '../../services/login-overlay.service';
 import { PlayerService } from '../../services/player.service';
@@ -11,7 +12,7 @@ import { ArtistResponse } from '../../models/artist.model';
 import { LoginResponse } from '../../models/auth.model';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { switchMap, takeUntil, filter } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 
 @Component({
@@ -27,6 +28,8 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
   error = '';
   hasActiveTrack = false;
   currentUser: LoginResponse | null = null;
+  isFavorite = false;
+  private favoriteArtistIds = new Set<number>();
   private genreMap = new Map<number, string>();
   private destroy$ = new Subject<void>();
 
@@ -34,6 +37,7 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private artistService: ArtistService,
+    private favoritesService: FavoritesService,
     private genreService: GenreService,
     public authService: AuthService,
     public playerService: PlayerService,
@@ -52,6 +56,13 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
     });
     this.authService.currentUser$.subscribe(u => this.currentUser = u);
     this.playerService.currentTrack$.subscribe(t => this.hasActiveTrack = !!t);
+    if (this.authService.isAuthenticated()) {
+      this.loadFavoriteIds();
+    }
+    this.favoritesService.favoritesChanged$.pipe(
+      takeUntil(this.destroy$),
+      filter(kind => kind === 'artists')
+    ).subscribe(() => this.loadFavoriteIds());
     this.route.paramMap.pipe(
       switchMap(params => {
         const id = params.get('id');
@@ -70,6 +81,7 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
           return;
         }
         this.artist = artist;
+        this.isFavorite = this.favoriteArtistIds.has(artist.id);
         this.isLoading = false;
       },
       error: () => {
@@ -82,6 +94,43 @@ export class ArtistDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadFavoriteIds(): void {
+    this.favoritesService.getArtists().subscribe({
+      next: (list) => {
+        this.favoriteArtistIds = new Set(list.map(a => a.id));
+        if (this.artist) this.isFavorite = this.favoriteArtistIds.has(this.artist.id);
+      }
+    });
+  }
+
+  isHeartActive(): boolean {
+    return this.isFavorite;
+  }
+
+  toggleFavorite(event: Event): void {
+    event.stopPropagation();
+    if (!this.artist) return;
+    if (!this.authService.isAuthenticated()) {
+      this.openLogin(event);
+      return;
+    }
+    if (this.isFavorite) {
+      this.favoritesService.removeArtist(this.artist.id).subscribe({
+        next: () => {
+          this.favoriteArtistIds.delete(this.artist!.id);
+          this.isFavorite = false;
+        }
+      });
+    } else {
+      this.favoritesService.addArtist(this.artist.id).subscribe({
+        next: () => {
+          this.favoriteArtistIds.add(this.artist!.id);
+          this.isFavorite = true;
+        }
+      });
+    }
   }
 
   getGenreNames(): string[] {

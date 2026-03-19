@@ -101,7 +101,8 @@
                 <a [routerLink]="['/playlists', playlist.id]" class="favorites-playlist-card">
                   <div
                     class="favorites-playlist-card__cover"
-                    [ngClass]="getPlaylistCoverClass(i)"
+                    [ngClass]="playlist.coverImagePath ? '' : getPlaylistCoverClass(i)"
+                    [style.background-image]="getPlaylistCoverStyle(playlist)"
                   ></div>
                   <span class="favorites-playlist-card__title">{{ playlist.name }}</span>
                   <span class="favorites-playlist-card__count">{{ trackCountLabel(playlist.trackCount) }}</span>

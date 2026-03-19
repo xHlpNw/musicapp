@@ -156,6 +156,11 @@
   color: #F09020;
 }
 
+.pld-actions__icon--active svg {
+  fill: currentColor;
+  stroke: none;
+}
+
 /* Меню «Ещё» для владельца плейлиста */
 .pld-actions__more-wrap {
   position: relative;

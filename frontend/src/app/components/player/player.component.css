@@ -349,6 +349,7 @@
 
 .player__btn--heart-active svg {
   fill: currentColor;
+  stroke: none;
 }
 
 /* Внешняя обёртка: расширенная зона наведения вверх, чтобы курсор не терял hover при переходе к меню */
