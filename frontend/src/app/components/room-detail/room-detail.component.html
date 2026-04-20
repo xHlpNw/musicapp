@@ -31,7 +31,9 @@
             </div>
           </div>
           <div class="room-detail__header-right">
-            <button type="button" class="room-detail__link-btn" (click)="invite()">Пригласить</button>
+            <button type="button" class="room-detail__link-btn" (click)="invite()">
+              {{ inviteLinkCopied ? 'Скопировано!' : 'Пригласить' }}
+            </button>
             @if (needJoin) {
               <button type="button" class="room-detail__btn room-detail__btn--secondary" (click)="joinRoom()" [disabled]="isJoining">
                 {{ isJoining ? 'Вход…' : 'Вступить в комнату' }}

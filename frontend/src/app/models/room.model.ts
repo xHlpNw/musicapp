@@ -11,6 +11,16 @@ export interface RoomResponse {
   currentTrackArtistName?: string | null;
   positionSeconds: number;
   playing: boolean;
+  /**
+   * Монотонный счётчик изменений состояния комнаты.
+   * RoomRealtimeService применяет только сообщения с revision > lastAppliedRevision.
+   */
+  stateRevision: number;
+  /**
+   * Серверное время (epochMilli) последнего изменения positionSeconds / playing.
+   * Используется для расчёта актуальной позиции: positionSeconds + (now - baseServerTimeMs) / 1000.
+   */
+  baseServerTimeMs: number | null;
   memberCount: number;
   maxMembers: number | null;
   /** Обложка комнаты (путь). Если нет — показывать обложку текущего трека. */

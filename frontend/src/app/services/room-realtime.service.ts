@@ -25,10 +25,19 @@ const INITIAL_RECONNECT_DELAY_MS = 1000;
 const MAX_RECONNECT_DELAY_MS = 30000;
 
 /**
- * WebSocket‑сервис для получения обновлений состояния комнаты в реальном времени.
+ * WebSocket-сервис для получения обновлений состояния комнаты в реальном времени.
  *
- * Подключается к /ws/rooms/{roomId}?token=JWT. Сервер проверяет токен и членство в комнате.
+ * Подключается к /ws/rooms/{roomId}?token=JWT.
  * При обрыве соединения (не 4xxx) — ограниченное переподключение с backoff.
+ *
+ * Протокол:
+ * - {type:"stateSnapshot", revision:N, payload:{RoomResponse}} — полное состояние,
+ *   применяется только если revision > lastAppliedRevision.
+ * - {type:"position", ...} — тик позиции от хоста.
+ * - {type:"chat", message:{...}} — чат-сообщение.
+ * - {type:"roomClosed", roomId:N} — комната закрыта.
+ * - {type:"getPositionRequest", requestId:S} — сервер просит хоста ответить на позицию.
+ * - {type:"positionResponse", requestId:S, ...} — ответ хоста конкретному клиенту.
  */
 @Injectable({
   providedIn: 'root'
@@ -36,21 +45,25 @@ const MAX_RECONNECT_DELAY_MS = 30000;
 export class RoomRealtimeService implements OnDestroy {
   private socket: WebSocket | null = null;
   private roomId: number | null = null;
+
   private state$ = new Subject<RoomResponse>();
   private chat$ = new Subject<RoomChatMessage>();
   private roomClosed$ = new Subject<number>();
   private positionResponse$ = new Subject<HostPositionResponse>();
   private getPositionRequest$ = new Subject<{ requestId: string }>();
   private positionTick$ = new Subject<PositionTick>();
+
   private explicitlyDisconnected = false;
   private reconnectAttempts = 0;
   private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  /** Последняя применённая revision — отбрасываем более старые stateSnapshot. */
+  private lastAppliedRevision = -1;
 
   constructor(private authService: AuthService) {}
 
   connect(roomId: number): Observable<RoomResponse> {
     if (this.roomId === roomId && this.socket && this.socket.readyState === WebSocket.OPEN) {
-      console.log('[RoomRealtimeService] reuse existing WebSocket for room', roomId);
       return this.state$.asObservable();
     }
 
@@ -60,7 +73,7 @@ export class RoomRealtimeService implements OnDestroy {
     this.explicitlyDisconnected = false;
     this.roomId = roomId;
     this.reconnectAttempts = 0;
-    console.log('[RoomRealtimeService] connect() called for room', roomId);
+    this.lastAppliedRevision = -1;
     this.openSocket(roomId);
     return this.state$.asObservable();
   }
@@ -72,69 +85,83 @@ export class RoomRealtimeService implements OnDestroy {
     const url = token
       ? `${protocol}//${host}/ws/rooms/${roomId}?token=${encodeURIComponent(token)}`
       : `${protocol}//${host}/ws/rooms/${roomId}`;
-    console.log('[RoomRealtimeService] opening WebSocket to', url.replace(/token=[^&]+/, 'token=***'));
 
     this.socket = new WebSocket(url);
+
     this.socket.onopen = () => {
       this.reconnectAttempts = 0;
-      console.log('[RoomRealtimeService] WebSocket connected');
     };
+
     this.socket.onmessage = (event: MessageEvent<string>) => {
-      console.log('[RoomRealtimeService] message received:', event.data);
       try {
-        const data = JSON.parse(event.data) as any;
-        if (data?.type === 'roomClosed' && typeof data.roomId === 'number') {
-          try {
-            this.socket?.close();
-          } catch {
-            // ignore
+        const data = JSON.parse(event.data) as Record<string, unknown>;
+        const type = data['type'] as string | undefined;
+
+        switch (type) {
+          case 'stateSnapshot': {
+            const revision = typeof data['revision'] === 'number' ? data['revision'] : -1;
+            if (revision <= this.lastAppliedRevision) return;
+            this.lastAppliedRevision = revision;
+            this.state$.next(data['payload'] as RoomResponse);
+            return;
           }
-          this.roomClosed$.next(data.roomId);
-          this.clearSocket();
-          return;
+
+          case 'roomClosed':
+            try { this.socket?.close(); } catch { /* ignore */ }
+            this.roomClosed$.next(data['roomId'] as number);
+            this.clearSocket();
+            return;
+
+          case 'getPositionRequest':
+            if (typeof data['requestId'] === 'string') {
+              this.getPositionRequest$.next({ requestId: data['requestId'] });
+            }
+            return;
+
+          case 'positionResponse':
+            if (typeof data['requestId'] === 'string') {
+              this.positionResponse$.next({
+                requestId: data['requestId'],
+                positionSeconds: Number(data['positionSeconds']) || 0,
+                playing: Boolean(data['playing']),
+                currentTrackId: (data['currentTrackId'] as number | null) ?? null,
+                currentQueueItemId: (data['currentQueueItemId'] as number | null) ?? null
+              });
+            }
+            return;
+
+          case 'position':
+            this.positionTick$.next({
+              positionSeconds: Number(data['positionSeconds']) || 0,
+              playing: Boolean(data['playing']),
+              currentTrackId: (data['currentTrackId'] as number | null) ?? null,
+              currentQueueItemId: (data['currentQueueItemId'] as number | null) ?? null,
+              serverTimeMs: typeof data['serverTimeMs'] === 'number' ? data['serverTimeMs'] : undefined
+            });
+            return;
+
+          case 'chat':
+            if (data['message']) {
+              this.chat$.next(data['message'] as RoomChatMessage);
+            }
+            return;
+
+          default:
+            return;
         }
-        if (data?.type === 'getPositionRequest' && typeof data.requestId === 'string') {
-          this.getPositionRequest$.next({ requestId: data.requestId });
-          return;
-        }
-        if (data?.type === 'positionResponse' && typeof data.requestId === 'string') {
-          this.positionResponse$.next({
-            requestId: data.requestId,
-            positionSeconds: Number(data.positionSeconds) || 0,
-            playing: Boolean(data.playing),
-            currentTrackId: data.currentTrackId ?? null,
-            currentQueueItemId: data.currentQueueItemId ?? null
-          });
-          return;
-        }
-        if (data?.type === 'position') {
-          this.positionTick$.next({
-            positionSeconds: Number(data.positionSeconds) || 0,
-            playing: Boolean(data.playing),
-            currentTrackId: data.currentTrackId ?? null,
-            currentQueueItemId: data.currentQueueItemId ?? null,
-            serverTimeMs: typeof data.serverTimeMs === 'number' ? data.serverTimeMs : undefined
-          });
-          return;
-        }
-        if (data?.type === 'chat' && data.message) {
-          this.chat$.next(data.message as RoomChatMessage);
-        } else {
-          const state: RoomResponse = data?.state ?? data;
-          this.state$.next(state);
-        }
-      } catch (e) {
-        console.error('[RoomRealtimeService] failed to parse message', e);
+      } catch {
+        // malformed message — ignore
       }
     };
+
     this.socket.onclose = (event: CloseEvent) => {
-      console.log('[RoomRealtimeService] WebSocket closed:', event.code, event.reason);
       const wasRoomId = this.roomId;
       this.clearSocket();
       if (!this.explicitlyDisconnected && wasRoomId != null && !this.isClientError(event.code)) {
         this.scheduleReconnect(wasRoomId);
       }
     };
+
     this.socket.onerror = () => {
       this.clearSocket();
     };
@@ -151,16 +178,12 @@ export class RoomRealtimeService implements OnDestroy {
 
   private scheduleReconnect(roomId: number): void {
     this.cancelReconnect();
-    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-      console.log('[RoomRealtimeService] max reconnect attempts reached');
-      return;
-    }
+    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) return;
     const delay = Math.min(
       INITIAL_RECONNECT_DELAY_MS * Math.pow(2, this.reconnectAttempts),
       MAX_RECONNECT_DELAY_MS
     );
     this.reconnectAttempts++;
-    console.log('[RoomRealtimeService] reconnecting in', delay, 'ms, attempt', this.reconnectAttempts);
     this.reconnectTimeoutId = setTimeout(() => {
       this.reconnectTimeoutId = null;
       this.roomId = roomId;
@@ -179,11 +202,7 @@ export class RoomRealtimeService implements OnDestroy {
     this.explicitlyDisconnected = true;
     this.cancelReconnect();
     if (this.socket) {
-      try {
-        this.socket.close();
-      } catch {
-        // ignore
-      }
+      try { this.socket.close(); } catch { /* ignore */ }
     }
     this.clearSocket();
   }
@@ -197,7 +216,10 @@ export class RoomRealtimeService implements OnDestroy {
     return this.roomClosed$.asObservable();
   }
 
-  /** Запросить у хоста текущую позицию (для синхронизации при нажатии «Воспроизвести»). Таймаут 5 с. */
+  /**
+   * Запросить у хоста текущую позицию (для синхронизации при нажатии «Воспроизвести»).
+   * Таймаут 5 секунд. При истечении — вернуть ошибку для fallback через HTTP.
+   */
   requestPositionFromHost(): Observable<HostPositionResponse> {
     const requestId = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     this.send({ type: 'getPosition', requestId });
@@ -207,17 +229,17 @@ export class RoomRealtimeService implements OnDestroy {
     );
   }
 
-  /** Событие «хост запрашивает текущую позицию» — только хост должен ответить. */
+  /** Событие «сервер просит хоста ответить» — хост должен вызвать sendPositionResponse. */
   onGetPositionRequest(): Observable<{ requestId: string }> {
     return this.getPositionRequest$.asObservable();
   }
 
-  /** Периодические тики позиции (анти-дрифт) от хоста через сервер. */
+  /** Периодические тики позиции от хоста (анти-дрифт). */
   onPositionTick(): Observable<PositionTick> {
     return this.positionTick$.asObservable();
   }
 
-  /** Отправить текущую позицию (вызывает хост в ответ на getPositionRequest). */
+  /** Хост отвечает на getPositionRequest. */
   sendPositionResponse(requestId: string, data: Omit<HostPositionResponse, 'requestId'>): void {
     this.send({
       type: 'positionResponse',
@@ -229,7 +251,7 @@ export class RoomRealtimeService implements OnDestroy {
     });
   }
 
-  /** Отправить тик позиции (вызывает хост периодически при playing=true). */
+  /** Хост периодически шлёт тик позиции при playing=true. */
   sendPositionTick(data: Omit<PositionTick, 'serverTimeMs'>): void {
     this.send({
       type: 'positionTick',
@@ -244,13 +266,10 @@ export class RoomRealtimeService implements OnDestroy {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
     try {
       this.socket.send(JSON.stringify(msg));
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }
 
   ngOnDestroy(): void {
     this.disconnect();
   }
 }
-

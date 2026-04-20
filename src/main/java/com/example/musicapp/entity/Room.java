@@ -20,6 +20,10 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Версия для optimistic locking — предотвращает потерянные обновления при параллельных запросах. */
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -36,6 +40,23 @@ public class Room {
 
     @Column(name = "cover_image_path")
     private String coverImagePath;
+
+    /**
+     * Монотонно возрастающий счётчик: инкрементируется при каждом структурном
+     * изменении комнаты (состояние, очередь, участники).
+     * Клиент отбрасывает WS-сообщения с revision <= уже применённой.
+     */
+    @Column(name = "state_revision", nullable = false)
+    @Builder.Default
+    private long stateRevision = 0;
+
+    /**
+     * Серверное время (epochMilli) последнего изменения positionSeconds
+     * или флага playing. Позволяет клиенту вычислить актуальную позицию
+     * как positionSeconds + (now - baseServerTimeMs) / 1000 когда playing=true.
+     */
+    @Column(name = "base_server_time_ms")
+    private Long baseServerTimeMs;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

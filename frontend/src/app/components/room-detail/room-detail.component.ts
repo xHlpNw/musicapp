@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge } from 'rxjs';
-import { takeUntil, catchError, timeout } from 'rxjs/operators';
+import { takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { AppHeaderComponent } from '../app-header/app-header.component';
@@ -107,10 +107,11 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
   /** Запуск воспроизведения по клику пользователя (обходит блокировку автовоспроизведения). Сначала запрашиваем позицию у хоста. */
   startPlaybackWithUserGesture(): void {
     if (!this.room) return;
+    // requestPositionFromHost() уже содержит timeout(5000) внутри;
+    // дополнительный timeout здесь не нужен и приводил бы к двойному срабатыванию.
     this.roomRealtimeService.requestPositionFromHost()
       .pipe(
         takeUntil(this.destroy$),
-        timeout(5000),
         catchError(() => this.roomService.getById(this.room!.id))
       )
       .subscribe({
@@ -136,6 +137,20 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         },
         error: () => {}
       });
+  }
+
+  /**
+   * Вычисляет актуальную позицию воспроизведения с учётом серверного anchor-времени.
+   * Когда playing=true, к сохранённой positionSeconds добавляется время, прошедшее
+   * с момента последнего state-обновления (baseServerTimeMs), что устраняет
+   * «зависание» позиции между пушами.
+   */
+  private getExpectedPosition(room: RoomResponse): number {
+    if (!room.playing || !room.baseServerTimeMs) {
+      return room.positionSeconds ?? 0;
+    }
+    const elapsed = (Date.now() - room.baseServerTimeMs) / 1000;
+    return (room.positionSeconds ?? 0) + elapsed;
   }
 
   /** Обложка для фона и карточки: своя обложка комнаты или обложка текущего трека. */
@@ -230,12 +245,26 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     if (this.room.currentTrackId !== tick.currentTrackId) return;
 
     const local = this.playerService.getCurrentTime?.() ?? this.room.positionSeconds ?? 0;
-    const remote = tick.positionSeconds ?? 0;
-    if (Math.abs(local - remote) >= 2) {
-      this.playerService.requestSeek(remote);
-      // чтобы UI комнаты (progress/position) не выглядел "зависшим" до следующего state push:
-      this.room = { ...this.room, positionSeconds: remote };
+    // Компенсируем задержку сети: тик был отправлен serverTimeMs назад
+    const networkOffsetSec = tick.serverTimeMs ? (Date.now() - tick.serverTimeMs) / 1000 : 0;
+    const remote = (tick.positionSeconds ?? 0) + networkOffsetSec;
+    const drift = Math.abs(local - remote);
+
+    if (drift < 0.3) {
+      // Незначительный дрифт — игнорируем, чтобы не дёргать воспроизведение
+      return;
     }
+    if (drift < 2.0) {
+      // Умеренный дрифт — мягкая коррекция через изменение playbackRate на полсекунды
+      const rate = local < remote ? 1.05 : 0.95;
+      this.playerService.setPlaybackRate(rate);
+      setTimeout(() => this.playerService.setPlaybackRate(1.0), 500);
+      return;
+    }
+    // Большой дрифт — принудительный seek
+    this.playerService.requestSeek(remote);
+    // Обновляем UI комнаты, чтобы progress-бар не «завис» до следующего stateSnapshot
+    this.room = { ...this.room, positionSeconds: remote };
   }
 
   /** Запланировать повторную попытку запуска воспроизведения через 1.5 с (после загрузки страницы поток может быть ещё не готов). */
@@ -278,8 +307,6 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.needJoin = false;
     this.room = null;
 
-    console.log('[RoomDetailComponent] loadRoom', id);
-
     this.roomService.getById(id).pipe(
       takeUntil(this.destroy$),
       catchError((err: { status?: number }) => {
@@ -301,7 +328,6 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
           this.chatMessages = [];
           this.roomControlService.unregister();
         } else {
-          console.log('[RoomDetailComponent] joined room, subscribing to realtime for room', data.id);
           this.syncPlayerToRoom(data);
           this.schedulePlayRetryIfNeeded(data);
           this.subscribeToRealtime(data.id);
@@ -331,7 +357,6 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       .pipe(takeUntil(stop$))
       .subscribe((state: RoomResponse) => {
         this.ngZone.run(() => {
-          console.log('[RoomDetailComponent] realtime update for room', roomId, state);
           const playbackChanged = this.hasPlaybackStateChanged(this.room, state);
           const roomPlayingButPlayerPaused = state.playing && !this.playerService.isPlaying();
           this.room = state;
@@ -409,7 +434,12 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.playerService.setCurrentTrack(null);
       return;
     }
-    const positionSeconds = room.positionSeconds ?? 0;
+
+    // При playing=true учитываем anchor-время: берём ожидаемую позицию, а не устаревшую.
+    const positionSeconds = room.playing
+      ? this.getExpectedPosition(room)
+      : (room.positionSeconds ?? 0);
+
     const current = this.playerService.getCurrentTrack();
     const sameTrack = current?.id === room.currentTrackId;
 
@@ -420,11 +450,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
         this.playerService.requestSeek(positionSeconds);
         return;
       }
-      // Комната на паузе, но трек другой или ещё не загружен — ставим трек и оставляем на паузе
-      this.trackService.getById(room.currentTrackId)
+      // Комната на паузе, но трек другой или ещё не загружен — ставим трек и оставляем на паузе.
+      // Запоминаем ожидаемый trackId, чтобы отбросить устаревший ответ при быстрой смене трека.
+      const expectedTrackId = room.currentTrackId;
+      this.trackService.getById(expectedTrackId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (track) => {
+            if (this.room?.currentTrackId !== expectedTrackId) return;
             this.playerService.setCurrentTrack(track);
             this.playerService.setPendingSeek?.(positionSeconds);
             this.playerService.setPlaying(false);
@@ -442,11 +475,14 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.playerService.playCurrent();
       return;
     }
-    // Комната играет, загружаем трек и запускаем воспроизведение
-    this.trackService.getById(room.currentTrackId)
+    // Комната играет, загружаем трек и запускаем воспроизведение.
+    // Запоминаем ожидаемый trackId, чтобы отбросить устаревший ответ при быстрой смене трека.
+    const expectedTrackId = room.currentTrackId;
+    this.trackService.getById(expectedTrackId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (track) => {
+          if (this.room?.currentTrackId !== expectedTrackId) return;
           this.playerService.setCurrentTrack(track);
           this.playerService.setPendingSeek?.(positionSeconds);
           this.playerService.setPlaying(true);
@@ -743,8 +779,19 @@ export class RoomDetailComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.needScrollQueueToCurrent = true;
   }
 
+  inviteLinkCopied = false;
+  private inviteCopyTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
   invite(): void {
-    // TODO: copy link or modal
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      if (this.inviteCopyTimeoutId != null) clearTimeout(this.inviteCopyTimeoutId);
+      this.inviteLinkCopied = true;
+      this.inviteCopyTimeoutId = setTimeout(() => {
+        this.inviteLinkCopied = false;
+        this.inviteCopyTimeoutId = null;
+      }, 2000);
+    });
   }
 
   sendMessage(): void {

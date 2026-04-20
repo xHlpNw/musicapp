@@ -26,6 +26,16 @@ public class RoomResponse {
     private String currentTrackArtistName;
     private Double positionSeconds;
     private Boolean playing;
+    /**
+     * Монотонный счётчик изменений состояния комнаты.
+     * Клиент применяет только сообщения с revision > lastAppliedRevision.
+     */
+    private long stateRevision;
+    /**
+     * Серверное время (epochMilli) при установке текущей позиции/play-флага.
+     * Клиент вычисляет актуальную позицию: positionSeconds + (now - baseServerTimeMs) / 1000.
+     */
+    private Long baseServerTimeMs;
     private Integer memberCount;
     private Integer maxMembers;
     /** Обложка комнаты (путь относительно covers/). Если null — показывать обложку текущего трека. */

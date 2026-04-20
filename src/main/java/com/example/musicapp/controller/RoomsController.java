@@ -30,16 +30,16 @@ public class RoomsController {
 
     private final RoomService roomService;
 
-    /** Список комнат: filter=all|open|mine, q=поиск, page, size. */
+    /** Список комнат: filter=all|open|mine, q=поиск, page, size (макс. 20). */
     @GetMapping
     public ResponseEntity<Page<RoomResponse>> findRooms(
             @RequestParam(defaultValue = "all") String filter,
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal SecurityUser securityUser) {
         User user = securityUser.getUser();
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Pageable pageable = PageRequest.of(page, Math.min(size, 20), Sort.by(Sort.Direction.DESC, "updatedAt"));
         return ResponseEntity.ok(roomService.findRooms(filter, q, pageable, user));
     }
 

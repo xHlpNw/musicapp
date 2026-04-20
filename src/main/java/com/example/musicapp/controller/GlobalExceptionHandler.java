@@ -3,6 +3,7 @@ package com.example.musicapp.controller;
 import com.example.musicapp.exception.ForbiddenException;
 import com.example.musicapp.exception.ResourceNotFoundException;
 import com.example.musicapp.exception.UserAlreadyExistsException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -43,6 +44,13 @@ public class GlobalExceptionHandler {
         Map<String, String> body = new HashMap<>();
         body.put("error", "Invalid username or password");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, String>> handleOptimisticLocking(OptimisticLockingFailureException e) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", "Room was modified concurrently, please retry");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

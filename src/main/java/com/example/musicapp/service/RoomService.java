@@ -31,6 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -139,6 +142,7 @@ public class RoomService {
                 .host(currentUser)
                 .positionSeconds(0.0)
                 .playing(false)
+                .stateRevision(1)
                 .createdAt(now)
                 .updatedAt(now)
                 .queue(new ArrayList<>())
@@ -173,8 +177,11 @@ public class RoomService {
                 .joinedAt(Instant.now())
                 .build();
         roomMemberRepository.save(member);
+        room.setStateRevision(room.getStateRevision() + 1);
+        room.setUpdatedAt(Instant.now());
+        room = roomRepository.save(room);
         RoomResponse response = toDetailResponse(room);
-        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        broadcastAfterCommit(roomId, response);
     }
 
     @Transactional
@@ -193,13 +200,18 @@ public class RoomService {
                 roomRepository.delete(room);
             } else {
                 room.setHost(remaining.get(0).getUser());
+                room.setStateRevision(room.getStateRevision() + 1);
+                room.setUpdatedAt(Instant.now());
                 room = roomRepository.save(room);
                 RoomResponse response = toDetailResponse(room);
-                roomWebSocketHandler.broadcastRoomState(roomId, response);
+                broadcastAfterCommit(roomId, response);
             }
         } else {
+            room.setStateRevision(room.getStateRevision() + 1);
+            room.setUpdatedAt(Instant.now());
+            room = roomRepository.save(room);
             RoomResponse response = toDetailResponse(room);
-            roomWebSocketHandler.broadcastRoomState(roomId, response);
+            broadcastAfterCommit(roomId, response);
         }
     }
 
@@ -213,8 +225,11 @@ public class RoomService {
         if (room == null || !room.getHost().getId().equals(disconnectedUserId)) {
             return Optional.empty();
         }
+        long now = System.currentTimeMillis();
         room.setPlaying(false);
-        room.setUpdatedAt(Instant.now());
+        room.setBaseServerTimeMs(now);
+        room.setStateRevision(room.getStateRevision() + 1);
+        room.setUpdatedAt(Instant.ofEpochMilli(now));
         room = roomRepository.save(room);
         return Optional.of(toDetailResponse(room));
     }
@@ -232,16 +247,16 @@ public class RoomService {
         if (request.getMaxMembers() != null) {
             room.setMaxMembers(request.getMaxMembers());
         }
+        room.setStateRevision(room.getStateRevision() + 1);
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
         RoomResponse response = toDetailResponse(room);
-        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        broadcastAfterCommit(roomId, response);
         return response;
     }
 
     @Transactional
     public RoomResponse updateState(Long roomId, RoomStateRequest request, User currentUser) {
-        System.out.println("[RoomService] updateState called for roomId=" + roomId + ", userId=" + currentUser.getId());
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + roomId));
         if (!room.getHost().getId().equals(currentUser.getId())) {
@@ -267,17 +282,20 @@ public class RoomService {
             room.setCurrentTrack(null);
             room.setCurrentQueueItemId(null);
         }
+        long nowMs = System.currentTimeMillis();
         if (request.getPositionSeconds() != null) {
             room.setPositionSeconds(request.getPositionSeconds());
+            room.setBaseServerTimeMs(nowMs);
         }
         if (request.getPlaying() != null) {
             room.setPlaying(request.getPlaying());
+            room.setBaseServerTimeMs(nowMs);
         }
-        room.setUpdatedAt(Instant.now());
+        room.setStateRevision(room.getStateRevision() + 1);
+        room.setUpdatedAt(Instant.ofEpochMilli(nowMs));
         room = roomRepository.save(room);
         RoomResponse response = toDetailResponse(room);
-        System.out.println("[RoomService] broadcasting new state for roomId=" + roomId);
-        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        broadcastAfterCommit(roomId, response);
         return response;
     }
 
@@ -310,10 +328,11 @@ public class RoomService {
         }
         String relativePath = "rooms/" + fileName;
         room.setCoverImagePath(relativePath);
+        room.setStateRevision(room.getStateRevision() + 1);
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
         RoomResponse response = toDetailResponse(room);
-        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        broadcastAfterCommit(roomId, response);
         return response;
     }
 
@@ -336,10 +355,11 @@ public class RoomService {
                 }
             }
             room.setCoverImagePath(null);
+            room.setStateRevision(room.getStateRevision() + 1);
             room.setUpdatedAt(Instant.now());
             room = roomRepository.save(room);
             RoomResponse response = toDetailResponse(room);
-            roomWebSocketHandler.broadcastRoomState(roomId, response);
+            broadcastAfterCommit(roomId, response);
             return response;
         }
         return toDetailResponse(room);
@@ -383,7 +403,7 @@ public class RoomService {
                 .build();
         message = roomChatMessageRepository.save(message);
         RoomChatMessageResponse dto = toChatMessageResponse(message);
-        roomWebSocketHandler.broadcastChatMessage(roomId, dto);
+        broadcastChatAfterCommit(roomId, dto);
         return dto;
     }
 
@@ -407,10 +427,11 @@ public class RoomService {
                 .build();
         roomQueueItemRepository.save(item);
         room.getQueue().add(item);
+        room.setStateRevision(room.getStateRevision() + 1);
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
         RoomResponse response = toDetailResponse(room);
-        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        broadcastAfterCommit(roomId, response);
     }
 
     @Transactional
@@ -431,10 +452,42 @@ public class RoomService {
         }
         room.getQueue().remove(item);
         roomQueueItemRepository.delete(item);
+        room.setStateRevision(room.getStateRevision() + 1);
         room.setUpdatedAt(Instant.now());
         room = roomRepository.save(room);
         RoomResponse response = toDetailResponse(room);
-        roomWebSocketHandler.broadcastRoomState(roomId, response);
+        broadcastAfterCommit(roomId, response);
+    }
+
+    /**
+     * Откладывает WS-broadcast до afterCommit текущей транзакции.
+     * Это гарантирует, что клиент, получив push, увидит свежие данные в БД
+     * при повторном HTTP-запросе.
+     */
+    private void broadcastAfterCommit(Long roomId, RoomResponse response) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    roomWebSocketHandler.broadcastRoomState(roomId, response);
+                }
+            });
+        } else {
+            roomWebSocketHandler.broadcastRoomState(roomId, response);
+        }
+    }
+
+    private void broadcastChatAfterCommit(Long roomId, RoomChatMessageResponse msg) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    roomWebSocketHandler.broadcastChatMessage(roomId, msg);
+                }
+            });
+        } else {
+            roomWebSocketHandler.broadcastChatMessage(roomId, msg);
+        }
     }
 
     private boolean isMember(Room room, User user) {
@@ -482,6 +535,8 @@ public class RoomService {
                 .currentTrackArtistName(track != null ? getFirstArtistName(track) : null)
                 .positionSeconds(room.getPositionSeconds())
                 .playing(room.isPlaying())
+                .stateRevision(room.getStateRevision())
+                .baseServerTimeMs(room.getBaseServerTimeMs())
                 .memberCount((int) memberCount)
                 .maxMembers(room.getMaxMembers())
                 .coverImagePath(room.getCoverImagePath())
@@ -519,6 +574,8 @@ public class RoomService {
                 .currentTrackArtistName(track != null ? getFirstArtistName(track) : null)
                 .positionSeconds(room.getPositionSeconds())
                 .playing(room.isPlaying())
+                .stateRevision(room.getStateRevision())
+                .baseServerTimeMs(room.getBaseServerTimeMs())
                 .memberCount(members.size())
                 .maxMembers(room.getMaxMembers())
                 .coverImagePath(room.getCoverImagePath())
@@ -527,6 +584,21 @@ public class RoomService {
                 .queue(queue)
                 .members(members)
                 .build();
+    }
+
+    /**
+     * Сохраняет текущую позицию воспроизведения в БД (вызывается из WS-хэндлера
+     * при получении positionTick, не чаще раза в 20 секунд).
+     * Не инкрементирует stateRevision — это не структурное изменение состояния.
+     */
+    @Transactional
+    public void savePositionCheckpoint(Long roomId, double positionSeconds, long serverTimeMs) {
+        Room room = roomRepository.findById(roomId).orElse(null);
+        if (room == null) return;
+        room.setPositionSeconds(positionSeconds);
+        room.setBaseServerTimeMs(serverTimeMs);
+        room.setUpdatedAt(Instant.ofEpochMilli(serverTimeMs));
+        roomRepository.save(room);
     }
 
     private static Optional<String> getImageExtension(String filename) {

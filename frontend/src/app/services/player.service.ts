@@ -19,6 +19,8 @@ export class PlayerService {
   private playRequestSubject = new Subject<void>();
   private pauseRequestSubject = new Subject<void>();
   private seekRequestSubject = new Subject<number>();
+  /** Запрос изменения playbackRate аудио-элемента (для мягкой коррекции дрифта). */
+  private playbackRateSubject = new Subject<number>();
 
   public currentTrack$ = this.currentTrackSubject.asObservable();
   public streamUrl$ = this.streamUrlSubject.asObservable();
@@ -30,6 +32,8 @@ export class PlayerService {
   public pauseRequest$ = this.pauseRequestSubject.asObservable();
   /** Запрос перемотки к позиции (секунды). Используется комнатой при переключении на тот же трек с начала. */
   public seekRequest$ = this.seekRequestSubject.asObservable();
+  /** Запрос изменения playbackRate (для мягкой коррекции дрифта в комнате). */
+  public playbackRate$ = this.playbackRateSubject.asObservable();
 
   /** Единый список воспроизведения: альбом + треки из «Добавить в очередь» / «Играть следующим». */
   private playlist: TrackResponse[] = [];
@@ -196,6 +200,14 @@ export class PlayerService {
   /** Перемотать текущий трек к позиции (секунды). Вызывать из комнаты при синхронизации с positionSeconds. */
   requestSeek(positionSeconds: number): void {
     this.seekRequestSubject.next(Math.max(0, positionSeconds));
+  }
+
+  /**
+   * Временно изменить скорость воспроизведения для мягкой коррекции дрифта.
+   * Значение 1.0 — нормальная скорость. Обычно используется 1.05 или 0.95.
+   */
+  setPlaybackRate(rate: number): void {
+    this.playbackRateSubject.next(Math.max(0.5, Math.min(2.0, rate)));
   }
 
   /** Добавить трек в конец списка воспроизведения. */
