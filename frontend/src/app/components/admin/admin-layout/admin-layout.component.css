@@ -63,7 +63,7 @@
 
 .admin-tabs__tab:hover {
   color: var(--color-text);
-  background: rgba(28, 31, 36, 0.6);
+  background: var(--color-hover-bg);
 }
 
 .admin-tabs__tab--active {

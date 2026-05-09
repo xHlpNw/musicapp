@@ -6,6 +6,19 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Применяем сохранённую тему ДО загрузки CSS и бутстрапа Angular,
+    // чтобы при первой отрисовке не моргнула тёмная палитра, если пользователь выбрал светлую.
+    (function () {
+      try {
+        var stored = localStorage.getItem('app_theme');
+        var theme = (stored === 'light' || stored === 'dark') ? stored : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

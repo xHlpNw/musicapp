@@ -36,7 +36,7 @@
 
 .side-nav__link:hover {
   color: var(--color-text);
-  background: rgba(28, 31, 36, 0.8);
+  background: var(--color-hover-bg);
 }
 
 .side-nav__link--active {

@@ -1,6 +1,6 @@
 .home-page {
   min-height: 100vh;
-  background: #0f0f1a;
+  background: var(--color-bg);
   color: #e0e0e0;
   padding-bottom: 72px;
 }
@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 12px var(--color-shadow);
 }
 
 .home-logo {
@@ -62,10 +62,10 @@
 }
 
 .home-content {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-glass-highlight);
   border-radius: 12px;
   padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-glass-highlight);
 }
 
 .home-title {
@@ -86,7 +86,7 @@
   padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-glass-highlight);
   color: #fff;
   font-size: 14px;
 }
@@ -144,11 +144,11 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--color-glass-highlight);
 }
 
 .track-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-glass-highlight);
 }
 
 .track-item-active {

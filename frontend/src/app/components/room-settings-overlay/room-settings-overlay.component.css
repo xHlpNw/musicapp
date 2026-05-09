@@ -24,10 +24,10 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px var(--color-glass-highlight),
+    inset 0 1px 0 var(--color-glass-highlight),
     inset 0 0 40px rgba(240, 144, 32, 0.03),
-    0 24px 48px rgba(0, 0, 0, 0.35);
+    0 24px 48px var(--color-shadow);
   transform: scale(0.96);
   opacity: 0;
   transition: transform 0.25s ease, opacity 0.25s ease;
@@ -71,7 +71,7 @@
 }
 
 .room-settings-overlay__close:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-glass-highlight);
   color: var(--color-text);
 }
 
@@ -143,7 +143,7 @@
 
 .room-settings-overlay__btn--cancel:hover {
   color: var(--color-text);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-glass-highlight);
 }
 
 .room-settings-overlay__btn--submit {
@@ -179,7 +179,7 @@
   width: 120px;
   height: 120px;
   border-radius: 14px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--color-shadow);
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
@@ -200,13 +200,13 @@
   height: 40px;
   padding: 0 18px;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-glass-highlight);
   color: var(--color-text);
 }
 
 .room-settings-overlay__btn--cover:hover:not(:disabled),
 .room-settings-overlay__btn--cover-remove:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-glass-border);
 }
 
 .room-settings-overlay__btn--cover-remove {
@@ -214,5 +214,5 @@
 }
 
 .room-settings-overlay__btn--cover-remove:hover:not(:disabled) {
-  color: #e57373;
+  color: var(--color-error);
 }

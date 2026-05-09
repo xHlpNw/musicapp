@@ -33,6 +33,20 @@
   --color-overlay: rgba(0, 0, 0, 0.82);
   --color-shadow: rgba(0, 0, 0, 0.5);
   --color-on-accent: #0E0F11;
+  /* Подсветка строк/пунктов при наведении и в активном состоянии */
+  --color-hover-bg: rgba(28, 31, 36, 0.8);
+  --color-hover-bg-soft: rgba(28, 31, 36, 0.5);
+  --color-hover-bg-subtle: rgba(28, 31, 36, 0.3);
+  /* Фон шапки приложения */
+  --color-header-bg: #15171A;
+  /* Всплывающее меню (три точки в строке трека и т.п.) */
+  --color-menu-bg: rgba(50, 50, 55, 0.95);
+  --color-menu-border: rgba(255, 255, 255, 0.08);
+  /* Плеер: стеклянная панель + трек слайдеров */
+  --color-glass-bg: rgba(45, 45, 50, 0.4);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.04);
+  --color-track-bg: #3A3A3A;
 
   /* Акцент — оранжевый, остаётся одинаковым в обеих темах */
   --color-accent: #F09020;
@@ -48,32 +62,48 @@
   color-scheme: dark;
 }
 
-/* Светлая тема */
+/* Светлая тема — нейтральная, чистая, рассчитанная на скриншоты.
+   Фон страницы — мягкий холодный светло-серый, карточки и хедер — белые
+   с тонкой границей. Контраст текста выше 7:1 (AAA), но без жёсткости. */
 :root[data-theme="light"] {
-  --color-bg: #F7F7F8;
-  --color-surface: #FFFFFF;
-  --color-surface-2: #EFF1F4;
-  --color-surface-3: #DDE1E6;
-  --color-surface-4: #C6CCD3;
-  --color-text: #1A1B1E;
-  --color-text-muted: #5C6066;
-  --color-text-disabled: #8A8F95;
-  --color-text-soft: #4A4D52;
-  --color-border: #E1E4E8;
-  --color-border-strong: #C6CCD3;
-  --color-overlay: rgba(20, 22, 26, 0.45);
-  --color-shadow: rgba(20, 22, 26, 0.18);
+  --color-bg: #F4F5F7;          /* основной фон — мягкий холодный серый, не утомляет */
+  --color-surface: #FFFFFF;     /* карточки и модалки — чистый белый, выглядит опрятно на скриншотах */
+  --color-surface-2: #EBEDEF;   /* инпуты, наведение на строки таблиц, вторичные блоки */
+  --color-surface-3: #D8DBDF;
+  --color-surface-4: #B5B9BE;
+  --color-text: #1F2328;        /* основной текст — тёмно-серый, не чистый чёрный */
+  --color-text-muted: #57606A;
+  --color-text-disabled: #8B949E;
+  --color-text-soft: #424A53;
+  --color-border: #D0D7DE;
+  --color-border-strong: #AFB8C1;
+  --color-overlay: rgba(31, 35, 40, 0.45);
+  --color-shadow: rgba(31, 35, 40, 0.12);
   --color-on-accent: #FFFFFF;
+  /* Нейтральные подсветки — лёгкое затемнение поверх белого */
+  --color-hover-bg: rgba(15, 20, 25, 0.06);
+  --color-hover-bg-soft: rgba(15, 20, 25, 0.04);
+  --color-hover-bg-subtle: rgba(15, 20, 25, 0.025);
+  /* Шапка — белая с тонкой границей снизу: чисто и читается на скриншоте */
+  --color-header-bg: #FFFFFF;
+  /* Всплывающее меню — белое с лёгкой полупрозрачностью под backdrop-blur */
+  --color-menu-bg: rgba(255, 255, 255, 0.98);
+  --color-menu-border: rgba(15, 20, 25, 0.08);
+  /* Плеер: светлое матовое стекло — полупрозрачное, чтобы фон проступал через blur */
+  --color-glass-bg: rgba(255, 255, 255, 0.55);
+  --color-glass-border: rgba(15, 20, 25, 0.12);
+  --color-glass-highlight: rgba(255, 255, 255, 0.7);
+  --color-track-bg: #D0D7DE;
 
-  /* Акцент остаётся узнаваемым, чуть теплее на светлом */
-  --color-accent: #E07818;
-  --color-accent-hover: #C86810;
-  --color-accent-deep: #A2520A;
+  /* Акцент — тот же оранжевый, что и в тёмной теме */
+  --color-accent: #F09020;
+  --color-accent-hover: #FFA030;
+  --color-accent-deep: #C86810;
   --color-accent-mid: #E07818;
-  --color-accent-soft: #B85F0C;
+  --color-accent-soft: #C4832A;
 
-  --color-error: #DC2626;
-  --color-error-strong: #B91C1C;
+  --color-error: #C5302F;
+  --color-error-strong: #9B2C2B;
 
   color-scheme: light;
 }

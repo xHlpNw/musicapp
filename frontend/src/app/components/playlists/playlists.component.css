@@ -302,7 +302,7 @@
 }
 
 .playlists-modal {
-  background: rgba(21, 23, 26, 0.95);
+  background: var(--color-surface);
   border-radius: 16px;
   width: 100%;
   max-width: min(400px, 90vw);

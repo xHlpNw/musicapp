@@ -92,7 +92,7 @@
 }
 
 .admin-table th {
-  background: rgba(28, 31, 36, 0.5);
+  background: var(--color-hover-bg-soft);
   font-weight: 600;
   color: var(--color-text-muted);
   font-size: 0.8rem;
@@ -110,7 +110,7 @@
 }
 
 .admin-table tbody tr:hover {
-  background: rgba(28, 31, 36, 0.3);
+  background: var(--color-hover-bg-subtle);
 }
 
 .admin-table__actions {
@@ -413,7 +413,7 @@
 
 .btn-icon-action.btn-delete {
   background: rgba(220, 70, 70, 0.15);
-  color: #ff6b6b;
+  color: var(--color-error);
   border-color: rgba(220, 70, 70, 0.4);
 }
 
@@ -430,7 +430,7 @@
 /* === АЛЕРТЫ === */
 .alert-error {
   background: rgba(180, 60, 60, 0.15);
-  color: #ff8888;
+  color: var(--color-error);
   border: 1px solid rgba(180, 60, 60, 0.4);
   padding: 12px 16px;
   border-radius: 8px;
@@ -540,7 +540,7 @@
 .form-group input.error,
 .form-group select.error,
 .form-group textarea.error {
-  border-color: #c44;
+  border-color: var(--color-error-strong);
 }
 
 .form-group .hint,
@@ -555,7 +555,7 @@
 .form-group .error-message {
   display: block;
   font-size: 13px;
-  color: #ff8888;
+  color: var(--color-error);
   margin-top: 6px;
 }
 
@@ -666,7 +666,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: rgba(28, 31, 36, 0.5);
+  background: var(--color-hover-bg-soft);
   border-radius: 8px;
   border: 1px solid var(--color-surface-2);
 }
@@ -718,7 +718,7 @@
 }
 
 .btn-icon--danger {
-  color: #ff6b6b;
+  color: var(--color-error);
   border-color: rgba(220, 70, 70, 0.4);
 }
 
@@ -823,9 +823,9 @@
 .genre-chip {
   padding: 5px 12px;
   border-radius: 20px;
-  border: 1px solid #2A2D32;
+  border: 1px solid var(--color-surface-3);
   background: var(--color-surface-2);
-  color: #A0A0A0;
+  color: var(--color-text-muted);
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;

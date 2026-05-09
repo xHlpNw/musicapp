@@ -115,14 +115,14 @@
   margin-right: 6px;
   min-width: 200px;
   padding: 6px 0;
-  background: rgba(50, 50, 55, 0.95);
+  background: var(--color-menu-bg);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-menu-border);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.04) inset,
-    0 8px 24px -4px rgba(0, 0, 0, 0.35);
+    0 0 0 1px var(--color-menu-border) inset,
+    0 8px 24px -4px var(--color-shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
@@ -155,7 +155,7 @@
 }
 
 .track-actions__more-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-hover-bg);
   color: var(--color-accent);
 }
 
@@ -181,12 +181,12 @@
   margin-right: 2px;
   min-width: 160px;
   padding: 6px 0;
-  background: rgba(50, 50, 55, 0.98);
+  background: var(--color-menu-bg);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--color-menu-border);
+  box-shadow: 0 8px 24px -4px var(--color-shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
