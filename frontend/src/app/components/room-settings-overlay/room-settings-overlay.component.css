@@ -49,7 +49,7 @@
 .room-settings-overlay__title {
   font-size: 25px;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -64,7 +64,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   cursor: pointer;
   border-radius: 12px;
   transition: background 0.2s, color 0.2s;
@@ -72,7 +72,7 @@
 
 .room-settings-overlay__close:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .room-settings-overlay__form {
@@ -89,7 +89,7 @@
 
 .room-settings-overlay__label {
   font-size: 13px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
@@ -99,14 +99,14 @@
   border: none;
   border-radius: 14px;
   background: rgba(26, 26, 29, 0.9);
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: 15px;
   outline: none;
   transition: box-shadow 0.2s;
 }
 
 .room-settings-overlay__input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .room-settings-overlay__input:focus {
@@ -115,7 +115,7 @@
 
 .room-settings-overlay__hint {
   font-size: 12px;
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .room-settings-overlay__actions {
@@ -138,17 +138,17 @@
 
 .room-settings-overlay__btn--cancel {
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .room-settings-overlay__btn--cancel:hover {
-  color: #EDEDED;
+  color: var(--color-text);
   background: rgba(255, 255, 255, 0.06);
 }
 
 .room-settings-overlay__btn--submit {
   background: rgba(240, 144, 32, 0.2);
-  color: #F09020;
+  color: var(--color-accent);
   backdrop-filter: blur(8px);
   box-shadow: inset 0 0 24px rgba(240, 144, 32, 0.06);
 }
@@ -201,7 +201,7 @@
   padding: 0 18px;
   font-size: 14px;
   background: rgba(255, 255, 255, 0.06);
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .room-settings-overlay__btn--cover:hover:not(:disabled),
@@ -210,7 +210,7 @@
 }
 
 .room-settings-overlay__btn--cover-remove {
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .room-settings-overlay__btn--cover-remove:hover:not(:disabled) {

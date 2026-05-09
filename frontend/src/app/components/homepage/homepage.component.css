@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* Layout: header сверху, под ним sidebar (fixed) + content с отступом */
@@ -45,16 +45,16 @@
   font-size: clamp(1.25rem, 1.5vw + 0.5rem, 1.5rem);
   font-weight: 600;
   margin-bottom: clamp(0.75rem, 1.5vh, 1rem);
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .section__error {
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-size: 0.95rem;
 }
 
 .section__loading {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   font-size: 0.95rem;
 }
 
@@ -76,7 +76,7 @@
 }
 
 .track-item:hover {
-  background: #1C1F24;
+  background: var(--color-surface-2);
 }
 
 .track-item:has(.track-actions__more-wrap:hover) {
@@ -116,22 +116,22 @@
 }
 
 .track-item__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .track-item__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .track-item__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .track-item__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .track-item__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .track-item__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .track-item__play {
@@ -146,7 +146,7 @@
   justify-content: center;
   background: none;
   border: none;
-  color: #F09020;
+  color: var(--color-accent);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s, color 0.2s, transform 0.2s;
@@ -163,13 +163,13 @@
 }
 
 .track-item__play:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
   transform: translate(-50%, -50%) scale(1.08);
 }
 
 /* Текущий трек в плеере: название фирменным жёлтым */
 .track-item--playing .track-item__title {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 /* Кнопка паузы/play на обложке текущего трека — всегда видна, фирменный жёлтый */
@@ -185,7 +185,7 @@
   justify-content: center;
   background: none;
   border: none;
-  color: #F09020;
+  color: var(--color-accent);
   cursor: pointer;
   opacity: 1;
   transition: color 0.2s, transform 0.2s;
@@ -198,7 +198,7 @@
 }
 
 .track-item__control:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
   transform: translate(-50%, -50%) scale(1.08);
 }
 
@@ -212,13 +212,13 @@
 
 .track-item__title {
   font-size: 1rem;
-  color: #EDEDED;
+  color: var(--color-text);
   font-weight: 500;
 }
 
 .track-item__artist {
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .track-item__duration {
@@ -229,7 +229,7 @@
 .track-item__actions {
   flex-shrink: 0;
   margin-left: 4px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 /* Album row — резиновый отступ и зазор между карточками */
@@ -239,7 +239,7 @@
   overflow-x: auto;
   padding: clamp(12px, 1.5vh, 16px) clamp(6px, 0.8vw, 8px);
   scrollbar-width: thin;
-  scrollbar-color: #1C1F24 #15171A;
+  scrollbar-color: var(--color-surface-2) var(--color-surface);
 }
 
 .album-row::-webkit-scrollbar {
@@ -247,12 +247,12 @@
 }
 
 .album-row::-webkit-scrollbar-track {
-  background: #15171A;
+  background: var(--color-surface);
   border-radius: 4px;
 }
 
 .album-row::-webkit-scrollbar-thumb {
-  background: #1C1F24;
+  background: var(--color-surface-2);
   border-radius: 4px;
 }
 
@@ -280,34 +280,34 @@
 }
 
 .album-card__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 
 .album-card__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 
 .album-card__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 
 .album-card__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 
 .album-card__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 
 .album-card__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .album-card__title {
   display: block;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -317,7 +317,7 @@
 .album-card__artist-wrap {
   display: block;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   max-width: 100%;
@@ -364,7 +364,7 @@
 
 .artist-card {
   padding: 1rem;
-  background: #15171A;
+  background: var(--color-surface);
   border-radius: 10px;
   transition: background 0.15s;
   text-decoration: none;
@@ -373,19 +373,19 @@
 }
 
 .artist-card:hover {
-  background: #1C1F24;
+  background: var(--color-surface-2);
 }
 
 .artist-card__name {
   display: block;
   font-size: 1rem;
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
 .artist-card__followers {
   display: block;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }

@@ -4,7 +4,11 @@
   box-sizing: border-box;
 }
 
-/* Резиновый layout для ПК/ноутов: переменные для хедера и сайдбара */
+/* =====================================================================
+   Глобальные CSS-переменные темы.
+   Тёмная тема используется по умолчанию (на :root).
+   Светлая тема активируется атрибутом data-theme="light" на <html>.
+   ===================================================================== */
 :root {
   --header-height: 52px;
   --sidebar-width: 180px;
@@ -13,6 +17,65 @@
   --content-visible-max: min(var(--content-max-width), calc(100vw - 2 * var(--sidebar-width)));
   --content-padding-x: clamp(1rem, 2.5vw, 1.5rem);
   --content-padding-y: clamp(1.5rem, 3vh, 2rem);
+
+  /* Палитра — тёмная тема (значения по умолчанию) */
+  --color-bg: #0E0F11;
+  --color-surface: #15171A;
+  --color-surface-2: #1C1F24;
+  --color-surface-3: #2a2e35;
+  --color-surface-4: #3a3e45;
+  --color-text: #EDEDED;
+  --color-text-muted: #9A9A9A;
+  --color-text-disabled: #6B6B6B;
+  --color-text-soft: #B0B0B0;
+  --color-border: #1C1F24;
+  --color-border-strong: #2a2e35;
+  --color-overlay: rgba(0, 0, 0, 0.82);
+  --color-shadow: rgba(0, 0, 0, 0.5);
+  --color-on-accent: #0E0F11;
+
+  /* Акцент — оранжевый, остаётся одинаковым в обеих темах */
+  --color-accent: #F09020;
+  --color-accent-hover: #FFA030;
+  --color-accent-deep: #C86810;
+  --color-accent-mid: #E07818;
+  --color-accent-soft: #C4832A;
+
+  /* Системные/семантические цвета */
+  --color-error: #f87171;
+  --color-error-strong: #ef4444;
+
+  color-scheme: dark;
+}
+
+/* Светлая тема */
+:root[data-theme="light"] {
+  --color-bg: #F7F7F8;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #EFF1F4;
+  --color-surface-3: #DDE1E6;
+  --color-surface-4: #C6CCD3;
+  --color-text: #1A1B1E;
+  --color-text-muted: #5C6066;
+  --color-text-disabled: #8A8F95;
+  --color-text-soft: #4A4D52;
+  --color-border: #E1E4E8;
+  --color-border-strong: #C6CCD3;
+  --color-overlay: rgba(20, 22, 26, 0.45);
+  --color-shadow: rgba(20, 22, 26, 0.18);
+  --color-on-accent: #FFFFFF;
+
+  /* Акцент остаётся узнаваемым, чуть теплее на светлом */
+  --color-accent: #E07818;
+  --color-accent-hover: #C86810;
+  --color-accent-deep: #A2520A;
+  --color-accent-mid: #E07818;
+  --color-accent-soft: #B85F0C;
+
+  --color-error: #DC2626;
+  --color-error-strong: #B91C1C;
+
+  color-scheme: light;
 }
 
 html {
@@ -25,7 +88,9 @@ body {
   min-height: 100vh;
   margin: 0;
   /* Фон как у страниц приложения, чтобы при скролле не было белой полосы */
-  background: #0E0F11;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 app-root {

@@ -25,7 +25,7 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-decoration: none;
   border-radius: 8px;
   transition: color 0.2s, background 0.2s;
@@ -35,16 +35,16 @@
 }
 
 .side-nav__link:hover {
-  color: #EDEDED;
+  color: var(--color-text);
   background: rgba(28, 31, 36, 0.8);
 }
 
 .side-nav__link--active {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .side-nav__link--active:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
 }
 
 .side-nav__icon {

@@ -115,7 +115,7 @@
 }
 
 .home-error {
-  color: #f87171;
+  color: var(--color-error);
   padding: 12px;
   margin-bottom: 16px;
   background: rgba(248, 113, 113, 0.1);

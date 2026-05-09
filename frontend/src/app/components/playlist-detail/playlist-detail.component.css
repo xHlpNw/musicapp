@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -31,14 +31,14 @@
 .pld-back {
   display: inline-block;
   font-size: 0.9rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-decoration: none;
   margin-bottom: 1.5rem;
   transition: color 0.2s;
 }
 
 .pld-back:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 /* Hero: обложка + инфо */
@@ -59,22 +59,22 @@
 }
 
 .pld-hero__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .pld-hero__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .pld-hero__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .pld-hero__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .pld-hero__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .pld-hero__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .pld-hero__info {
@@ -85,26 +85,26 @@
 .pld-hero__title {
   font-size: 2rem;
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 0.25rem;
 }
 
 .pld-hero__author {
   font-size: 0.95rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 0.5rem;
 }
 
 .pld-hero__desc {
   font-size: 0.95rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 0.75rem;
   line-height: 1.45;
 }
 
 .pld-hero__meta {
   font-size: 0.9rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 1.25rem;
 }
 
@@ -122,7 +122,7 @@
   padding: 8px 0;
   background: none;
   border: none;
-  color: #F09020;
+  color: var(--color-accent);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -130,7 +130,7 @@
 }
 
 .pld-actions__play:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
 }
 
 .pld-actions__play svg {
@@ -146,14 +146,14 @@
   padding: 0;
   background: none;
   border: none;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .pld-actions__icon:hover,
 .pld-actions__icon--active {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .pld-actions__icon--active svg {
@@ -216,7 +216,7 @@
 }
 
 .pld-actions__more-wrap:hover .pld-actions__icon {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .pld-actions__more-item {
@@ -225,7 +225,7 @@
   padding: 8px 16px;
   border: none;
   background: none;
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: 14px;
   text-align: left;
   cursor: pointer;
@@ -234,11 +234,11 @@
 
 .pld-actions__more-item:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .pld-actions__more-item--danger:hover {
-  color: #f87171;
+  color: var(--color-error);
 }
 
 /* Список треков */
@@ -249,13 +249,13 @@
 .pld-muted,
 .pld-empty {
   font-size: 0.95rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .pld-empty-sub {
   font-size: 0.9rem;
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   margin: 0.5rem 0 0;
 }
 
@@ -285,12 +285,12 @@
 }
 
 .pld-track-row:hover .pld-track-row__num {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .pld-track-row--current .pld-track-row__num,
 .pld-track-row--current .pld-track-row__title {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .pld-track-row__num {
@@ -298,7 +298,7 @@
   width: 28px;
   text-align: right;
   font-size: 0.95rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   transition: color 0.2s;
 }
 
@@ -345,7 +345,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s, color 0.2s, transform 0.2s;
@@ -362,26 +362,26 @@
 }
 
 .pld-track-row__play--current {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .pld-track-row__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .pld-track-row__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .pld-track-row__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .pld-track-row__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .pld-track-row__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .pld-track-row__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .pld-track-row__info {
@@ -395,19 +395,19 @@
 .pld-track-row__title {
   font-size: 1rem;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   transition: color 0.2s;
 }
 
 .pld-track-row__artist {
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .pld-track-row__duration {
   flex-shrink: 0;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .pld-track-row__actions {

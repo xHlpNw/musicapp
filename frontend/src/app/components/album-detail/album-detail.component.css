@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -36,14 +36,14 @@
 .ald-back {
   display: inline-block;
   font-size: clamp(0.875rem, 0.7vw + 0.5rem, 0.9rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-decoration: none;
   margin-bottom: clamp(1rem, 2vh, 1.5rem);
   transition: color 0.2s;
 }
 
 .ald-back:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ald-hero {
@@ -63,22 +63,22 @@
 }
 
 .ald-hero__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .ald-hero__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .ald-hero__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .ald-hero__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .ald-hero__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .ald-hero__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .ald-hero__info {
@@ -89,13 +89,13 @@
 .ald-hero__title {
   font-size: clamp(1.5rem, 2vw + 0.5rem, 2rem);
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 0.25rem;
 }
 
 .ald-hero__artist {
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
-  color: #F09020;
+  color: var(--color-accent);
   text-decoration: none;
   margin: 0 0 0.5rem;
   display: inline-block;
@@ -103,12 +103,12 @@
 }
 
 .ald-hero__artist:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
 }
 
 .ald-hero__meta {
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.9rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 1.25rem;
 }
 
@@ -119,7 +119,7 @@
 .ald-muted,
 .ald-empty {
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -138,7 +138,7 @@
 }
 .ald-track-list button:focus-visible,
 .ald-track-list a:focus-visible {
-  outline: 2px solid #F09020;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -162,12 +162,12 @@
 }
 
 .ald-track-row:hover .ald-track-row__num {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ald-track-row--current .ald-track-row__num,
 .ald-track-row--current .ald-track-row__title {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 /* Ячейка с номером трека; при наведении/текущем треке вместо номера — кнопка воспроизведения */
@@ -183,7 +183,7 @@
 
 .ald-track-row__num {
   font-size: clamp(0.875rem, 0.7vw + 0.5rem, 0.95rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   transition: color 0.2s, opacity 0.2s;
 }
 
@@ -206,7 +206,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s, color 0.2s, transform 0.2s;
@@ -224,7 +224,7 @@
 }
 
 .ald-track-row__play--current {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ald-track-row__title {
@@ -232,14 +232,14 @@
   min-width: 0;
   font-size: clamp(0.9375rem, 0.7vw + 0.5rem, 1rem);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   transition: color 0.2s;
 }
 
 .ald-track-row__duration {
   flex-shrink: 0;
   font-size: clamp(0.8125rem, 0.6vw + 0.4rem, 0.875rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .ald-track-row__actions {
@@ -270,14 +270,14 @@
   padding: 0;
   background: none;
   border: none;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .ald-actions__icon:hover,
 .ald-actions__icon--active {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ald-actions__icon--active svg {
@@ -291,7 +291,7 @@
   border-radius: 12px;
   border: 1px solid rgba(240, 144, 32, 0.35);
   background: rgba(240, 144, 32, 0.08);
-  color: #C4832A;
+  color: var(--color-accent-soft);
   font-size: clamp(0.7rem, 0.5vw + 0.45rem, 0.775rem);
   letter-spacing: 0.02em;
 }

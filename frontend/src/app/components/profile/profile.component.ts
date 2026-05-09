@@ -4,6 +4,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { LoginResponse } from '../../models/auth.model';
+import { ThemeService, AppTheme } from '../../services/theme.service';
 import { SideNavComponent } from '../side-nav/side-nav.component';
 
 type ProfileModal = 'name' | 'avatar' | 'password' | 'logout' | null;
@@ -37,8 +38,19 @@ export class ProfileComponent {
 
   constructor(
     public authService: AuthService,
+    public themeService: ThemeService,
     private router: Router
   ) {}
+
+  /** Переключить тему оформления (тёмная/светлая). */
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  /** Подпись для кнопки переключения темы — отображает следующее состояние. */
+  getThemeButtonLabel(theme: AppTheme | null): string {
+    return theme === 'light' ? 'Тёмная тема' : 'Светлая тема';
+  }
 
   getDisplayName(user: LoginResponse | null): string {
     return user?.username ?? 'Пользователь';

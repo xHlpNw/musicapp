@@ -18,7 +18,7 @@
   border-radius: 16px;
   box-shadow: 0 18px 60px -18px rgba(0, 0, 0, 0.6);
   padding: 14px 14px 12px;
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .addpl__head {
@@ -36,7 +36,7 @@
 .addpl__close {
   border: none;
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -47,7 +47,7 @@
 }
 
 .addpl__close:hover {
-  color: #F09020;
+  color: var(--color-accent);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -62,7 +62,7 @@
 
 .addpl__muted {
   margin-top: 10px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -78,7 +78,7 @@
 .addpl__item {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
-  color: #EDEDED;
+  color: var(--color-text);
   border-radius: 12px;
   padding: 10px 12px;
   cursor: pointer;
@@ -108,13 +108,13 @@
 
 .addpl__item-meta {
   font-size: 12px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
 .addpl__error {
   margin-top: 10px;
-  color: #f87171;
+  color: var(--color-error);
   font-size: 13px;
 }
 

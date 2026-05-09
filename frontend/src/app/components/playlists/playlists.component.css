@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -37,7 +37,7 @@
 .playlists-title {
   font-size: clamp(1.375rem, 1.5vw + 0.5rem, 1.75rem);
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 clamp(1rem, 2vh, 1.5rem);
 }
 
@@ -65,7 +65,7 @@
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   pointer-events: none;
 }
 
@@ -75,19 +75,19 @@
   background: transparent;
   border: none;
   border-bottom: 1px solid transparent;
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .playlists-search-input::placeholder {
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .playlists-search-input:focus {
-  border-bottom-color: #1C1F24;
-  box-shadow: 0 1px 0 0 #F09020;
+  border-bottom-color: var(--color-surface-2);
+  box-shadow: 0 1px 0 0 var(--color-accent);
 }
 
 .playlists-create-btn {
@@ -97,7 +97,7 @@
   padding: clamp(6px, 0.6vh, 8px) 0;
   background: none;
   border: none;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   font-weight: 500;
   cursor: pointer;
@@ -106,7 +106,7 @@
 
 .playlists-create-btn:hover,
 .playlists-create-btn:focus-visible {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .playlists-create-btn__icon {
@@ -126,13 +126,13 @@
 .playlists-section__title {
   font-size: clamp(1rem, 1vw + 0.25rem, 1.125rem);
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 clamp(0.75rem, 1.5vh, 1rem);
 }
 
 .playlists-section__muted {
   font-size: 0.95rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -141,7 +141,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: #F09020;
+  color: var(--color-accent);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -149,7 +149,7 @@
 }
 
 .playlists-empty-action:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
 }
 
 /* Фильтры */
@@ -164,7 +164,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -172,11 +172,11 @@
 }
 
 .playlists-filter:hover {
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .playlists-filter--active {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 /* Горизонтальная полоса (популярные) */
@@ -186,7 +186,7 @@
   overflow-x: auto;
   padding: clamp(4px, 0.5vh, 8px) 0;
   scrollbar-width: thin;
-  scrollbar-color: #1C1F24 #15171A;
+  scrollbar-color: var(--color-surface-2) var(--color-surface);
 }
 
 .playlists-row::-webkit-scrollbar {
@@ -194,12 +194,12 @@
 }
 
 .playlists-row::-webkit-scrollbar-track {
-  background: #15171A;
+  background: var(--color-surface);
   border-radius: 4px;
 }
 
 .playlists-row::-webkit-scrollbar-thumb {
-  background: #1C1F24;
+  background: var(--color-surface-2);
   border-radius: 4px;
 }
 
@@ -237,26 +237,26 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-color: #15171A;
+  background-color: var(--color-surface);
 }
 
 .playlists-card__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .playlists-card__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .playlists-card__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .playlists-card__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .playlists-card__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .playlists-card__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 /* Если есть реальная картинка — показываем целиком (перебиваем cover--N с background shorthand). */
@@ -264,14 +264,14 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-color: #15171A;
+  background-color: var(--color-surface);
 }
 
 .playlists-card__name {
   display: block;
   font-size: clamp(0.875rem, 0.8vw + 0.4rem, 0.95rem);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -281,7 +281,7 @@
 .playlists-card__meta {
   display: block;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -320,7 +320,7 @@
 .playlists-modal__title {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -334,15 +334,15 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .playlists-modal__close:hover {
-  background: #1C1F24;
-  color: #F09020;
+  background: var(--color-surface-2);
+  color: var(--color-accent);
 }
 
 .playlists-modal__body {
@@ -351,7 +351,7 @@
 
 .playlists-modal__error {
   font-size: 0.875rem;
-  color: #f87171;
+  color: var(--color-error);
   margin: 0 0 12px;
 }
 
@@ -363,7 +363,7 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 6px;
 }
 
@@ -371,8 +371,8 @@
   width: 100%;
   padding: 12px 14px;
   font-size: 0.9375rem;
-  color: #EDEDED;
-  background: #1C1F24;
+  color: var(--color-text);
+  background: var(--color-surface-2);
   border: 1px solid transparent;
   border-radius: 10px;
   outline: none;
@@ -381,11 +381,11 @@
 }
 
 .playlists-modal__input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .playlists-modal__input:focus {
-  border-color: #F09020;
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(240, 144, 32, 0.25);
 }
 
@@ -408,22 +408,22 @@
 
 .playlists-modal__btn--secondary {
   background: transparent;
-  color: #EDEDED;
-  border: 1px solid #6B6B6B;
+  color: var(--color-text);
+  border: 1px solid var(--color-text-disabled);
 }
 
 .playlists-modal__btn--secondary:hover {
-  background: #1C1F24;
-  border-color: #9A9A9A;
+  background: var(--color-surface-2);
+  border-color: var(--color-text-muted);
 }
 
 .playlists-modal__btn--primary {
-  background: #F09020;
-  color: #0E0F11;
+  background: var(--color-accent);
+  color: var(--color-bg);
 }
 
 .playlists-modal__btn--primary:hover:not(:disabled) {
-  background: #FFA030;
+  background: var(--color-accent-hover);
 }
 
 .playlists-modal__btn:disabled {

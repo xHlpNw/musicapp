@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0E0F11 0%, #141416 100%);
-  color: #EDEDED;
+  background: linear-gradient(180deg, var(--color-bg) 0%, #141416 100%);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -45,7 +45,7 @@
 .rooms-title {
   font-size: clamp(1.75rem, 2vw + 0.5rem, 34px);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -56,7 +56,7 @@
   border-radius: 14px;
   font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   font-weight: 500;
-  color: #0E0F11;
+  color: var(--color-bg);
   background: rgba(240, 144, 32, 0.25);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -97,7 +97,7 @@
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   pointer-events: none;
 }
 
@@ -108,14 +108,14 @@
   background: #1A1A1D;
   border: none;
   border-radius: 12px;
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   outline: none;
   transition: box-shadow 0.2s;
 }
 
 .rooms-search-input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .rooms-search-input:focus {
@@ -132,7 +132,7 @@
   background: #1A1A1D;
   border: none;
   border-radius: 12px;
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   cursor: pointer;
   outline: none;
@@ -144,7 +144,7 @@
 
 .rooms-filter:hover,
 .rooms-filter:focus {
-  background-color: #1C1F24;
+  background-color: var(--color-surface-2);
 }
 
 /* ----- Section: Popular ----- */
@@ -159,7 +159,7 @@
 .rooms-section-title {
   font-size: clamp(1.125rem, 1.2vw + 0.5rem, 21px);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 clamp(1rem, 2vh, 20px) 0;
 }
 
@@ -170,7 +170,7 @@
 }
 
 .section__loading {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   font-size: 14px;
   margin: 0;
 }
@@ -230,30 +230,30 @@ a.room-card--popular {
 .room-card__name {
   font-size: 17px;
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 6px 0;
 }
 
 .room-card__host {
   font-size: 14px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 8px 0;
 }
 
 .room-card__meta {
   margin: 0 0 16px 0;
   font-size: 14px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .room-card__count {
-  color: #F09020;
+  color: var(--color-accent);
   font-weight: 600;
   margin-right: 4px;
 }
 
 .room-card__count-label {
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .room-card__cover {
@@ -271,7 +271,7 @@ a.room-card--popular {
 
 .room-card__track {
   font-size: 14px;
-  color: #B0B0B0;
+  color: var(--color-text-soft);
   margin: 0;
   text-align: center;
   white-space: nowrap;
@@ -312,13 +312,13 @@ a.room-card--list {
 
 .room-card__host-line {
   font-size: 13px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 12px 0;
 }
 
 .room-card__participants {
   margin-left: 8px;
-  color: #B0B0B0;
+  color: var(--color-text-soft);
 }
 
 .room-card__row {
@@ -336,14 +336,14 @@ a.room-card--list {
 
 .room-card__track-name {
   font-size: 14px;
-  color: #B0B0B0;
+  color: var(--color-text-soft);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .rooms-empty {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   margin: clamp(1rem, 2vh, 24px) 0 0 0;
 }

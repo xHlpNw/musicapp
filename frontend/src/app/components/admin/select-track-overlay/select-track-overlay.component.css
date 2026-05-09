@@ -22,8 +22,8 @@
   max-width: 700px;
   max-height: 85vh;
   border-radius: 16px;
-  background: #15171A;
-  border: 1px solid #1C1F24;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-2);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   transform: scale(0.96);
   opacity: 0;
@@ -45,13 +45,13 @@
   gap: 16px;
   padding: 20px 24px;
   flex-shrink: 0;
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-surface-2);
 }
 
 .select-track-overlay__title {
   font-size: 18px;
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -65,15 +65,15 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .select-track-overlay__close:hover:not(:disabled) {
-  background: #1C1F24;
-  color: #EDEDED;
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 .select-track-overlay__close:disabled {
@@ -84,16 +84,16 @@
 /* Search */
 .select-track-overlay__search {
   padding: 16px 24px;
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-surface-2);
   flex-shrink: 0;
 }
 
 .select-track-overlay__search-input {
   width: 100%;
   padding: 10px 14px;
-  background: #0E0F11;
-  color: #EDEDED;
-  border: 1px solid #1C1F24;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-2);
   border-radius: 8px;
   font-size: 14px;
   outline: none;
@@ -101,11 +101,11 @@
 }
 
 .select-track-overlay__search-input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .select-track-overlay__search-input:focus {
-  border-color: #F09020;
+  border-color: var(--color-accent);
 }
 
 /* Content */
@@ -125,19 +125,19 @@
 }
 
 .select-track-overlay__content::-webkit-scrollbar-thumb {
-  background: #2a2e35;
+  background: var(--color-surface-3);
   border-radius: 3px;
 }
 
 .select-track-overlay__content::-webkit-scrollbar-thumb:hover {
-  background: #3a3e45;
+  background: var(--color-surface-4);
 }
 
 .select-track-overlay__loading,
 .select-track-overlay__empty {
   text-align: center;
   padding: 40px 20px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-size: 14px;
 }
 
@@ -153,21 +153,21 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  background: #0E0F11;
-  border: 1px solid #1C1F24;
+  background: var(--color-bg);
+  border: 1px solid var(--color-surface-2);
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
 
 .track-item:hover {
-  background: #15171A;
-  border-color: #2a2e35;
+  background: var(--color-surface);
+  border-color: var(--color-surface-3);
 }
 
 .track-item--selected {
   background: rgba(240, 144, 32, 0.1);
-  border-color: #F09020;
+  border-color: var(--color-accent);
 }
 
 .track-item--selected:hover {
@@ -182,7 +182,7 @@
 .track-item__title {
   font-size: 14px;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -191,7 +191,7 @@
 
 .track-item__meta {
   font-size: 12px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -206,7 +206,7 @@
 .track-item__check {
   flex-shrink: 0;
   margin-left: 12px;
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 /* Actions */
@@ -215,7 +215,7 @@
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 24px;
-  border-top: 1px solid #1C1F24;
+  border-top: 1px solid var(--color-surface-2);
   flex-shrink: 0;
 }
 
@@ -225,8 +225,8 @@
 }
 
 .select-track-overlay__actions .btn-primary {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
-  color: #0E0F11;
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
+  color: var(--color-bg);
   font-weight: 600;
 }
 
@@ -240,13 +240,13 @@
 }
 
 .select-track-overlay__actions .btn-secondary {
-  background: #1C1F24;
-  color: #EDEDED;
-  border: 1px solid #2a2e35;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-3);
 }
 
 .select-track-overlay__actions .btn-secondary:hover:not(:disabled) {
-  background: #2a2e35;
+  background: var(--color-surface-3);
 }
 
 @media (max-width: 768px) {

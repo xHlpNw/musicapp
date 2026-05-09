@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -36,14 +36,14 @@
 .ard-back {
   display: inline-block;
   font-size: clamp(0.875rem, 0.7vw + 0.5rem, 0.9rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-decoration: none;
   margin-bottom: clamp(1rem, 2vh, 1.5rem);
   transition: color 0.2s;
 }
 
 .ard-back:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ard-hero {
@@ -58,7 +58,7 @@
   width: clamp(160px, 18vw, 240px);
   height: clamp(160px, 18vw, 240px);
   border-radius: 50%;
-  background: #1C1F24;
+  background: var(--color-surface-2);
   background-size: cover;
   background-position: center;
   display: grid;
@@ -87,20 +87,20 @@
 .ard-hero__title {
   font-size: clamp(1.5rem, 2vw + 0.5rem, 2rem);
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 0.25rem;
 }
 
 .ard-hero__desc {
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 0.5rem;
   line-height: 1.45;
 }
 
 .ard-hero__meta {
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.9rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 1.25rem;
 }
 
@@ -111,14 +111,14 @@
 .ard-albums__title {
   font-size: clamp(1.125rem, 1vw + 0.5rem, 1.25rem);
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 clamp(0.75rem, 1.5vh, 1rem);
 }
 
 .ard-muted,
 .ard-empty {
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -153,38 +153,38 @@
 }
 
 .ard-album-item__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .ard-album-item__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .ard-album-item__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .ard-album-item__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .ard-album-item__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .ard-album-item__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .ard-album-item__title {
   font-size: clamp(0.875rem, 0.7vw + 0.5rem, 0.95rem);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 2px;
 }
 
 .ard-album-item__link:hover .ard-album-item__title {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ard-album-item__year {
   font-size: clamp(0.8125rem, 0.6vw + 0.4rem, 0.875rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .ard-hero__genres {
@@ -210,14 +210,14 @@
   padding: 0;
   background: none;
   border: none;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .ard-actions__icon:hover,
 .ard-actions__icon--active {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .ard-actions__icon--active svg {
@@ -231,7 +231,7 @@
   border-radius: 12px;
   border: 1px solid rgba(240, 144, 32, 0.35);
   background: rgba(240, 144, 32, 0.08);
-  color: #C4832A;
+  color: var(--color-accent-soft);
   font-size: clamp(0.7rem, 0.5vw + 0.45rem, 0.775rem);
   letter-spacing: 0.02em;
 }

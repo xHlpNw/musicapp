@@ -2,26 +2,27 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .profile-header {
   flex-shrink: 0;
-  background: #15171A;
+  background: var(--color-surface);
   padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .profile-header__logo {
   font-size: 1.625rem;
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   text-decoration: none;
 }
 
 .profile-header__logo:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .profile-page-layout {
@@ -57,7 +58,7 @@
 }
 
 .profile-empty {
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   font-size: 1.125rem;
 }
 
@@ -74,7 +75,7 @@
   width: 112px;
   height: 112px;
   border-radius: 50%;
-  background: #1C1F24;
+  background: var(--color-surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,7 +91,7 @@
 .profile-hero__avatar-initial {
   font-size: 2.75rem;
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .profile-hero__info {
@@ -108,7 +109,7 @@
 .profile-hero__name {
   font-size: 2rem;
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -117,7 +118,7 @@
   align-items: center;
   gap: 6px;
   font-size: 1rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -127,7 +128,7 @@
 }
 
 .profile-hero__edit:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .profile-hero__edit-icon {
@@ -136,7 +137,7 @@
 
 .profile-hero__username {
   font-size: 1.125rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -154,14 +155,14 @@
   gap: 12px;
   font-size: 1.125rem;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   text-decoration: none;
   padding: 12px 0;
   transition: color 0.2s;
 }
 
 .profile-nav__link:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .profile-nav__icon {
@@ -181,7 +182,7 @@
 .profile-settings__title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 1.25rem;
 }
 
@@ -196,17 +197,17 @@
   width: 100%;
   padding: 14px 0;
   font-size: 1.125rem;
-  color: #EDEDED;
+  color: var(--color-text);
   background: none;
   border: none;
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   text-align: left;
   transition: color 0.2s, background 0.2s;
 }
 
 .profile-settings__item:hover {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .profile-settings__item:last-child {
@@ -214,18 +215,44 @@
 }
 
 .profile-settings__item--logout {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .profile-settings__item--logout:hover {
-  color: #EDEDED;
+  color: var(--color-text);
+}
+
+/* Кнопка переключения темы */
+.profile-settings__item--theme {
+  display: flex;
+  align-items: center;
+}
+
+.profile-settings__theme-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-settings__theme-icon {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  transition: transform 0.3s ease;
+}
+
+.profile-settings__item--theme:hover .profile-settings__theme-icon {
+  transform: rotate(20deg);
+}
+
+.profile-settings__theme-label {
+  line-height: 1;
 }
 
 /* Оверлеи редактирования (фирменные цвета) */
 .profile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.82);
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,11 +261,11 @@
 }
 
 .profile-modal {
-  background: #15171A;
+  background: var(--color-surface);
   border-radius: 16px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 48px var(--color-shadow);
 }
 
 .profile-modal__header {
@@ -252,7 +279,7 @@
 .profile-modal__title {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -266,15 +293,15 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .profile-modal__close:hover {
-  background: #1C1F24;
-  color: #F09020;
+  background: var(--color-surface-2);
+  color: var(--color-accent);
 }
 
 .profile-modal__close svg {
@@ -296,9 +323,9 @@
   width: 100%;
   padding: 14px 16px;
   font-size: 1rem;
-  color: #EDEDED;
-  background: #1C1F24;
-  border: 1px solid #1C1F24;
+  color: var(--color-text);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -306,23 +333,23 @@
 }
 
 .profile-modal__input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .profile-modal__input:focus {
-  border-color: #F09020;
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(240, 144, 32, 0.25);
 }
 
 .profile-modal__error {
   font-size: 0.9375rem;
-  color: #f87171;
+  color: var(--color-error);
   margin: 0 0 10px;
 }
 
 .profile-modal__text {
   font-size: 1rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 8px;
 }
 
@@ -345,22 +372,22 @@
 
 .profile-modal__btn--secondary {
   background: transparent;
-  color: #EDEDED;
-  border: 1px solid #6B6B6B;
+  color: var(--color-text);
+  border: 1px solid var(--color-text-disabled);
 }
 
 .profile-modal__btn--secondary:hover {
-  background: #1C1F24;
-  border-color: #9A9A9A;
+  background: var(--color-surface-2);
+  border-color: var(--color-text-muted);
 }
 
 .profile-modal__btn--primary {
-  background: #F09020;
-  color: #0E0F11;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 .profile-modal__btn--primary:hover {
-  background: #FFA030;
+  background: var(--color-accent-hover);
 }
 
 /* Модалка «Нарисовать аватар» */
@@ -370,7 +397,7 @@
 
 .profile-modal__avatar-hint {
   font-size: 0.9375rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 12px;
 }
 
@@ -389,7 +416,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
@@ -417,7 +444,7 @@
 
 .profile-avatar-tools__range {
   width: 120px;
-  accent-color: #F09020;
+  accent-color: var(--color-accent);
 }
 
 .profile-avatar-tools__btn {
@@ -445,8 +472,8 @@
   height: 320px;
   max-width: 100%;
   border-radius: 12px;
-  background: #1C1F24;
-  border: 1px solid #2a2d33;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-strong);
   cursor: crosshair;
   touch-action: none;
 }

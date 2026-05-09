@@ -10,7 +10,7 @@
 }
 
 .register-modal {
-  background: #15171A;
+  background: var(--color-surface);
   border-radius: 16px;
   width: 100%;
   max-width: 420px;
@@ -29,7 +29,7 @@
 .register-modal__title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -44,33 +44,33 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .register-modal__close:hover {
-  background: #1C1F24;
-  color: #F09020;
+  background: var(--color-surface-2);
+  color: var(--color-accent);
 }
 
 .register-modal__separator {
   height: 1px;
-  background: #1C1F24;
+  background: var(--color-surface-2);
   margin-bottom: 16px;
 }
 
 .register-modal__desc {
   font-size: 0.9375rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   line-height: 1.45;
   margin: 0 0 20px;
 }
 
 .register-modal__error {
   font-size: 0.875rem;
-  color: #f87171;
+  color: var(--color-error);
   margin-bottom: 16px;
   padding: 10px 12px;
   background: rgba(248, 113, 113, 0.12);
@@ -92,15 +92,15 @@
 .register-modal__field label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .register-modal__input {
   width: 100%;
   padding: 12px 14px;
   font-size: 0.9375rem;
-  color: #EDEDED;
-  background: #1C1F24;
+  color: var(--color-text);
+  background: var(--color-surface-2);
   border: 1px solid transparent;
   border-radius: 10px;
   outline: none;
@@ -109,21 +109,21 @@
 }
 
 .register-modal__input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .register-modal__input:focus {
-  border-color: #F09020;
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(240, 144, 32, 0.25);
 }
 
 .register-modal__input--error {
-  border-color: #f87171;
+  border-color: var(--color-error);
 }
 
 .register-modal__hint {
   font-size: 0.8125rem;
-  color: #f87171;
+  color: var(--color-error);
 }
 
 .register-modal__btn {
@@ -148,40 +148,40 @@
 }
 
 .register-modal__btn--primary {
-  background: #F09020;
-  color: #0E0F11;
+  background: var(--color-accent);
+  color: var(--color-bg);
 }
 
 .register-modal__btn--primary:not(:disabled):hover {
-  background: #FFA030;
+  background: var(--color-accent-hover);
 }
 
 .register-modal__btn--secondary {
   background: transparent;
-  color: #EDEDED;
-  border: 1px solid #6B6B6B;
+  color: var(--color-text);
+  border: 1px solid var(--color-text-disabled);
 }
 
 .register-modal__btn--secondary:hover {
-  background: #1C1F24;
-  border-color: #9A9A9A;
+  background: var(--color-surface-2);
+  border-color: var(--color-text-muted);
 }
 
 .register-modal__footer {
   margin: 20px 0 0;
   font-size: 0.9375rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-align: center;
 }
 
 .register-modal__link {
-  color: #F09020;
+  color: var(--color-accent);
   text-decoration: none;
   font-weight: 500;
   margin-left: 4px;
 }
 
 .register-modal__link:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
   text-decoration: underline;
 }

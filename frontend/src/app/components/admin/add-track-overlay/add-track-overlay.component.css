@@ -22,8 +22,8 @@
   max-width: 680px;
   max-height: 92vh;
   border-radius: 16px;
-  background: #15171A;
-  border: 1px solid #1C1F24;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-2);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   transform: scale(0.96);
   opacity: 0;
@@ -45,13 +45,13 @@
   gap: 16px;
   padding: 20px 24px;
   flex-shrink: 0;
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-surface-2);
 }
 
 .add-track-overlay__title {
   font-size: 18px;
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -65,15 +65,15 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .add-track-overlay__close:hover:not(:disabled) {
-  background: #1C1F24;
-  color: #EDEDED;
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 .add-track-overlay__close:disabled {
@@ -98,12 +98,12 @@
 }
 
 .add-track-overlay__content::-webkit-scrollbar-thumb {
-  background: #2a2e35;
+  background: var(--color-surface-3);
   border-radius: 3px;
 }
 
 .add-track-overlay__content::-webkit-scrollbar-thumb:hover {
-  background: #3a3e45;
+  background: var(--color-surface-4);
 }
 
 /* Form - компактные отступы */
@@ -130,9 +130,9 @@
 .add-track-overlay__form .form-group textarea {
   padding: 8px 12px;
   font-size: 14px;
-  background: #0E0F11;
-  color: #EDEDED;
-  border: 1px solid #1C1F24;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-2);
   border-radius: 8px;
 }
 
@@ -141,15 +141,15 @@
 .add-track-overlay__form .form-group select:focus,
 .add-track-overlay__form .form-group textarea:focus {
   outline: none;
-  border-color: #F09020;
+  border-color: var(--color-accent);
 }
 
 .add-track-overlay__form .form-group input[type="file"] {
   font-size: 13px;
   padding: 8px 12px;
-  background: #1C1F24;
-  color: #EDEDED;
-  border: 1px solid #2a2e35;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-3);
   border-radius: 8px;
   cursor: pointer;
 }
@@ -157,9 +157,9 @@
 .add-track-overlay__form .form-group input[type="file"]::file-selector-button {
   padding: 6px 12px;
   margin-right: 12px;
-  background: #0E0F11;
-  color: #EDEDED;
-  border: 1px solid #1C1F24;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-2);
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
@@ -167,7 +167,7 @@
 }
 
 .add-track-overlay__form .form-group input[type="file"]::file-selector-button:hover {
-  background: #1C1F24;
+  background: var(--color-surface-2);
 }
 
 .add-track-overlay__form .hint {
@@ -196,7 +196,7 @@
 /* Номер участника */
 .add-track-overlay__form .participant-order {
   font-weight: 600;
-  color: #F09020;
+  color: var(--color-accent);
   min-width: 1.5rem;
   flex-shrink: 0;
 }
@@ -205,9 +205,9 @@
 .add-track-overlay__form .participant-row select {
   padding: 8px 10px;
   font-size: 13px;
-  background: #0E0F11;
-  color: #EDEDED;
-  border: 1px solid #1C1F24;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-2);
   border-radius: 8px;
   flex: 1;
   min-width: 120px;
@@ -215,12 +215,12 @@
 
 .add-track-overlay__form .participant-row select:focus {
   outline: none;
-  border-color: #F09020;
+  border-color: var(--color-accent);
 }
 
 .add-track-overlay__form .participant-row select option {
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .add-track-overlay__form .participant-row .participant-role {
@@ -248,9 +248,9 @@
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: #1C1F24;
-  color: #EDEDED;
-  border: 1px solid #2a2e35;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-3);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -259,7 +259,7 @@
 }
 
 .add-track-overlay__form .btn-add-participant:hover {
-  background: #2a2e35;
+  background: var(--color-surface-3);
 }
 
 .add-track-overlay__form .btn-add-participant svg {
@@ -294,7 +294,7 @@
   gap: 10px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #1C1F24;
+  border-top: 1px solid var(--color-surface-2);
 }
 
 .add-track-overlay__actions .btn {
@@ -304,8 +304,8 @@
 
 /* Оранжевый акцент для primary кнопки */
 .add-track-overlay__actions .btn-primary {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
-  color: #0E0F11;
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
+  color: var(--color-bg);
   font-weight: 600;
 }
 
@@ -314,13 +314,13 @@
 }
 
 .add-track-overlay__actions .btn-secondary {
-  background: #1C1F24;
-  color: #EDEDED;
-  border: 1px solid #2a2e35;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-3);
 }
 
 .add-track-overlay__actions .btn-secondary:hover {
-  background: #2a2e35;
+  background: var(--color-surface-3);
 }
 
 @media (max-width: 768px) {

@@ -5,8 +5,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -40,20 +40,20 @@
   font-size: clamp(1.35rem, 1.6vw + 0.5rem, 1.65rem);
   font-weight: 600;
   margin-bottom: clamp(1rem, 2vh, 1.25rem);
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .admin-tabs {
   display: flex;
   gap: 4px;
   margin-bottom: clamp(1.25rem, 2.5vh, 1.5rem);
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-surface-2);
   flex-wrap: wrap;
 }
 
 .admin-tabs__tab {
   padding: 12px 20px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.95rem;
@@ -62,17 +62,17 @@
 }
 
 .admin-tabs__tab:hover {
-  color: #EDEDED;
+  color: var(--color-text);
   background: rgba(28, 31, 36, 0.6);
 }
 
 .admin-tabs__tab--active {
-  color: #F09020;
-  background: #15171A;
+  color: var(--color-accent);
+  background: var(--color-surface);
 }
 
 .admin-tabs__tab--active:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
 }
 
 .admin-tab-content {

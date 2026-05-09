@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0E0F11 0%, #141416 100%);
-  color: #EDEDED;
+  background: linear-gradient(180deg, var(--color-bg) 0%, #141416 100%);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -57,7 +57,7 @@
 
 .room-detail__muted,
 .room-detail__error {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   font-size: 0.95rem;
   margin: 0;
 }
@@ -80,13 +80,13 @@
 
 .room-detail__join-banner p {
   margin: 0;
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: 15px;
 }
 
 .room-detail__btn--primary {
   background: rgba(240, 144, 32, 0.25);
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .room-detail__btn--primary:hover:not(:disabled) {
@@ -111,7 +111,7 @@
 .room-detail__title {
   font-size: clamp(1.5rem, 2vw + 0.5rem, 32px);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 clamp(6px, 0.6vh, 8px) 0;
 }
 
@@ -121,25 +121,25 @@
   flex-wrap: wrap;
   gap: 6px;
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .room-detail__host {
-  color: #F09020;
+  color: var(--color-accent);
   font-weight: 500;
 }
 
 .room-detail__sep {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   user-select: none;
 }
 
 .room-detail__participants {
-  color: #B0B0B0;
+  color: var(--color-text-soft);
 }
 
 .room-detail__status {
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .room-detail__header-right {
@@ -151,7 +151,7 @@
 .room-detail__link-btn {
   background: none;
   border: none;
-  color: #F09020;
+  color: var(--color-accent);
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   font-weight: 500;
   cursor: pointer;
@@ -160,7 +160,7 @@
 }
 
 .room-detail__link-btn:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
 }
 
 .room-detail__btn {
@@ -175,7 +175,7 @@
 .room-detail__btn--secondary {
   background: rgba(255, 255, 255, 0.06);
   border: none;
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .room-detail__btn--secondary:hover {
@@ -189,13 +189,13 @@
   width: clamp(40px, 4vw, 44px);
   height: clamp(40px, 4vw, 44px);
   border-radius: 12px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   transition: color 0.2s, background 0.2s;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .room-detail__icon-btn:hover {
-  color: #F09020;
+  color: var(--color-accent);
   background: rgba(240, 144, 32, 0.1);
 }
 
@@ -246,13 +246,13 @@
 .room-detail__track-title {
   font-size: clamp(1.125rem, 1.2vw + 0.5rem, 20px);
   font-weight: 600;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 4px 0;
 }
 
 .room-detail__track-artists {
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0 0 clamp(10px, 1.2vh, 14px) 0;
 }
 
@@ -271,14 +271,14 @@
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  color: #EDEDED;
+  color: var(--color-text);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .room-detail__control-btn:hover:not(:disabled) {
   background: rgba(240, 144, 32, 0.2);
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .room-detail__control-btn:disabled {
@@ -289,7 +289,7 @@
 .room-detail__control-btn:nth-child(2) {
   width: clamp(50px, 5vw, 56px);
   height: clamp(50px, 5vw, 56px);
-  color: #F09020;
+  color: var(--color-accent);
   background: rgba(240, 144, 32, 0.15);
 }
 
@@ -311,7 +311,7 @@
 
 .room-detail__resume-hint-text {
   font-size: 0.8125rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 /* ----- Queue ----- */
@@ -326,7 +326,7 @@
 .room-detail__queue-title {
   font-size: clamp(1rem, 1vw + 0.25rem, 18px);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -338,7 +338,7 @@
   border-radius: 10px;
   font-size: clamp(0.75rem, 0.7vw + 0.35rem, 13px);
   font-weight: 500;
-  color: #F09020;
+  color: var(--color-accent);
   background: rgba(240, 144, 32, 0.15);
   cursor: pointer;
   transition: background 0.2s;
@@ -415,7 +415,7 @@
 }
 
 .room-detail__queue-row--current .room-detail__queue-track-name {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .room-detail__queue-row:hover .room-detail__queue-remove {
@@ -443,7 +443,7 @@
 .room-detail__queue-track-name {
   font-size: 14px;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -451,7 +451,7 @@
 
 .room-detail__queue-artists {
   font-size: 12px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -459,12 +459,12 @@
 
 .room-detail__queue-added {
   font-size: 11px;
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .room-detail__queue-duration {
   font-size: 13px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
@@ -478,7 +478,7 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s, color 0.2s, background 0.2s;
@@ -490,7 +490,7 @@
 }
 
 .room-detail__queue-empty {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   font-size: 14px;
   margin: 16px 0 0 0;
 }
@@ -540,16 +540,16 @@
 .room-detail__chat-name {
   font-size: 13px;
   font-weight: 500;
-  color: #B0B0B0;
+  color: var(--color-text-soft);
 }
 
 .room-detail__chat-name--host {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .room-detail__chat-text {
   font-size: 14px;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
   line-height: 1.45;
   padding: 6px 10px;
@@ -563,7 +563,7 @@
 
 .room-detail__chat-time {
   font-size: 11px;
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .room-detail__chat-input-wrap {
@@ -582,14 +582,14 @@
   border: none;
   border-radius: 14px;
   background: rgba(26, 26, 29, 0.8);
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   outline: none;
   transition: box-shadow 0.2s;
 }
 
 .room-detail__chat-input::placeholder {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
 }
 
 .room-detail__chat-input:focus {
@@ -606,7 +606,7 @@
   border: none;
   border-radius: 14px;
   background: rgba(240, 144, 32, 0.2);
-  color: #F09020;
+  color: var(--color-accent);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -651,7 +651,7 @@
 .room-detail__add-title {
   font-size: clamp(1.125rem, 1.1vw + 0.5rem, 20px);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -663,7 +663,7 @@
   justify-content: center;
   border: none;
   background: transparent;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   cursor: pointer;
   border-radius: 10px;
   transition: background 0.2s, color 0.2s;
@@ -671,7 +671,7 @@
 
 .room-detail__add-close:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .room-detail__add-search {
@@ -687,7 +687,7 @@
   border: none;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.25);
-  color: #EDEDED;
+  color: var(--color-text);
   font-size: clamp(0.875rem, 0.8vw + 0.4rem, 15px);
   outline: none;
 }
@@ -703,7 +703,7 @@
   border-radius: 12px;
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 14px);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   background: rgba(240, 144, 32, 0.25);
   cursor: pointer;
   transition: background 0.2s;
@@ -723,7 +723,7 @@
 
 .room-detail__add-loading,
 .room-detail__add-empty {
-  color: #6B6B6B;
+  color: var(--color-text-disabled);
   font-size: 14px;
   margin: 0;
   padding: 24px 0 0 0;
@@ -800,7 +800,7 @@
 .room-detail__add-row-title {
   font-size: 14px;
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -808,7 +808,7 @@
 
 .room-detail__add-row-meta {
   font-size: 12px;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -822,7 +822,7 @@
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: #F09020;
+  color: var(--color-accent);
   background: rgba(240, 144, 32, 0.2);
   cursor: pointer;
   transition: background 0.2s;

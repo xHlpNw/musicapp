@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0E0F11;
-  color: #EDEDED;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .page-layout {
@@ -37,7 +37,7 @@
 .favorites-title {
   font-size: clamp(1.5rem, 1.8vw + 0.5rem, 2rem);
   font-weight: 700;
-  color: #EDEDED;
+  color: var(--color-text);
   margin: 0 0 clamp(1rem, 2vh, 1.5rem);
 }
 
@@ -46,7 +46,7 @@
   display: flex;
   gap: clamp(0.25rem, 0.5vw, 0.5rem) clamp(1.25rem, 2vw, 2rem);
   margin-bottom: clamp(1.25rem, 2.5vh, 2rem);
-  border-bottom: 1px solid #1C1F24;
+  border-bottom: 1px solid var(--color-surface-2);
   flex-wrap: wrap;
 }
 
@@ -54,7 +54,7 @@
   padding: clamp(10px, 1vh, 12px) 0;
   font-size: clamp(0.9375rem, 0.85vw + 0.5rem, 1rem);
   font-weight: 500;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   background: none;
   border: none;
   cursor: pointer;
@@ -63,11 +63,11 @@
 }
 
 .favorites-tab:hover {
-  color: #EDEDED;
+  color: var(--color-text);
 }
 
 .favorites-tab--active {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .favorites-tab--active::after {
@@ -77,7 +77,7 @@
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: #F09020;
+  background: var(--color-accent);
 }
 
 /* Content states */
@@ -89,12 +89,12 @@
 .favorites-error,
 .favorites-empty {
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .favorites-error {
-  color: #f87171;
+  color: var(--color-error);
 }
 
 /* Track list */
@@ -114,7 +114,7 @@
 }
 
 .favorites-track-item:hover {
-  background: #1C1F24;
+  background: var(--color-surface-2);
 }
 
 .favorites-track-item:has(.track-actions__more-wrap:hover) {
@@ -127,7 +127,7 @@
   width: 28px;
   text-align: right;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .favorites-track-item__cover-wrap {
@@ -161,22 +161,22 @@
 }
 
 .favorites-track-item__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .favorites-track-item__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .favorites-track-item__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .favorites-track-item__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .favorites-track-item__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .favorites-track-item__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .favorites-track-item__play {
@@ -191,7 +191,7 @@
   justify-content: center;
   background: none;
   border: none;
-  color: #F09020;
+  color: var(--color-accent);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s, color 0.2s, transform 0.2s;
@@ -208,7 +208,7 @@
 }
 
 .favorites-track-item__play:hover {
-  color: #FFA030;
+  color: var(--color-accent-hover);
   transform: translate(-50%, -50%) scale(1.08);
 }
 
@@ -222,19 +222,19 @@
 
 .favorites-track-item__title {
   font-size: clamp(0.9375rem, 0.85vw + 0.5rem, 1rem);
-  color: #EDEDED;
+  color: var(--color-text);
   font-weight: 500;
 }
 
 .favorites-track-item__artist {
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .favorites-track-item__duration {
   flex-shrink: 0;
   font-size: 0.875rem;
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 .favorites-track-item__actions {
@@ -275,29 +275,29 @@
 }
 
 .favorites-playlist-card__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .favorites-playlist-card__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .favorites-playlist-card__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .favorites-playlist-card__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .favorites-playlist-card__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .favorites-playlist-card__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .favorites-playlist-card__title {
   display: block;
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -306,7 +306,7 @@
 
 .favorites-playlist-card__count {
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
 }
 
 /* Album card */
@@ -318,7 +318,7 @@
 }
 
 .favorites-album-card:hover .favorites-album-card__title {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .favorites-album-card__cover {
@@ -331,29 +331,29 @@
 }
 
 .favorites-album-card__cover.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .favorites-album-card__cover.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .favorites-album-card__cover.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .favorites-album-card__cover.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .favorites-album-card__cover.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .favorites-album-card__cover.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .favorites-album-card__title {
   display: block;
   font-size: clamp(0.875rem, 0.8vw + 0.5rem, 0.95rem);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -362,7 +362,7 @@
 
 .favorites-album-card__artist {
   font-size: clamp(0.8125rem, 0.7vw + 0.4rem, 0.875rem);
-  color: #9A9A9A;
+  color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -380,7 +380,7 @@
 }
 
 .favorites-artist-card:hover .favorites-artist-card__name {
-  color: #F09020;
+  color: var(--color-accent);
 }
 
 .favorites-artist-card__avatar {
@@ -394,27 +394,27 @@
 }
 
 .favorites-artist-card__avatar.cover--1 {
-  background: linear-gradient(135deg, #C86810 0%, #E07818 50%, #F09020 100%);
+  background: linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-mid) 50%, var(--color-accent) 100%);
 }
 .favorites-artist-card__avatar.cover--2 {
-  background: linear-gradient(180deg, #E07818 0%, #F09020 100%);
+  background: linear-gradient(180deg, var(--color-accent-mid) 0%, var(--color-accent) 100%);
 }
 .favorites-artist-card__avatar.cover--3 {
-  background: linear-gradient(135deg, #0E0F11 0%, #C86810 50%, #E07818 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-accent-deep) 50%, var(--color-accent-mid) 100%);
 }
 .favorites-artist-card__avatar.cover--4 {
-  background: linear-gradient(135deg, #15171A 0%, #1C1F24 50%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 50%, var(--color-text-disabled) 100%);
 }
 .favorites-artist-card__avatar.cover--5 {
-  background: linear-gradient(135deg, #1C1F24 0%, #6B6B6B 100%);
+  background: linear-gradient(135deg, var(--color-surface-2) 0%, var(--color-text-disabled) 100%);
 }
 .favorites-artist-card__avatar.cover--6 {
-  background: linear-gradient(135deg, #0E0F11 0%, #15171A 70%, #9A9A9A 100%);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 70%, var(--color-text-muted) 100%);
 }
 
 .favorites-artist-card__name {
   font-size: clamp(0.9375rem, 0.85vw + 0.5rem, 1rem);
   font-weight: 500;
-  color: #EDEDED;
+  color: var(--color-text);
   word-break: break-word;
 }
